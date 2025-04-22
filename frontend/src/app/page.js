@@ -1,12 +1,10 @@
 "use client";
 import React, { useState } from "react";
-import Image from 'next/image';
-import Navbar from '../components/navbar';
+import Image from "next/image";
+import Navbar from "../components/navbar";
 import Footer from "../components/footer";
-import Link from 'next/link';
-
-
-
+import Link from "next/link";
+import ProductModal from "../components/productModal";
 
 function MainComponent() {
   const [cart, setCart] = useState([]);
@@ -16,120 +14,141 @@ function MainComponent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [email, setEmail] = useState("");
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const openModal = (wine) => {
+    setSelectedProduct(wine);
+  };
+
+  const closeModal = () => {
+    setSelectedProduct(null);
+  };
+  const addToCart = (item) => {
+    setCart([...cart, item]);
+  };
 
   const featuredWines = [
     {
       id: 1,
-      name: "Reserve Cabernet Sauvignon",
-      price: 89.99,
-      image_url: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Bottle%2520of%2520Reserve%2520Cabernet%2520Sauvignon",
-      description: "Bold and full-bodied with rich dark fruit flavors",
+      name: "Carbernet Sauvignon",
+      price: 466.65,
+      case_image: "./images/Carbernet-SauvignonBox.png",
+      case_price: 2799.9,
+      image_url: "./images/Carbernet-Sauvignon.png",
+      description: "With exotic red fruit for any special occasion or gift.",
       rating: 4,
-      reviews: 128
+      reviews: 128,
     },
     {
       id: 2,
-      name: "Estate Chardonnay",
-      price: 45.99,
-      image_url: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Bottle%2520of%2520Estate%2520Chardonnay",
-      description: "Elegant white wine with notes of apple and vanilla",
+      name: "Chenin Blanc",
+      price: 279.99,
+      case_image: "./images/Chenin-Blanc-Box.png",
+      case_price: 1679.94,
+      image_url: "./images/Chenin-Blanc.png",
+      description:
+        "With lovely white fruit, ripe pear and passion fruit flavours for the summer.",
       rating: 4,
-      reviews: 86
+      reviews: 86,
     },
     {
       id: 3,
-      name: "Pinot Noir",
-      price: 52.99,
-      image_url: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Bottle%2520of%2520Pinot%2520Noir",
-      description: "Delicate red with cherry and earthy notes",
+      name: "MCC Brut",
+      price: 559.99,
+      case_image: "./images/Brut-Box.png",
+      case_price: 3359.94,
+      image_url: "./images/MCC-Brut.png",
+      description: "Toasty notes of honey, and almond.",
       rating: 3,
-      reviews: 64
+      reviews: 64,
     },
     {
       id: 4,
-      name: "Sauvignon Blanc",
-      price: 39.99,
-      image_url: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Bottle%2520of%2520Sauvignon%2520Blanc",
-      description: "Crisp and refreshing with citrus aromas",
+      name: "MCC Brut Rosé",
+      price: 604.35,
+      case_image: "./images/MCC-Brut-Rose-Box.png",
+      case_price: 3626.1,
+      image_url: "./images/MCC-Brut-Rose.png",
+      description: "Made from 60% Pinot Noir and 40% Chardonnay grapes.",
       rating: 5,
-      reviews: 112
-    }
+      reviews: 112,
+    },
   ];
 
   const newReleases = [
     {
       id: 3,
-      name: "2024 Rosé",
-      price: 34.99,
-      image_url: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=2024%2520Ros%25C3%25A9",
-      description: "Fresh and vibrant with notes of strawberry",
+      name: "MCC Brut Rosé",
+      price: 500.0,
+      image_url: "./images/MCC-Brut-Rose.png",
+      description: "Made from 60% Pinot Noir and 40% Chardonnay grapes.",
       isNew: true,
     },
     {
       id: 4,
-      name: "2024 Pinot Noir",
-      price: 54.99,
-      image_url: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=2024%2520Pinot%2520Noir",
-      description: "Delicate red fruit with earthy undertones",
+      name: "MCC Brut",
+      price: 400.0,
+      image_url: "./images/MCC-Brut.png",
+      description: "Toasty notes of honey, and almond.",
       isNew: true,
     },
 
-    {
-      id: 5,
-      name: "2024 Pinot Noir",
-      price: 54.99,
-      image_url: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=2024%2520Pinot%2520Noir",
-      description: "Delicate red fruit with earthy undertones",
-      isNew: true,
-    }
+    // {
+    //   id: 5,
+    //   name: "2024 Pinot Noir",
+    //   price: 54.99,
+    //   image_url: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=2024%2520Pinot%2520Noir",
+    //   description: "Delicate red fruit with earthy undertones",
+    //   isNew: true,
+    // }
   ];
 
-// UPDATED COLLECTIONS ARRAY WITH NEW ITEMS
-const collections = [
-  {
-    id: 1,
-    name: "Red Wine",
-    image: "/images/red-wines.jpg",
-    description: "Rich and bold red wines",
-    filter: "type=Red"
-  },
-  {
-    id: 2,
-    name: "White Wine",
-    image:"/images/red-wines.jpg",
-    description: "Crisp and refreshing white wines",
-    filter: "type=White"
-  },
-  {
-    id: 3,
-    name: "Sparkling Wine",
-    image: "/images/red-wines.jpg",
-    description: "Celebratory bubbly wines",
-    filter: "type=Sparkling"
-  },
-  {
-    id: 4,
-    name: "All Wines",
-    image: "/images/red-wines.jpg",
-    description: "Browse our complete selection",
-    filter: ""
-  },
-  // NEW ADDITIONS - THESE WILL REDIRECT TO SPECIAL PAGES
-  {
-    id: 5,
-    name: "Hydrology Water",
-    image: "/images/red-wines.jpg",
-    description: "Premium mineral-infused waters",
-    link: "/hydrology" // Direct link to special page
-  },
-  {
-    id: 6,
-    name: "Pentagon Wine",
-    image: "/images/red-wines.jpg",
-    description: "Exclusive limited-edition collection",
-    link: "/pentagon" // Direct link to special page
-  }
-];
+  // UPDATED COLLECTIONS ARRAY WITH NEW ITEMS
+  const collections = [
+    {
+      id: 1,
+      name: "Red Wine",
+      image: "/images/red-wines.jpg",
+      description: "Rich and bold red wines",
+      filter: "type=Red",
+    },
+    {
+      id: 2,
+      name: "White Wine",
+      image: "/images/red-wines.jpg",
+      description: "Crisp and refreshing white wines",
+      filter: "type=White",
+    },
+    {
+      id: 3,
+      name: "Sparkling Wine",
+      image: "/images/red-wines.jpg",
+      description: "Celebratory bubbly wines",
+      filter: "type=Sparkling",
+    },
+    {
+      id: 4,
+      name: "All Wines",
+      image: "/images/red-wines.jpg",
+      description: "Browse our complete selection",
+      filter: "",
+    },
+    // NEW ADDITIONS - THESE WILL REDIRECT TO SPECIAL PAGES
+    {
+      id: 5,
+      name: "Hydrology Water",
+      image: "/images/red-wines.jpg",
+      description: "Premium mineral-infused waters",
+      link: "/hydrology", // Direct link to special page
+    },
+    {
+      id: 6,
+      name: "Pentagon Wine",
+      image: "/images/red-wines.jpg",
+      description: "Exclusive limited-edition collection",
+      link: "/pentagon", // Direct link to special page
+    },
+  ];
 
   const awards = [
     { name: "Double Gold", competition: "San Francisco Wine Competition 2024" },
@@ -140,20 +159,22 @@ const collections = [
   const experiences = [
     {
       name: "Tasting Room",
-      image: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Tasting%2520Room",
+      image:
+        "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Tasting%2520Room",
       description: "Guided tastings of our finest wines",
     },
     {
       name: "Vineyard Tours",
-      image: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Vineyard%2520Tours",
+      image:
+        "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Vineyard%2520Tours",
       description: "Walk through our historic vineyards",
     },
     {
       name: "Wine Pairing",
-      image: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Wine%2520Pairing",
+      image:
+        "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Wine%2520Pairing",
       description: "Chef-curated food and wine experiences",
     },
-
   ];
 
   const testimonials = [
@@ -171,9 +192,6 @@ const collections = [
     <>
       <Navbar cart={cart} setIsCartOpen={setIsCartOpen} />
       <div className="min-h-screen bg-white">
-
-
-
         <div className="relative h-[500px] w-full mb-16">
           <div
             className="absolute inset-0 bg-black bg-opacity-40"
@@ -181,7 +199,7 @@ const collections = [
               backgroundImage: "url('/images/Banner.jpeg')",
               backgroundAttachment: "fixed",
               backgroundSize: "cover",
-              backgroundPosition: "center"
+              backgroundPosition: "center",
             }}
           >
             <div className="h-full flex items-center justify-end pr-8 md:pr-16 lg:pr-24">
@@ -200,20 +218,41 @@ const collections = [
         </div>
 
         <main className="container px-4 mb-16">
-
           <section className="mb-16 text-center relative mt-4">
             {/* Header with navigation buttons */}
             <div className="flex justify-center items-center mb-16 relative">
               <div className="text-center">
                 <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex space-x-2">
                   <button className="prev-btn w-10 h-10 rounded-full bg-[#d4b26a] text-white flex items-center justify-center hover:bg-[#c4a25a] transition-colors duration-300 border border-[#c4a25a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 19l-7-7 7-7"
+                      />
                     </svg>
                   </button>
                   <button className="next-btn w-10 h-10 rounded-full bg-[#d4b26a] text-white flex items-center justify-center hover:bg-[#c4a25a] transition-colors duration-300 border border-[#c4a25a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -221,17 +260,31 @@ const collections = [
             </div>
 
             <div className="relative overflow-hidden">
-              <div className="flex transition-transform duration-500 ease-in-out" id="collections-carousel" style={{ width: `${collections.length * 368}px` }}>
+              <div
+                className="flex transition-transform duration-500 ease-in-out"
+                id="collections-carousel"
+                style={{ width: `${collections.length * 368}px` }}
+              >
                 {collections.map((collection, index) => (
-                  <div key={index} className="px-4 flex-shrink-0" style={{ width: '352px' }}>
-                    <Link 
-                      href={collection.link ? collection.link : `/shop?${collection.filter}`} 
+                  <div
+                    key={index}
+                    className="px-4 flex-shrink-0"
+                    style={{ width: "352px" }}
+                  >
+                    <Link
+                      href={
+                        collection.link
+                          ? collection.link
+                          : `/shop?${collection.filter}`
+                      }
                       className="block"
                     >
                       <div className="relative h-[420px] w-[320px] mx-auto group overflow-hidden rounded-full shadow-lg hover:shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]">
                         <div
                           className="absolute inset-0 bg-cover bg-center bg-no-repeat rounded-full scale-110 group-hover:scale-100 transition-transform duration-700"
-                          style={{ backgroundImage: `url(${collection.image})` }}
+                          style={{
+                            backgroundImage: `url(${collection.image})`,
+                          }}
                         ></div>
 
                         <img
@@ -249,7 +302,11 @@ const collections = [
                             stroke="currentColor"
                             strokeWidth={1.5}
                           >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                            />
                           </svg>
                         </div>
 
@@ -329,8 +386,9 @@ const collections = [
             </div> */}
 
             {/* Carousel Navigation Script */}
-            <script dangerouslySetInnerHTML={{
-              __html: `
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
               document.addEventListener('DOMContentLoaded', () => {
                 const carousel = document.getElementById('collections-carousel');
                 const prevBtn = document.querySelector('.prev-btn');
@@ -362,19 +420,20 @@ const collections = [
                   updateCarousel();
                 });
               });
-            `
-            }}
+            `,
+              }}
             />
           </section>
 
           <section className="mb-18">
-            <h2 className="text-3xl font-crimson-text mb-8">Best Sallers</h2>
+            <h2 className="text-3xl font-crimson-text mb-8">Best Sellers</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {featuredWines.map((wine) => (
                 <div
                   key={wine.id}
-                  className="bg-[#f9f9f9] p-6 rounded-lg flex flex-col justify-between transition-shadow duration-300 hover:shadow-lg"
+                  className="bg-[#f9f9f9] p-6 rounded-lg flex flex-col justify-between transition-shadow duration-300 hover:shadow-lg cursor-pointer"
+                  onClick={() => openModal(wine)}
                 >
                   {/* Wine Image */}
                   <div className="overflow-hidden rounded-lg mb-4 h-64">
@@ -387,29 +446,52 @@ const collections = [
 
                   {/* Wine Details */}
                   <div className="flex-grow">
-                    <h3 className="text-xl font-crimson-text mb-2">{wine.name}</h3>
+                    <h3 className="text-xl font-crimson-text mb-2">
+                      {wine.name}
+                    </h3>
 
                     {/* Star Rating */}
                     <div className="flex items-center mb-1">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <i
                           key={star}
-                          className={`${star <= wine.rating ? 'fas fa-star' : 'far fa-star'} text-[#d4b26a] text-sm`}
+                          className={`${
+                            star <= wine.rating ? "fas fa-star" : "far fa-star"
+                          } text-[#d4b26a] text-sm`}
                         ></i>
                       ))}
-                      <span className="ml-1 text-gray-600 text-xs">({wine.rating})</span>
+                      <span className="ml-1 text-gray-600 text-xs">
+                        ({wine.rating})
+                      </span>
                     </div>
-                    <p className="text-gray-500 text-xs mb-2">({wine.reviews} reviews)</p>
-
-                    {/* <p className="text-gray-600 mb-4 line-clamp-2">{wine.description}</p> */}
+                    <p className="text-gray-500 text-xs mb-2">
+                      ({wine.reviews} reviews)
+                    </p>
                   </div>
 
                   {/* Price and Add to Cart */}
                   <div className="flex justify-between items-center">
-                    <span className="text-xl font-medium">R {wine.price}</span>
+                    <div>
+                      <span className="text-xl font-medium">
+                        R {wine.price.toFixed(2)}
+                      </span>
+                      {wine.case_price && (
+                        <p className="text-xs text-gray-500">
+                          Case: R {wine.case_price.toFixed(2)}
+                        </p>
+                      )}
+                    </div>
                     <button
                       className="bg-[#d4b26a] text-white px-4 py-2 rounded-full hover:bg-[#c4a25a] transition-colors duration-300 text-center"
-                      onClick={() => setCart([...cart, wine])}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToCart({
+                          ...wine,
+                          quantity: 1,
+                          isCase: false,
+                          unitPrice: wine.price,
+                        });
+                      }}
                     >
                       <i className="fas fa-shopping-cart text-xl"></i>
                     </button>
@@ -417,6 +499,14 @@ const collections = [
                 </div>
               ))}
             </div>
+
+            {selectedProduct && (
+              <ProductModal
+                product={selectedProduct}
+                onClose={closeModal}
+                addToCart={addToCart}
+              />
+            )}
           </section>
 
           <section className="mb-16 mt-16">
@@ -447,7 +537,9 @@ const collections = [
 
                       {/* Wine Details */}
                       <div className="flex-grow">
-                        <h3 className="text-xl font-crimson-text mb-2">{wine.name}</h3>
+                        <h3 className="text-xl font-crimson-text mb-2">
+                          {wine.name}
+                        </h3>
 
                         {/* Star Rating (if you want to add ratings later) */}
                         {/* <div className="flex items-center mb-1">
@@ -459,18 +551,21 @@ const collections = [
                         ))}
                       </div> */}
 
-                        <p className="text-gray-600 mb-4 line-clamp-2">{wine.description}</p>
+                        <p className="text-gray-600 mb-4 line-clamp-2">
+                          {wine.description}
+                        </p>
                       </div>
 
                       {/* Price and Add to Cart */}
                       <div className="flex justify-between items-center mt-4">
-                        <span className="text-xl font-medium">R{wine.price}</span>
+                        <span className="text-xl font-medium">
+                          R{wine.price}
+                        </span>
                         <button
                           className="bg-[#d4b26a] text-white px-4 py-2 rounded-full hover:bg-[#c4a25a] transition-colors duration-300 flex items-center"
                           onClick={() => setCart([...cart, wine])}
                         >
                           <i className="fas fa-shopping-cart text-xl mr-2"></i>
-
                         </button>
                       </div>
                     </div>
@@ -490,16 +585,42 @@ const collections = [
               {/* Card 1: Discover Wine Distributors */}
               <div className="bg-white/30 backdrop-blur-sm p-6 rounded-2xl border border-white/20 hover:border-[#d4b26a]/50 transition-all duration-300 text-center group">
                 <div className="mb-5">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[#d4b26a] mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-12 w-12 text-[#d4b26a] mx-auto"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
                   </svg>
                 </div>
-                <h3 className="text-xl font-crimson-text mb-3 text-black">Discover Wine Distributors</h3>
-                <wbr className="text-black/80 mb-5" />Order before 3pm and get your order the next day as standard<wbr />
+                <h3 className="text-xl font-crimson-text mb-3 text-black">
+                  Discover Wine Distributors
+                </h3>
+                <wbr className="text-black/80 mb-5" />
+                Order before 3pm and get your order the next day as standard
+                <wbr />
                 <button className="text-[#d4b26a] hover:text-white px-4 py-2 rounded-full border border-[#d4b26a] hover:bg-[#d4b26a] transition-all duration-300 inline-flex items-center mt-2">
                   Learn more
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 ml-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </button>
               </div>
@@ -507,17 +628,47 @@ const collections = [
               {/* Card 2: Wine Tasting & Tours */}
               <div className="bg-white/30 backdrop-blur-sm p-6 rounded-2xl border border-white/20 hover:border-[#d4b26a]/50 transition-all duration-300 text-center group">
                 <div className="mb-5">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[#d4b26a] mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-12 w-12 text-[#d4b26a] mx-auto"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
                   </svg>
                 </div>
-                <h3 className="text-xl font-crimson-text mb-3 text-black">Wine Tasting & Tours</h3>
-                <wbr className="text-black/80 mb-5" />Handcrafted experiences made with real passion and craftsmanship<wbr />
+                <h3 className="text-xl font-crimson-text mb-3 text-black">
+                  Wine Tasting & Tours
+                </h3>
+                <wbr className="text-black/80 mb-5" />
+                Handcrafted experiences made with real passion and craftsmanship
+                <wbr />
                 <button className="text-[#d4b26a] hover:text-white px-4 py-2 rounded-full border border-[#d4b26a] hover:bg-[#d4b26a] transition-all duration-300 inline-flex items-center mt-2">
                   Book now
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 ml-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </button>
               </div>
@@ -525,17 +676,47 @@ const collections = [
               {/* Card 3: Wine for Each Occasion */}
               <div className="bg-white/30 backdrop-blur-sm p-6 rounded-2xl border border-white/20 hover:border-[#d4b26a]/50 transition-all duration-300 text-center group">
                 <div className="mb-5">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[#d4b26a] mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v13m0-13V3m0 5h8m-8 0H4m12 8v6m0-6V9m0 6h6m-6 0H6" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-12 w-12 text-[#d4b26a] mx-auto"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 8v13m0-13V3m0 5h8m-8 0H4m12 8v6m0-6V9m0 6h6m-6 0H6"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                    />
                   </svg>
                 </div>
-                <h3 className="text-xl font-crimson-text mb-3 text-black">Wine for Each Occasion</h3>
-                <p className="text-black/80 mb-5">For our quality you won&apos;t find better prices anywhere</p>
+                <h3 className="text-xl font-crimson-text mb-3 text-black">
+                  Wine for Each Occasion
+                </h3>
+                <p className="text-black/80 mb-5">
+                  For our quality you won&apos;t find better prices anywhere
+                </p>
                 <button className="text-[#d4b26a] hover:text-white px-4 py-2 rounded-full border border-[#d4b26a] hover:bg-[#d4b26a] transition-all duration-300 inline-flex items-center mt-2">
                   View selection
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 ml-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </button>
               </div>
@@ -543,17 +724,47 @@ const collections = [
               {/* Card 4: Recycled packaging */}
               <div className="bg-white/30 backdrop-blur-sm p-6 rounded-2xl border border-white/20 hover:border-[#d4b26a]/50 transition-all duration-300 text-center group">
                 <div className="mb-5">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[#d4b26a] mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v1a3 3 0 003 3v0a3 3 0 003-3v-1" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-12 w-12 text-[#d4b26a] mx-auto"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 17v1a3 3 0 003 3v0a3 3 0 003-3v-1"
+                    />
                   </svg>
                 </div>
-                <h3 className="text-xl font-crimson-text mb-3 text-black">Recycled Packaging</h3>
-                <p className="text-black/80 mb-5">100% recycled materials for a sustainable footprint</p>
+                <h3 className="text-xl font-crimson-text mb-3 text-black">
+                  Recycled Packaging
+                </h3>
+                <p className="text-black/80 mb-5">
+                  100% recycled materials for a sustainable footprint
+                </p>
                 <button className="text-[#d4b26a] hover:text-white px-4 py-2 rounded-full border border-[#d4b26a] hover:bg-[#d4b26a] transition-all duration-300 inline-flex items-center mt-2">
                   Our commitment
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 ml-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </button>
               </div>
@@ -561,7 +772,9 @@ const collections = [
           </section>
 
           <section className="mb-16">
-            <h2 className="text-3xl font-crimson-text mb-8">Winery Experience</h2>
+            <h2 className="text-3xl font-crimson-text mb-8">
+              Winery Experience
+            </h2>
 
             <div className="relative">
               {/* Scrollable container */}
@@ -584,14 +797,16 @@ const collections = [
                       {/* Content */}
                       <div className="p-6 flex flex-col h-[calc(100%-250px)]">
                         <div className="flex-grow">
-                          <h3 className="text-xl font-crimson-text mb-2">{exp.name}</h3>
-                          <wbr className="text-gray-600 line-clamp-3" />{exp.description}<wbr />
+                          <h3 className="text-xl font-crimson-text mb-2">
+                            {exp.name}
+                          </h3>
+                          <wbr className="text-gray-600 line-clamp-3" />
+                          {exp.description}
+                          <wbr />
                         </div>
 
                         {/* Book Now button */}
-                        <button
-                          className="bg-[#d4b26a] text-white px-6 py-3 rounded-full hover:bg-[#c4a25a] transition-all duration-300 transform hover:scale-105 text-center w-50 mt-2"
-                        >
+                        <button className="bg-[#d4b26a] text-white px-6 py-3 rounded-full hover:bg-[#c4a25a] transition-all duration-300 transform hover:scale-105 text-center w-50 mt-2">
                           <i className="fas fa-calendar-check mr-2"></i>
                           Book Now
                         </button>
@@ -605,13 +820,13 @@ const collections = [
               <div className="absolute top-0 left-0 bottom-0 w-15 bg-gradient-to-r from-white to-transparent pointer-events-none" />
               <div className="absolute top-0 right-0 bottom-0 w-15 bg-gradient-to-l from-white to-transparent pointer-events-none" />
             </div>
-
-
           </section>
 
           <section className="mb-16 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-[#f9f9f9] p-6 rounded-lg">
-              <h2 className="text-3xl font-crimson-text mb-6">Wine Education</h2>
+              <h2 className="text-3xl font-crimson-text mb-6">
+                Wine Education
+              </h2>
               <div className="space-y-4">
                 <div>
                   <h3 className="text-xl font-crimson-text mb-2">
@@ -622,13 +837,17 @@ const collections = [
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-xl font-crimson-text mb-2">Food Pairing</h3>
+                  <h3 className="text-xl font-crimson-text mb-2">
+                    Food Pairing
+                  </h3>
                   <p className="text-gray-600">
                     Perfect wine selections for any meal
                   </p>
                 </div>
                 <div>
-                  <h3 className="text-xl font-crimson-text mb-2">Storage Tips</h3>
+                  <h3 className="text-xl font-crimson-text mb-2">
+                    Storage Tips
+                  </h3>
                   <p className="text-gray-600">
                     Optimal conditions for aging wines
                   </p>
@@ -675,15 +894,18 @@ const collections = [
                 src="./clients/Appto.jpeg"
                 alt="Appto Logo"
                 className="h-12 object-contain"
-              /> <img
+              />{" "}
+              <img
                 src="./clients/davinci.png"
                 alt="Davinci Logo"
                 className="h-12 object-contain"
-              /> <img
+              />{" "}
+              <img
                 src="./clients/mabu.jpg"
                 alt="Mabu Logo"
                 className="h-12 object-contain"
-              /> <img
+              />{" "}
+              <img
                 src="./clients/mela.png"
                 alt="Mela Logo"
                 className="h-12 object-contain"
@@ -703,7 +925,6 @@ const collections = [
                 alt="Life Grand Cafe Logo"
                 className="h-12 object-contain"
               />
-              
             </div>
           </section>
 
@@ -723,7 +944,9 @@ const collections = [
           </section>
 
           <section className="mb-16">
-            <h2 className="text-3xl font-crimson-text mb-8">Follow Us on Instagram</h2>
+            <h2 className="text-3xl font-crimson-text mb-8">
+              Follow Us on Instagram
+            </h2>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {/* Replace YOUR_INSTAGRAM_USERNAME with your actual Instagram handle */}
@@ -834,9 +1057,6 @@ const collections = [
 
           
           </section> */}
-
-
-
         </main>
 
         {isCartOpen && (

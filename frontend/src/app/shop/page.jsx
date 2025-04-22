@@ -1,25 +1,35 @@
 "use client";
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 import Navbar from "../../components/navbar";
 import Footer from "../../components/footer";
+import ProductModal from "../../components/productModal";
+
+
 
 // Component that uses useSearchParams
 function ShopContent({ cart, setCart, isCartOpen, setIsCartOpen }) {
   const searchParams = useSearchParams();
+  const [selectedWine, setSelectedWine] = useState(null);
+
+
   const [wines] = useState([
     {
       id: 1,
       name: "MCC Nectar",
       price: 604.35,
+      case_image: "./images/MCC-Nectar-Box.png",
+      case_price: 3626.10,
       image_url: "/images/mcc-nectar.png",
-      taste: "Nougat and orange blossom. Sweet profile with a classical taste of a Champagne.",
+      taste:
+        "Nougat and orange blossom. Sweet profile with a classical taste of a Champagne.",
       type: "MCC",
     },
     {
       id: 2,
       name: "Merlot",
       price: 455.78,
+      case_image: "./images/Merlot-Box.png",
       image_url: "/images/merlot.png",
       taste: "Elegant white wine with notes of apple and vanilla",
       type: "White",
@@ -37,22 +47,23 @@ function ShopContent({ cart, setCart, isCartOpen, setIsCartOpen }) {
       name: "MCC-Brut",
       price: 55.99,
       image_url: "/images/mcc-brut.png",
-      taste: "Delicious lime and grapefruit with beautiful minerality and a soft acidity.",
+      taste:
+        "Delicious lime and grapefruit with beautiful minerality and a soft acidity.",
       type: "Red",
     },
   ]);
 
   const [filters, setFilters] = useState({
-    type: searchParams.get('type') || "all",
+    type: searchParams.get("type") || "all",
     priceRange: "all",
-    sort: "name"
+    sort: "name",
   });
 
   // Update filters when URL changes
   useEffect(() => {
-    const type = searchParams.get('type');
+    const type = searchParams.get("type");
     if (type) {
-      setFilters(prev => ({ ...prev, type }));
+      setFilters((prev) => ({ ...prev, type }));
     }
   }, [searchParams]);
 
@@ -60,7 +71,11 @@ function ShopContent({ cart, setCart, isCartOpen, setIsCartOpen }) {
     .filter((wine) => {
       if (filters.type !== "all" && wine.type !== filters.type) return false;
       if (filters.priceRange === "under50" && wine.price >= 50) return false;
-      if (filters.priceRange === "50to100" && (wine.price < 50 || wine.price > 100)) return false;
+      if (
+        filters.priceRange === "50to100" &&
+        (wine.price < 50 || wine.price > 100)
+      )
+        return false;
       if (filters.priceRange === "over100" && wine.price <= 100) return false;
       return true;
     })
@@ -83,7 +98,8 @@ function ShopContent({ cart, setCart, isCartOpen, setIsCartOpen }) {
             <div className="absolute -bottom-2 left-0 right-0 h-3 bg-amber-100/70 z-0"></div>
           </div>
           <p className="text-lg text-gray-300 max-w-2xl mx-auto mt-4">
-            Discover exceptional wines crafted with passion - each bottle tells a story of terroir and tradition
+            Discover exceptional wines crafted with passion - each bottle tells
+            a story of terroir and tradition
           </p>
           <div className="w-24 h-1 bg-[#d4b26a] mx-auto mt-6 rounded-full"></div>
         </div>
@@ -93,7 +109,11 @@ function ShopContent({ cart, setCart, isCartOpen, setIsCartOpen }) {
         <main className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-start mb-8">
             <h1 className="text-3xl font-crimson-text mb-4 md:mb-0">
-              {filters.type === 'all' ? 'Our Wines' : `${filters.type === 'MCC' ? 'Sparkling' : filters.type} Wines`}
+              {filters.type === "all"
+                ? "Our Wines"
+                : `${
+                    filters.type === "MCC" ? "Sparkling" : filters.type
+                  } Wines`}
             </h1>
 
             {/* Filter Controls */}
@@ -102,12 +122,22 @@ function ShopContent({ cart, setCart, isCartOpen, setIsCartOpen }) {
                 <select
                   className={`px-4 py-2 rounded-full text-sm transition-colors appearance-none pr-8 bg-gradient-to-r from-[#d4b26a] to-black text-white`}
                   value={filters.type}
-                  onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+                  onChange={(e) =>
+                    setFilters({ ...filters, type: e.target.value })
+                  }
                 >
-                  <option value="all" className='text-black'>All Types</option>
-                  <option value="Red" className='text-black'>Red Wine</option>
-                  <option value="White" className='text-black'>White Wine</option>
-                  <option value="MCC" className='text-black'>Sparkling</option>
+                  <option value="all" className="text-black">
+                    All Types
+                  </option>
+                  <option value="Red" className="text-black">
+                    Red Wine
+                  </option>
+                  <option value="White" className="text-black">
+                    White Wine
+                  </option>
+                  <option value="MCC" className="text-black">
+                    Sparkling
+                  </option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                   <i className="fas fa-chevron-down text-s text-white"></i>
@@ -118,12 +148,22 @@ function ShopContent({ cart, setCart, isCartOpen, setIsCartOpen }) {
                 <select
                   className={`px-4 py-2 rounded-full text-sm transition-colors appearance-none pr-8 bg-gradient-to-r from-[#d4b26a] to-black text-white`}
                   value={filters.priceRange}
-                  onChange={(e) => setFilters({ ...filters, priceRange: e.target.value })}
+                  onChange={(e) =>
+                    setFilters({ ...filters, priceRange: e.target.value })
+                  }
                 >
-                  <option value="all" className='text-black'>All Prices</option>
-                  <option value="under50" className='text-black'>Under R50</option>
-                  <option value="50to100" className='text-black'>R50 - R100</option>
-                  <option value="over100" className='text-black'>Over R100</option>
+                  <option value="all" className="text-black">
+                    All Prices
+                  </option>
+                  <option value="under50" className="text-black">
+                    Under R50
+                  </option>
+                  <option value="50to100" className="text-black">
+                    R50 - R100
+                  </option>
+                  <option value="over100" className="text-black">
+                    Over R100
+                  </option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                   <i className="fas fa-chevron-down text-s text-white"></i>
@@ -134,11 +174,19 @@ function ShopContent({ cart, setCart, isCartOpen, setIsCartOpen }) {
                 <select
                   className={`px-4 py-2 rounded-full text-sm transition-colors appearance-none pr-4 bg-gradient-to-r from-[#d4b26a] to-black text-white`}
                   value={filters.sort}
-                  onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
+                  onChange={(e) =>
+                    setFilters({ ...filters, sort: e.target.value })
+                  }
                 >
-                  <option value="name" className='text-black'>Sort by Name</option>
-                  <option value="priceLow" className='text-black'>Price: Low to High</option>
-                  <option value="priceHigh" className='text-black'>Price: High to Low</option>
+                  <option value="name" className="text-black">
+                    Sort by Name
+                  </option>
+                  <option value="priceLow" className="text-black">
+                    Price: Low to High
+                  </option>
+                  <option value="priceHigh" className="text-black">
+                    Price: High to Low
+                  </option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                   <i className="fas fa-chevron-down text-s text-white"></i>
@@ -150,7 +198,11 @@ function ShopContent({ cart, setCart, isCartOpen, setIsCartOpen }) {
           {/* Wine Listings */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredWines.map((wine) => (
-              <div key={wine.id} className="bg-[#f9f9f9] p-6 rounded-lg flex flex-col justify-between hover:shadow-lg transition-shadow">
+              <div
+                key={wine.id}
+                className="bg-[#f9f9f9] p-6 rounded-lg flex flex-col justify-between hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => setSelectedWine(wine)} // Open modal on click
+              >
                 <img
                   src={wine.image_url}
                   alt={`Bottle of ${wine.name}`}
@@ -159,10 +211,20 @@ function ShopContent({ cart, setCart, isCartOpen, setIsCartOpen }) {
                 <h3 className="text-xl font-crimson-text mb-2">{wine.name}</h3>
                 <p className="text-gray-600 mb-4">{wine.taste}</p>
                 <div className="flex justify-between items-center mt-4">
-                  <span className="text-xl">R{wine.price.toFixed(2)}</span>
+                  <div>
+                    <span className="text-xl">R{wine.price.toFixed(2)}</span>
+                    {wine.case_price && (
+                      <p className="text-xs text-gray-500">
+                        Case: R{wine.case_price.toFixed(2)}
+                      </p>
+                    )}
+                  </div>
                   <button
                     className="bg-[#d4b26a] text-white px-4 py-2 rounded hover:bg-[#c4a25a] transition-colors"
-                    onClick={() => setCart([...cart, wine])}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCart([...cart, wine]);
+                    }}
                   >
                     <i className="fas fa-shopping-cart text-xl"></i>
                   </button>
@@ -170,6 +232,15 @@ function ShopContent({ cart, setCart, isCartOpen, setIsCartOpen }) {
               </div>
             ))}
           </div>
+
+          {/* Product Modal */}
+          {selectedWine && (
+            <ProductModal
+              product={selectedWine}
+              onClose={() => setSelectedWine(null)}
+              addToCart={(item) => setCart([...cart, item])}
+            />
+          )}
         </main>
 
         {/* Cart Modal */}
@@ -227,9 +298,7 @@ function ShopContent({ cart, setCart, isCartOpen, setIsCartOpen }) {
                           .toFixed(2)}
                       </span>
                     </div>
-                    <button
-                      className="w-full bg-[#d4b26a] text-white py-2 rounded hover:bg-[#c4a25a] transition-colors"
-                    >
+                    <button className="w-full bg-[#d4b26a] text-white py-2 rounded hover:bg-[#c4a25a] transition-colors">
                       Proceed to Checkout
                     </button>
                   </div>
@@ -251,17 +320,19 @@ export default function ShopPage() {
   return (
     <>
       <Navbar cart={cart} setIsCartOpen={setIsCartOpen} />
-      
+
       {/* Wrap ShopContent in Suspense */}
-      <Suspense fallback={<div className="text-center py-20">Loading shop...</div>}>
-        <ShopContent 
-          cart={cart} 
+      <Suspense
+        fallback={<div className="text-center py-20">Loading shop...</div>}
+      >
+        <ShopContent
+          cart={cart}
           setCart={setCart}
           isCartOpen={isCartOpen}
           setIsCartOpen={setIsCartOpen}
         />
       </Suspense>
-      
+
       <Footer />
     </>
   );
