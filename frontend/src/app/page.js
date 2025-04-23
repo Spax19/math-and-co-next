@@ -67,7 +67,7 @@ function MainComponent() {
       name: "MCC Brut Rosé",
       price: 604.35,
       case_image: "./images/MCC-Brut-Rose-Box.png",
-      case_price: 3626.1,
+      case_price: 3626.10,
       image_url: "./images/MCC-Brut-Rose.png",
       description: "Made from 60% Pinot Noir and 40% Chardonnay grapes.",
       rating: 5,
@@ -83,6 +83,10 @@ function MainComponent() {
       image_url: "./images/MCC-Brut-Rose.png",
       description: "Made from 60% Pinot Noir and 40% Chardonnay grapes.",
       isNew: true,
+      case_image: "./images/MCC-Brut-Rose-Box.png",
+      case_price: 3000.00,
+      rating: 5,
+      reviews: 112,
     },
     {
       id: 4,
@@ -91,6 +95,10 @@ function MainComponent() {
       image_url: "./images/MCC-Brut.png",
       description: "Toasty notes of honey, and almond.",
       isNew: true,
+      rating: 3,
+      reviews: 64,
+      case_image: "./images/Brut-Box.png",
+      case_price: 3000.00,
     },
 
     // {
@@ -159,20 +167,17 @@ function MainComponent() {
   const experiences = [
     {
       name: "Tasting Room",
-      image:
-        "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Tasting%2520Room",
+      image: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Tasting%2520Room",
       description: "Guided tastings of our finest wines",
     },
     {
       name: "Vineyard Tours",
-      image:
-        "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Vineyard%2520Tours",
+      image: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Vineyard%2520Tours",
       description: "Walk through our historic vineyards",
     },
     {
       name: "Wine Pairing",
-      image:
-        "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Wine%2520Pairing",
+      image: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Wine%2520Pairing",
       description: "Chef-curated food and wine experiences",
     },
   ];
@@ -455,9 +460,8 @@ function MainComponent() {
                       {[1, 2, 3, 4, 5].map((star) => (
                         <i
                           key={star}
-                          className={`${
-                            star <= wine.rating ? "fas fa-star" : "far fa-star"
-                          } text-[#d4b26a] text-sm`}
+                          className={`${star <= wine.rating ? "fas fa-star" : "far fa-star"
+                            } text-[#d4b26a] text-sm`}
                         ></i>
                       ))}
                       <span className="ml-1 text-gray-600 text-xs">
@@ -519,7 +523,8 @@ function MainComponent() {
                   {newReleases.map((wine) => (
                     <div
                       key={wine.id}
-                      className="bg-[#f9f9f9] p-6 rounded-lg w-72 min-w-[288px] flex flex-col justify-between transform transition-all duration-300 hover:shadow-lg"
+                      className="bg-[#f9f9f9] p-6 rounded-lg w-72 min-w-[288px] flex flex-col justify-between transform transition-all duration-300 hover:shadow-lg cursor-pointer"
+                      onClick={() => setSelectedProduct(wine)} // Add this line
                     >
                       {/* New Release Badge */}
                       <div className="absolute top-4 right-4 bg-[#d4b26a] text-red-500 px-3 py-2 w-20 text-center rounded-full text-m font-medium">
@@ -541,16 +546,6 @@ function MainComponent() {
                           {wine.name}
                         </h3>
 
-                        {/* Star Rating (if you want to add ratings later) */}
-                        {/* <div className="flex items-center mb-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <i 
-                            key={star}
-                            className={`${star <= wine.rating ? 'fas fa-star' : 'far fa-star'} text-[#d4b26a] text-sm`}
-                          ></i>
-                        ))}
-                      </div> */}
-
                         <p className="text-gray-600 mb-4 line-clamp-2">
                           {wine.description}
                         </p>
@@ -563,7 +558,10 @@ function MainComponent() {
                         </span>
                         <button
                           className="bg-[#d4b26a] text-white px-4 py-2 rounded-full hover:bg-[#c4a25a] transition-colors duration-300 flex items-center"
-                          onClick={() => setCart([...cart, wine])}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent the modal from opening when clicking the cart button
+                            setCart([...cart, wine]);
+                          }}
                         >
                           <i className="fas fa-shopping-cart text-xl mr-2"></i>
                         </button>
@@ -577,6 +575,18 @@ function MainComponent() {
               <div className="absolute top-0 left-0 bottom-0 w-15 bg-gradient-to-r from-white to-transparent pointer-events-none" />
               <div className="absolute top-0 right-0 bottom-0 w-15 bg-gradient-to-l from-white to-transparent pointer-events-none" />
             </div>
+
+            {/* Modal */}
+            {selectedProduct && (
+              <ProductModal
+                product={selectedProduct}
+                onClose={() => setSelectedProduct(null)}
+                addToCart={(product) => {
+                  setCart([...cart, product]);
+                  setSelectedProduct(null);
+                }}
+              />
+            )}
           </section>
 
           <section className="mb-16 p-8 rounded-lg bg-transparent">
