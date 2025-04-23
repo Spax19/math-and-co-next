@@ -45,7 +45,7 @@ function ShopContent({ cart, setCart, isCartOpen, setIsCartOpen }) {
     {
       id: 4,
       name: "MCC-Brut",
-      price: 55.99,
+      price: 559.99,
       image_url: "/images/mcc-brut.png",
       taste:
         "Delicious lime and grapefruit with beautiful minerality and a soft acidity.",

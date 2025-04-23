@@ -8,11 +8,7 @@ import axios from 'axios';
 const AuthModal = ({ isOpen, onClose}) => {
 
     const [isLogin, setIsLogin] = useState(true);
-    // const [formData, setFormData] = useState({
-    //     name: '',
-    //     email: '',
-    //     password: ''
-    // });
+
     const [isSignUpMode, setIsSignUpMode] = useState(false);
     const [formData, setFormData] = useState({
         username: "",
