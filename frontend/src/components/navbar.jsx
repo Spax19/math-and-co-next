@@ -17,6 +17,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
     // Toggle functions
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
     const toggleProfile = () => setIsProfileOpen(!isProfileOpen);
+
     const toggleAuthModal = () => {
         setIsAuthModalOpen(!isAuthModalOpen);
         setIsProfileOpen(false);
@@ -216,6 +217,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
                                         >
                                             <i className="fas fa-sign-in-alt mr-2"></i> Login/Register
                                         </ResistantButton>
+                                        
                                     )}
                                 </div>
                             )}

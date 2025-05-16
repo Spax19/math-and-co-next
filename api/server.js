@@ -11,7 +11,7 @@ const fs = require('fs');
 const bodyParser = require('body-parser');
 const stripe = require('stripe')('sk_test_51NsvdBGbLYLqyH5oQCPkpDiKa17ttuqkyX2UWAPbHEcQ3lqNjK6v4D2CRxK1rTfG9LETQNduiE5144TTHQwDhENy00LvUAPhq5');
 
-//path.resolve()
+
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
@@ -25,15 +25,19 @@ const db = mysql.createConnection({
     database: "math-and-co-2",
 });
 
+//Database Connection
 db.connect((err) => {
     if (err) {
         console.error("Database connection failed:", err);
-        process.exit(1); // Exit the app if the database connection fails
+        process.exit(1); 
     }
     console.log("Connected to the database.");
 });
+app.listen(port, () => {
+    console.log(`listening on port ${port} `);
+});
 
-// Configure multer for file uploads
+// Multer for file uploads
 const storage = multer.diskStorage({
     destination: path.join(__dirname, 'uploads'),
     filename: (req, file, cb) => {
@@ -60,26 +64,37 @@ const upload = multer({
 // Route to create a PaymentIntent
 app.post('/create-payment-intent', async (req, res) => {
     const { amount } = req.body;
-  
+
     try {
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount, // The amount to charge (in cents)
-        currency: 'usd', // Change to your preferred currency
-      });
-      res.send({
-        clientSecret: paymentIntent.client_secret, // Send the clientSecret to the frontend
-      });
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount, // The amount to charge (in cents)
+            currency: 'usd', // Change to your preferred currency
+        });
+        res.send({
+            clientSecret: paymentIntent.client_secret, // Send the clientSecret to the frontend
+        });
     } catch (error) {
-      console.error('Error creating payment intent:', error);
-      res.status(500).send({ error: error.message });
+        console.error('Error creating payment intent:', error);
+        res.status(500).send({ error: error.message });
     }
-  });
+});
 
 const bcrypt = require('bcrypt');
 
+//POST Route for User Registration
 app.post('/register', async (req, res) => {
     const { username, email, password, userType } = req.body;
     const status = 'inactive';
+
+    if (!email || !email.includes('@')) {
+        return res.status(400).json({ message: "Valid email is required" });
+    }
+
+    // Check if email already exists
+    const emailCheck = await db.query("SELECT * FROM users WHERE email = ?", [email]);
+    if (emailCheck.length > 0) {
+        return res.status(409).json({ message: "Email already in use" });
+    }
 
     // Hash the password
     const hashedPassword = bcrypt.hashSync(password, 10);
@@ -129,7 +144,6 @@ app.post('/register', async (req, res) => {
         });
     });
 });
-
 app.get('/verify-email', (req, res) => {
     const { token } = req.query;
 
@@ -162,10 +176,81 @@ app.get('/verify-email', (req, res) => {
             }
 
             // Return a success response with a message and status
-            return res.redirect('http://localhost:5173/signup');
+            return res.redirect('http://localhost:3000/');
         });
     });
 });
+
+app.post("/login", (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ 
+            success: false,
+            message: "Email and password are required." 
+        });
+    }
+
+    const sql = "SELECT * FROM users WHERE email = ?";
+    db.query(sql, [email], async (err, result) => {
+        if (err) {
+            console.error("Database error:", err);
+            return res.status(500).json({ 
+                success: false,
+                message: "Internal server error." 
+            });
+        }
+
+        if (result.length === 0) {
+            return res.status(404).json({ 
+                success: false,
+                message: "User not found." 
+            });
+        }
+
+        const user = result[0];
+
+        // Return specific error messages with consistent structure
+        if (!user.is_verified) {
+            return res.status(403).json({ 
+                success: false,
+                message: "Please verify your email first.",
+                errorType: "unverified_email"
+            });
+        }
+
+        if (user.status !== 'active') {
+            return res.status(403).json({ 
+                success: false,
+                message: "Your account is not active.",
+                errorType: "inactive_account"
+            });
+        }
+
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (!passwordMatch) {
+            return res.status(401).json({ 
+                success: false,
+                message: "Invalid password.",
+                errorType: "invalid_password"
+            });
+        }
+
+        // Log login attempt
+        const logSql = "INSERT INTO login_logs (user_id, time) VALUES (?, NOW())";
+        db.query(logSql, [user.id], (logErr) => {
+            if (logErr) console.error("Login log error:", logErr);
+        });
+
+        // Successful response
+        res.status(200).json({
+            success: true,
+            message: "Login successful",
+            userType: user.userType
+        });
+    });
+});
+
 // POST route for event submission
 app.post('/add_event', upload.single('image'), (req, res) => {
 
@@ -186,12 +271,7 @@ app.post('/add_event', upload.single('image'), (req, res) => {
     });
 });
 
-
-
-
-
-
-// Add Distributor Endpoint
+// POST Route for Distributor submission
 app.post('/add_distributor', upload.single('image'), (req, res) => {
     const { name, contacts, address } = req.body;
     const imagePath = req.file ? req.file.filename : null;
@@ -220,7 +300,7 @@ app.post('/add_distributor', upload.single('image'), (req, res) => {
     });
 });
 
-
+//POST Route fro Product upload
 app.post('/add_product', upload.single('image'), (req, res) => {
 
     const { name, boxes, bottles, stockCheck } = req.body;
@@ -240,8 +320,7 @@ app.post('/add_product', upload.single('image'), (req, res) => {
     });
 });
 
-
-// Handling both fields in one call
+// POST Route for Adding of Products
 app.post('/add_wine', upload.fields([
     { name: 'image', maxCount: 1 },  // Only 1 image allowed
     { name: 'caseImage', maxCount: 1 },  // Only 1 image allowed
@@ -293,8 +372,6 @@ app.post('/add_wine', upload.fields([
         res.status(200).send({ message: 'Wine Added Successfully', eventId: result.insertId });
     });
 });
-
-
 
 // GET route for fetching events
 app.get('/get_users', (req, res) => {
@@ -386,55 +463,6 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 //     }
 // });
 
-app.post("/login", (req, res) => {
-    const { username, password } = req.body;
-
-    if (!username || !password) {
-        return res.status(400).json({ message: "Username and password are required." });
-    }
-
-    const sql = "SELECT * FROM users WHERE username = ?";
-    db.query(sql, [username], async (err, result) => {
-        if (err) {
-            console.error("Database error:", err);
-            return res.status(500).json({ message: "Internal server error." });
-        }
-
-        if (result.length === 0) {
-            return res.status(404).json({ message: "User not found." });
-        }
-
-        const user = result[0];
-
-        // Check if the email is verified and user status is active
-        if (!user.is_verified) {
-            return res.status(403).json({ message: "Please verify your email first." });
-        }
-
-        if (user.status !== 'active') {
-            return res.status(403).json({ message: "Your account is not active." });
-        }
-
-        const passwordMatch = await bcrypt.compare(password, user.password);
-        if (!passwordMatch) {
-            return res.status(401).json({ message: "Invalid password." });
-        }
-
-        // Insert login record into login_logs table
-        const logSql = "INSERT INTO login_logs (user_id, time) VALUES (?, NOW())";
-        db.query(logSql, [user.id], (logErr) => {
-            if (logErr) {
-                console.error("Failed to log login attempt:", logErr);
-            }
-        });
-
-        // Successful login response
-        res.status(200).json({
-            message: "Welcome.",
-            userType: user.userType // Include userType in the response
-        });
-    });
-});
 
 // GET route for fetching login logs
 app.get('/get_user_logs/:userId', (req, res) => {
@@ -934,6 +962,3 @@ app.delete("/delete_distributor/:id", (req, res) => {
     });
 });
 
-app.listen(port, () => {
-    console.log(`listening on port ${port} `);
-});

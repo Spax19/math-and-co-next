@@ -5,6 +5,8 @@ import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 import Link from "next/link";
 import ProductModal from "../components/productModal";
+import Cart from "../components/cart";
+import { toast } from 'react-toastify';
 
 function MainComponent() {
   const [cart, setCart] = useState([]);
@@ -23,8 +25,62 @@ function MainComponent() {
   const closeModal = () => {
     setSelectedProduct(null);
   };
+
   const addToCart = (item) => {
-    setCart([...cart, item]);
+    setCart(prevCart => {
+      const existingItemIndex = prevCart.findIndex(
+        cartItem => cartItem.id === item.id && !cartItem.isCase
+      );
+
+      if (existingItemIndex >= 0) {
+        // Update quantity if item exists
+        const newCart = [...prevCart];
+        newCart[existingItemIndex] = {
+          ...newCart[existingItemIndex],
+          quantity: (newCart[existingItemIndex].quantity || 1) + 1,
+        };
+        return newCart;
+      } else {
+        // Add new item if it doesn't exist
+        return [...prevCart, { ...item, quantity: 1 }];
+      }
+    });
+
+    // Show toast notification
+    const existingItem = cart.find(
+      cartItem => cartItem.id === item.id && !cartItem.isCase
+    );
+
+    toast.success(
+      <div className="flex items-center">
+        <img
+          src={item.image_url}
+          alt={item.name}
+          className="w-12 h-12 object-contain mr-3"
+        />
+        <div>
+          <p className="font-medium">
+            {existingItem ? "Added another" : "Added to cart"} {item.name}
+          </p>
+          <p className="text-sm">
+            R{item.price.toFixed(2)} {item.case_price && `| Case: R${item.case_price.toFixed(2)}`}
+          </p>
+          {existingItem && (
+            <p className="text-xs text-gray-500">
+              Total: {(existingItem.quantity || 1) + 1}
+            </p>
+          )}
+        </div>
+      </div>,
+      {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      }
+    );
   };
 
   const featuredWines = [
@@ -193,9 +249,12 @@ function MainComponent() {
     },
   ];
 
+
+
   return (
     <>
       <Navbar cart={cart} setIsCartOpen={setIsCartOpen} />
+
       <div className="min-h-screen bg-white">
         <div className="relative h-[500px] w-full mb-16">
           <div
@@ -214,9 +273,11 @@ function MainComponent() {
                   <br />
                   Home of Carbernet.
                 </h1>
-                <button className="bg-[#d4b26a] text-white px-6 py-3 md:px-8 md:py-3 rounded-lg text-lg md:text-xl hover:bg-[#c4a25a] transition duration-300">
-                  Shop Our Wines
-                </button>
+                <Link href="./shop">
+                  <button className="bg-[#d4b26a] text-white px-6 py-3 md:px-8 md:py-3 rounded-lg text-lg md:text-xl hover:bg-[#c4a25a] transition duration-300">
+                    Shop Our Wines
+                  </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -559,8 +620,13 @@ function MainComponent() {
                         <button
                           className="bg-[#d4b26a] text-white px-4 py-2 rounded-full hover:bg-[#c4a25a] transition-colors duration-300 flex items-center"
                           onClick={(e) => {
-                            e.stopPropagation(); // Prevent the modal from opening when clicking the cart button
-                            setCart([...cart, wine]);
+                            e.stopPropagation();
+                            addToCart({
+                              ...wine,
+                              quantity: 1,
+                              isCase: false,
+                              unitPrice: wine.price,
+                            });
                           }}
                         >
                           <i className="fas fa-shopping-cart text-xl mr-2"></i>
@@ -1070,72 +1136,15 @@ function MainComponent() {
         </main>
 
         {isCartOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-50">
-            <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-crimson-text">Shopping Cart</h2>
-                <button
-                  onClick={() => setIsCartOpen(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <i className="fas fa-times"></i>
-                </button>
-              </div>
-              {cart.length === 0 ? (
-                <p>Your cart is empty</p>
-              ) : (
-                <>
-                  <div className="flex-1 overflow-y-auto">
-                    {cart.map((item, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center mb-4 border-b pb-4"
-                      >
-                        <img
-                          src={item.image_url}
-                          alt={item.name}
-                          className="w-20 h-20 object-cover rounded"
-                        />
-                        <div className="ml-4 flex-1">
-                          <h3 className="font-crimson-text">{item.name}</h3>
-                          <p className="text-gray-600">R{item.price}</p>
-                        </div>
-                        <button
-                          onClick={() => {
-                            const newCart = [...cart];
-                            newCart.splice(index, 1);
-                            setCart(newCart);
-                          }}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <i className="fas fa-trash"></i>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="border-t pt-4">
-                    <div className="flex justify-between mb-4">
-                      <span>Total:</span>
-                      <span>
-                        R
-                        {cart
-                          .reduce((sum, item) => sum + item.price, 0)
-                          .toFixed(2)}
-                      </span>
-                    </div>
-                    <button
-                      className="w-full bg-[#d4b26a] text-white py-2 rounded hover:bg-[#c4a25a]"
-                      onClick={() => setCheckoutStep(1)}
-                    >
-                      Proceed to Checkout
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
+          <Cart
+            isOpen={isCartOpen}
+            onClose={() => setIsCartOpen(false)}
+            cart={cart}
+            setCart={setCart}
+          />
         )}
       </div>
+
 
       <Footer />
     </>

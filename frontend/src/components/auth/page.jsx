@@ -1,13 +1,15 @@
 "use client";
-import { useState } from 'react';
+import { useState} from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 
-const AuthModal = ({ isOpen, onClose }) => {
+const AuthModal = ({ isOpen, onClose}) => {
+
     const [isLogin, setIsLogin] = useState(true);
-    const [isLoading, setIsLoading] = useState(false);
+
+    const [isSignUpMode, setIsSignUpMode] = useState(false);
     const [formData, setFormData] = useState({
         username: "",
         email: "",
@@ -76,86 +78,41 @@ const AuthModal = ({ isOpen, onClose }) => {
 
     const handleSignInSubmit = async (e) => {
         e.preventDefault();
-    
-        // Client-side validation
-        if (!formData.email.trim()) {
-            toast.error("Email is required");
-            return;
-        }
-        if (!formData.password.trim()) {
-            toast.error("Password is required");
-            return;
-        }
-    
+
         try {
-            const res = await axios.post(
-                "http://localhost:5174/login",
-                {
-                    email: formData.email,
-                    password: formData.password
-                },
-                {
-                    headers: { 'Content-Type': 'application/json' },
-                    timeout: 10000
-                }
-            );
-    
-            // Check for success flag in response
-            if (res.data?.success) {
+            const res = await axios.post("http://localhost:5174/login", {
+                username: formData.username,
+                password: formData.password,
+            });
+
+            if (res.status === 200 && res.data?.userType) {
                 const { userType, message } = res.data;
-    
+
                 toast.success(message || "Login successful!");
+
                 localStorage.setItem("role", JSON.stringify(userType));
-    
+                setRole(userType); // ✅ Now available
+
                 setTimeout(() => {
-                    router.push(userType === "admin" || userType === "webAdmin" 
-                        ? "/dashboard" 
-                        : "/profile");
+                    if (userType === "admin" || userType === "webAdmin") {
+                        navigate("/dashboard");
+                    } else {
+                        navigate("/");
+                    }
                 }, 1500);
             } else {
-                // Handle unexpected successful status without success flag
-                throw new Error(res.data?.message || "Unexpected response from server");
+                throw new Error(res.data?.message || "Unexpected response from server.");
             }
         } catch (err) {
-            // Handle 403 errors specifically
-            if (err.response?.status === 403) {
-                switch (err.response.data?.errorType) {
-                    case "unverified_email":
-                        toast.error(err.response.data.message);
-                        // Optionally redirect to verification page
-                        // router.push("/verify-email");
-                        break;
-                    case "inactive_account":
-                        toast.error(err.response.data.message);
-                        // Optionally redirect to contact support page
-                        // router.push("/contact-support");
-                        break;
-                    default:
-                        toast.error(err.response.data?.message || "Access forbidden");
-                }
-            } 
-            // Handle other error statuses
-            else if (err.response) {
-                toast.error(err.response.data?.message || 
-                          `Error: ${err.response.status} - ${err.response.statusText}`);
-            } 
-            // Handle network errors
-            else if (err.request) {
-                toast.error("Network error - please check your connection");
-            } 
-            // Handle other errors
-            else {
-                toast.error(err.message || "Login failed. Please try again.");
-            }
-    
-            // console.error("Login Error:", {
-            //     status: err.response?.status,
-            //     errorType: err.response?.data?.errorType,
-            //     message: err.message,
-            //     response: err.response?.data
-            // });
+            console.error("Login Error:", err);
+            toast.error(err.response?.data?.message || "Login failed. Please try again.");
         }
     };
+
+
+
+
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -164,6 +121,14 @@ const AuthModal = ({ isOpen, onClose }) => {
             [name]: value
         }));
     };
+
+    // const handleSubmit = (e) => {
+    //     e.preventDefault();
+    //     // Handle form submission here
+    //     toast.success("User registered");
+    //     console.log('Form submitted:', formData);
+    //     // Add your authentication logic here
+    // };
 
     if (!isOpen) return null;
 
@@ -218,7 +183,7 @@ const AuthModal = ({ isOpen, onClose }) => {
                         </div>
 
                         {/* Email/Password Form */}
-                        <form onSubmit={isLogin ? handleSignInSubmit : handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-4">
                             {!isLogin && (
                                 <div>
                                     <label htmlFor="name" className="block text-sm font-medium text-gray-700">Full Name</label>
@@ -278,10 +243,9 @@ const AuthModal = ({ isOpen, onClose }) => {
                             )}
                             <button
                                 type="submit"
-                                disabled={isLoading}
-                                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#d4b26a] hover:bg-[#c4a25a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#d4b26a] ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#d4b26a] hover:bg-[#c4a25a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#d4b26a]"
                             >
-                                {isLoading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
+                                {isLogin ? 'Sign In' : 'Sign Up'}
                             </button>
                         </form>
 
