@@ -37,6 +37,10 @@ app.listen(port, () => {
     console.log(`listening on port ${port} `);
 });
 
+app.get('/', (req, res) => {
+    return res.redirect("https://math-and-co-next-efj8.vercel.app/");
+})
+
 // Multer for file uploads
 const storage = multer.diskStorage({
     destination: path.join(__dirname, 'uploads'),
