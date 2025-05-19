@@ -3,15 +3,15 @@
 
   "builds": [
     {
-      "src": "server.js",
+      "src": "api/server.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "server.js",
-      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+      "dest": "api/server.js",
+     
     }
   ]
 }
