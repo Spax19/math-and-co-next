@@ -43,7 +43,7 @@ app.get('/', (req, res) => {
 
 // Multer for file uploads
 const storage = multer.diskStorage({
-    destination: path.join(__dirname, 'uploads'),
+    destination: path.join(__dirname,'/tmp', 'uploads'),
     filename: (req, file, cb) => {
         cb(null, Date.now() + '-' + file.originalname);
     }
