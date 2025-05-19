@@ -25,6 +25,43 @@ const db = mysql.createConnection({
   database: "math-and-co-2",
 });
 
+
+const pool = mysql.createPool(db);
+
+// Multer configuration - using memory storage
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png|gif/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(
+      path.extname(file.originalname).toLowerCase()
+    );
+
+    if (mimetype && extname) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed!"), false);
+    }
+  },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+});
+
+// Session configuration
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "your-secret-key",
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: process.env.NODE_ENV === "production" },
+  })
+);
+
+// Health check endpoint
+app.get("/", (req, res) => {
+  res.status(200).json({ status: "OK", message: "Math & Co API is running" });
+});
+
 //Database Connection
 db.connect((err) => {
   if (err) {
@@ -49,23 +86,23 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({
-  storage: multer.memoryStorage(), // Store files in RAM (no filesystem writes)
-  fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png|gif/;
-    const mimetype = filetypes.test(file.mimetype);
-    const extname = filetypes.test(
-      path.extname(file.originalname).toLowerCase()
-    );
+// const upload = multer({
+//   storage: multer.memoryStorage(), // Store files in RAM (no filesystem writes)
+//   fileFilter: (req, file, cb) => {
+//     const filetypes = /jpeg|jpg|png|gif/;
+//     const mimetype = filetypes.test(file.mimetype);
+//     const extname = filetypes.test(
+//       path.extname(file.originalname).toLowerCase()
+//     );
 
-    if (mimetype && extname) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only image files are allowed!"), false);
-    }
-  },
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-});
+//     if (mimetype && extname) {
+//       cb(null, true);
+//     } else {
+//       cb(new Error("Only image files are allowed!"), false);
+//     }
+//   },
+//   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+// });
 
 
 // Route to create a PaymentIntent
@@ -1132,3 +1169,19 @@ app.delete("/delete_distributor/:id", (req, res) => {
     return res.json({ success: "Distributor updated successfully" });
   });
 });
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
+});
+
+// Export the app for Vercel
+module.exports = app;
+
+// For local development
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 5174;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
