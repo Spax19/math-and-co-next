@@ -7,6 +7,8 @@ import Link from "next/link";
 import ProductModal from "../components/productModal";
 import Cart from "../components/cart";
 import { toast } from 'react-toastify';
+import './globals.css';
+
 
 function MainComponent() {
   const [cart, setCart] = useState([]);
@@ -156,18 +158,8 @@ function MainComponent() {
       case_image: "./images/Brut-Box.png",
       case_price: 3000.00,
     },
-
-    // {
-    //   id: 5,
-    //   name: "2024 Pinot Noir",
-    //   price: 54.99,
-    //   image_url: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=2024%2520Pinot%2520Noir",
-    //   description: "Delicate red fruit with earthy undertones",
-    //   isNew: true,
-    // }
   ];
 
-  // UPDATED COLLECTIONS ARRAY WITH NEW ITEMS
   const collections = [
     {
       id: 1,
@@ -197,20 +189,19 @@ function MainComponent() {
       description: "Browse our complete selection",
       filter: "",
     },
-    // NEW ADDITIONS - THESE WILL REDIRECT TO SPECIAL PAGES
     {
       id: 5,
       name: "Hydrology Water",
       image: "/images/red-wines.jpg",
       description: "Premium mineral-infused waters",
-      link: "/hydrology", // Direct link to special page
+      link: "/hydrology",
     },
     {
       id: 6,
       name: "Pentagon Wine",
       image: "/images/red-wines.jpg",
       description: "Exclusive limited-edition collection",
-      link: "/pentagon", // Direct link to special page
+      link: "/pentagon",
     },
   ];
 
@@ -249,32 +240,22 @@ function MainComponent() {
     },
   ];
 
-
-
   return (
     <>
       <Navbar cart={cart} setIsCartOpen={setIsCartOpen} />
 
-      <div className="min-h-screen bg-white">
-        <div className="relative h-[500px] w-full mb-16">
-          <div
-            className="absolute inset-0 bg-black bg-opacity-40"
-            style={{
-              backgroundImage: "url('/images/Banner.jpeg')",
-              backgroundAttachment: "fixed",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
-            <div className="h-full flex items-center justify-end pr-8 md:pr-16 lg:pr-24">
-              <div className="text-right max-w-md">
-                <h1 className="text-4xl md:text-5xl font-crimson-text text-black mb-6">
+      <div className="main-container">
+        <div className="hero-banner">
+          <div className="hero-overlay">
+            <div className="hero-content">
+              <div className="hero-text-container">
+                <h1 className="hero-title">
                   The Taste of Nature.
                   <br />
                   Home of Carbernet.
                 </h1>
                 <Link href="./shop">
-                  <button className="bg-[#d4b26a] text-white px-6 py-3 md:px-8 md:py-3 rounded-lg text-lg md:text-xl hover:bg-[#c4a25a] transition duration-300">
+                  <button className="hero-button">
                     Shop Our Wines
                   </button>
                 </Link>
@@ -285,11 +266,10 @@ function MainComponent() {
 
         <main className="container px-4 mb-16">
           <section className="mb-16 text-center relative mt-4">
-            {/* Header with navigation buttons */}
             <div className="flex justify-center items-center mb-16 relative">
               <div className="text-center">
                 <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex space-x-2">
-                  <button className="prev-btn w-10 h-10 rounded-full bg-[#d4b26a] text-white flex items-center justify-center hover:bg-[#c4a25a] transition-colors duration-300 border border-[#c4a25a]">
+                  <button className="carousel-nav-btn prev-btn">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-5 w-5"
@@ -305,7 +285,7 @@ function MainComponent() {
                       />
                     </svg>
                   </button>
-                  <button className="next-btn w-10 h-10 rounded-full bg-[#d4b26a] text-white flex items-center justify-center hover:bg-[#c4a25a] transition-colors duration-300 border border-[#c4a25a]">
+                  <button className="carousel-nav-btn next-btn">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-5 w-5"
@@ -345,9 +325,9 @@ function MainComponent() {
                       }
                       className="block"
                     >
-                      <div className="relative h-[420px] w-[320px] mx-auto group overflow-hidden rounded-full shadow-lg hover:shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]">
+                      <div className="collection-card">
                         <div
-                          className="absolute inset-0 bg-cover bg-center bg-no-repeat rounded-full scale-110 group-hover:scale-100 transition-transform duration-700"
+                          className="collection-bg"
                           style={{
                             backgroundImage: `url(${collection.image})`,
                           }}
@@ -356,10 +336,10 @@ function MainComponent() {
                         <img
                           src={collection.image}
                           alt={collection.name}
-                          className="absolute inset-0 w-full h-full object-cover rounded-full opacity-100 group-hover:opacity-0 transition-all duration-500 scale-100 group-hover:scale-125"
+                          className="collection-image"
                         />
 
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-16 h-16 rounded-full bg-white/20 border border-white/40 flex items-center justify-center opacity-100 group-hover:opacity-0 transition-opacity duration-500">
+                        <div className="collection-icon">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-8 w-8 text-white animate-bounce"
@@ -376,15 +356,15 @@ function MainComponent() {
                           </svg>
                         </div>
 
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/10 flex flex-col items-center justify-end text-white p-8 rounded-full translate-y-10 group-hover:translate-y-0 transition-all duration-500">
-                          <div className="text-center transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 mb-16">
-                            <h3 className="text-2xl font-crimson-text tracking-wider mt-2">
+                        <div className="collection-overlay">
+                          <div className="collection-content">
+                            <h3 className="collection-name">
                               {collection.name}
                             </h3>
-                            <p className="text-sm lg:text-base mb-6 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                            <p className="collection-description">
                               {collection.description}
                             </p>
-                            <button className="bg-[#d4b26a] text-white px-6 py-3 rounded-full hover:bg-[#c4a25a] transition-all duration-300 transform scale-90 group-hover:scale-100 shadow-lg hover:shadow-xl">
+                            <button className="collection-button">
                               {collection.link ? "Explore" : "Shop Collection"}
                             </button>
                           </div>
@@ -396,62 +376,6 @@ function MainComponent() {
               </div>
             </div>
 
-            {/* Collections Carousel */}
-            {/* <div className="relative overflow-hidden">
-              <div className="flex transition-transform duration-500 ease-in-out" id="collections-carousel" style={{ width: `${collections.length * 368}px` }}>
-                {collections.map((collection, index) => (
-                  <div key={index} className="px-4 flex-shrink-0" style={{ width: '352px' }}>
-                    <Link href={`/shop?${collection.filter}`} className="block">
-                      <div className="relative h-[420px] w-[320px] mx-auto group overflow-hidden rounded-full shadow-lg hover:shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)]">
-                      
-                        <div
-                          className="absolute inset-0 bg-cover bg-center bg-no-repeat rounded-full scale-110 group-hover:scale-100 transition-transform duration-700"
-                          style={{ backgroundImage: `url(${collection.image})` }}
-                        ></div>
-
-                     
-                        <img
-                          src={collection.image}
-                          alt={collection.name}
-                          className="absolute inset-0 w-full h-full object-cover rounded-full opacity-100 group-hover:opacity-0 transition-all duration-500 scale-100 group-hover:scale-125"
-                        />
-
-                       
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-16 h-16 rounded-full bg-white/20 border border-white/40 flex items-center justify-center opacity-100 group-hover:opacity-0 transition-opacity duration-500">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-8 w-8 text-white animate-bounce"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={1.5}
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                          </svg>
-                        </div>
-
-                      
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/10 flex flex-col items-center justify-end text-white p-8 rounded-full translate-y-10 group-hover:translate-y-0 transition-all duration-500">
-                          <div className="text-center transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 mb-16">
-                            <h3 className="text-2xl font-crimson-text tracking-wider mt-2">
-                              {collection.name}
-                            </h3>
-                            <p className="text-sm lg:text-base mb-6 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                              {collection.description}
-                            </p>
-                            <button className="bg-[#d4b26a] text-white px-6 py-3 rounded-full hover:bg-[#c4a25a] transition-all duration-300 transform scale-90 group-hover:scale-100 shadow-lg hover:shadow-xl">
-                              Shop Collection
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </div> */}
-
-            {/* Carousel Navigation Script */}
             <script
               dangerouslySetInnerHTML={{
                 __html: `
@@ -478,7 +402,6 @@ function MainComponent() {
                   updateCarousel();
                 });
 
-                // Handle window resize
                 window.addEventListener('resize', () => {
                   visibleCards = Math.floor(window.innerWidth / cardWidth);
                   maxPosition = -(${collections.length} * cardWidth - visibleCards * cardWidth);
@@ -492,32 +415,29 @@ function MainComponent() {
           </section>
 
           <section className="mb-18">
-            <h2 className="text-3xl font-crimson-text mb-8">Best Sellers</h2>
+            <h2 className="section-title">Best Sellers</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {featuredWines.map((wine) => (
                 <div
                   key={wine.id}
-                  className="bg-[#f9f9f9] p-6 rounded-lg flex flex-col justify-between transition-shadow duration-300 hover:shadow-lg cursor-pointer"
+                  className="product-card"
                   onClick={() => openModal(wine)}
                 >
-                  {/* Wine Image */}
-                  <div className="overflow-hidden rounded-lg mb-4 h-64">
+                  <div className="product-image-container">
                     <img
                       src={wine.image_url}
                       alt={`Bottle of ${wine.name}`}
-                      className="w-full h-full object-contain transition-transform duration-500 hover:scale-110"
+                      className="product-image"
                     />
                   </div>
 
-                  {/* Wine Details */}
                   <div className="flex-grow">
-                    <h3 className="text-xl font-crimson-text mb-2">
+                    <h3 className="product-name">
                       {wine.name}
                     </h3>
 
-                    {/* Star Rating */}
-                    <div className="flex items-center mb-1">
+                    <div className="star-rating">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <i
                           key={star}
@@ -525,7 +445,7 @@ function MainComponent() {
                             } text-[#d4b26a] text-sm`}
                         ></i>
                       ))}
-                      <span className="ml-1 text-gray-600 text-xs">
+                      <span className="review-count">
                         ({wine.rating})
                       </span>
                     </div>
@@ -534,20 +454,19 @@ function MainComponent() {
                     </p>
                   </div>
 
-                  {/* Price and Add to Cart */}
                   <div className="flex justify-between items-center">
                     <div>
-                      <span className="text-xl font-medium">
+                      <span className="product-price">
                         R {wine.price.toFixed(2)}
                       </span>
                       {wine.case_price && (
-                        <p className="text-xs text-gray-500">
+                        <p className="case-price">
                           Case: R {wine.case_price.toFixed(2)}
                         </p>
                       )}
                     </div>
                     <button
-                      className="bg-[#d4b26a] text-white px-4 py-2 rounded-full hover:bg-[#c4a25a] transition-colors duration-300 text-center"
+                      className="add-to-cart-btn"
                       onClick={(e) => {
                         e.stopPropagation();
                         addToCart({
@@ -575,50 +494,45 @@ function MainComponent() {
           </section>
 
           <section className="mb-16 mt-16">
-            <h2 className="text-3xl font-crimson-text mb-8">Sales</h2>
+            <h2 className="section-title">Sales</h2>
 
             <div className="relative">
-              {/* Scrollable container */}
               <div className="flex overflow-x-auto gap-6 pb-6 wine-scroller">
                 <div className="flex space-x-8 min-w-max">
                   {newReleases.map((wine) => (
                     <div
                       key={wine.id}
-                      className="bg-[#f9f9f9] p-6 rounded-lg w-72 min-w-[288px] flex flex-col justify-between transform transition-all duration-300 hover:shadow-lg cursor-pointer"
-                      onClick={() => setSelectedProduct(wine)} // Add this line
+                      className="sale-product-card"
+                      onClick={() => setSelectedProduct(wine)}
                     >
-                      {/* New Release Badge */}
-                      <div className="absolute top-4 right-4 bg-[#d4b26a] text-red-500 px-3 py-2 w-20 text-center rounded-full text-m font-medium">
+                      <div className="sale-badge">
                         Sale
                       </div>
 
-                      {/* Wine Image with hover zoom */}
-                      <div className="overflow-hidden rounded-lg mb-4 h-64">
+                      <div className="sale-product-image-container">
                         <img
                           src={wine.image_url}
                           alt={wine.name}
-                          className="w-full h-full object-contain transition-transform duration-500 hover:scale-110"
+                          className="sale-product-image"
                         />
                       </div>
 
-                      {/* Wine Details */}
                       <div className="flex-grow">
-                        <h3 className="text-xl font-crimson-text mb-2">
+                        <h3 className="product-name">
                           {wine.name}
                         </h3>
 
-                        <p className="text-gray-600 mb-4 line-clamp-2">
+                        <p className="sale-product-description">
                           {wine.description}
                         </p>
                       </div>
 
-                      {/* Price and Add to Cart */}
                       <div className="flex justify-between items-center mt-4">
-                        <span className="text-xl font-medium">
+                        <span className="product-price">
                           R{wine.price}
                         </span>
                         <button
-                          className="bg-[#d4b26a] text-white px-4 py-2 rounded-full hover:bg-[#c4a25a] transition-colors duration-300 flex items-center"
+                          className="add-to-cart-btn"
                           onClick={(e) => {
                             e.stopPropagation();
                             addToCart({
@@ -637,12 +551,10 @@ function MainComponent() {
                 </div>
               </div>
 
-              {/* Gradient fade effects */}
-              <div className="absolute top-0 left-0 bottom-0 w-15 bg-gradient-to-r from-white to-transparent pointer-events-none" />
-              <div className="absolute top-0 right-0 bottom-0 w-15 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+              <div className="scroller-gradient-left" />
+              <div className="scroller-gradient-right" />
             </div>
 
-            {/* Modal */}
             {selectedProduct && (
               <ProductModal
                 product={selectedProduct}
@@ -656,14 +568,12 @@ function MainComponent() {
           </section>
 
           <section className="mb-16 p-8 rounded-lg bg-transparent">
-            {/* <h2 className="text-3xl font-crimson-text mb-8">Our Services</h2> */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Card 1: Discover Wine Distributors */}
-              <div className="bg-white/30 backdrop-blur-sm p-6 rounded-2xl border border-white/20 hover:border-[#d4b26a]/50 transition-all duration-300 text-center group">
+              <div className="service-card">
                 <div className="mb-5">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-12 w-12 text-[#d4b26a] mx-auto"
+                    className="service-icon"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -676,13 +586,13 @@ function MainComponent() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-crimson-text mb-3 text-black">
+                <h3 className="service-name">
                   Discover Wine Distributors
                 </h3>
-                <wbr className="text-black/80 mb-5" />
-                Order before 3pm and get your order the next day as standard
-                <wbr />
-                <button className="text-[#d4b26a] hover:text-white px-4 py-2 rounded-full border border-[#d4b26a] hover:bg-[#d4b26a] transition-all duration-300 inline-flex items-center mt-2">
+                <p className="service-description">
+                  Order before 3pm and get your order the next day as standard
+                </p>
+                <button className="service-button">
                   Learn more
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -701,12 +611,11 @@ function MainComponent() {
                 </button>
               </div>
 
-              {/* Card 2: Wine Tasting & Tours */}
-              <div className="bg-white/30 backdrop-blur-sm p-6 rounded-2xl border border-white/20 hover:border-[#d4b26a]/50 transition-all duration-300 text-center group">
+              <div className="service-card">
                 <div className="mb-5">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-12 w-12 text-[#d4b26a] mx-auto"
+                    className="service-icon"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -724,13 +633,13 @@ function MainComponent() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-crimson-text mb-3 text-black">
+                <h3 className="service-name">
                   Wine Tasting & Tours
                 </h3>
-                <wbr className="text-black/80 mb-5" />
-                Handcrafted experiences made with real passion and craftsmanship
-                <wbr />
-                <button className="text-[#d4b26a] hover:text-white px-4 py-2 rounded-full border border-[#d4b26a] hover:bg-[#d4b26a] transition-all duration-300 inline-flex items-center mt-2">
+                <p className="service-description">
+                  Handcrafted experiences made with real passion and craftsmanship
+                </p>
+                <button className="service-button">
                   Book now
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -749,12 +658,11 @@ function MainComponent() {
                 </button>
               </div>
 
-              {/* Card 3: Wine for Each Occasion */}
-              <div className="bg-white/30 backdrop-blur-sm p-6 rounded-2xl border border-white/20 hover:border-[#d4b26a]/50 transition-all duration-300 text-center group">
+              <div className="service-card">
                 <div className="mb-5">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-12 w-12 text-[#d4b26a] mx-auto"
+                    className="service-icon"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -772,13 +680,13 @@ function MainComponent() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-crimson-text mb-3 text-black">
+                <h3 className="service-name">
                   Wine for Each Occasion
                 </h3>
-                <p className="text-black/80 mb-5">
-                  For our quality you won&apos;t find better prices anywhere
+                <p className="service-description">
+                  For our quality you wont find better prices anywhere
                 </p>
-                <button className="text-[#d4b26a] hover:text-white px-4 py-2 rounded-full border border-[#d4b26a] hover:bg-[#d4b26a] transition-all duration-300 inline-flex items-center mt-2">
+                <button className="service-button">
                   View selection
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -797,12 +705,11 @@ function MainComponent() {
                 </button>
               </div>
 
-              {/* Card 4: Recycled packaging */}
-              <div className="bg-white/30 backdrop-blur-sm p-6 rounded-2xl border border-white/20 hover:border-[#d4b26a]/50 transition-all duration-300 text-center group">
+              <div className="service-card">
                 <div className="mb-5">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-12 w-12 text-[#d4b26a] mx-auto"
+                    className="service-icon"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -820,13 +727,13 @@ function MainComponent() {
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-crimson-text mb-3 text-black">
+                <h3 className="service-name">
                   Recycled Packaging
                 </h3>
-                <p className="text-black/80 mb-5">
+                <p className="service-description">
                   100% recycled materials for a sustainable footprint
                 </p>
-                <button className="text-[#d4b26a] hover:text-white px-4 py-2 rounded-full border border-[#d4b26a] hover:bg-[#d4b26a] transition-all duration-300 inline-flex items-center mt-2">
+                <button className="service-button">
                   Our commitment
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -848,41 +755,37 @@ function MainComponent() {
           </section>
 
           <section className="mb-16">
-            <h2 className="text-3xl font-crimson-text mb-8">
+            <h2 className="section-title">
               Winery Experience
             </h2>
 
             <div className="relative">
-              {/* Scrollable container */}
               <div className="flex overflow-x-auto pb-6 experience-scroller">
                 <div className="flex space-x-8 min-w-max">
                   {experiences.map((exp, index) => (
                     <div
                       key={index}
-                      className="bg-[#f9f9f9] rounded-lg overflow-hidden transition-shadow duration-300 hover:shadow-lg w-80 flex flex-col justify-between"
+                      className="experience-card"
                     >
-                      {/* Image with zoom animation */}
-                      <div className="overflow-hidden h-[250px]">
+                      <div className="experience-image-container">
                         <img
                           src={exp.image}
                           alt={exp.name}
-                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                          className="experience-image"
                         />
                       </div>
 
-                      {/* Content */}
-                      <div className="p-6 flex flex-col h-[calc(100%-250px)]">
+                      <div className="experience-content">
                         <div className="flex-grow">
-                          <h3 className="text-xl font-crimson-text mb-2">
+                          <h3 className="product-name">
                             {exp.name}
                           </h3>
-                          <wbr className="text-gray-600 line-clamp-3" />
-                          {exp.description}
-                          <wbr />
+                          <p className="experience-description">
+                            {exp.description}
+                          </p>
                         </div>
 
-                        {/* Book Now button */}
-                        <button className="bg-[#d4b26a] text-white px-6 py-3 rounded-full hover:bg-[#c4a25a] transition-all duration-300 transform hover:scale-105 text-center w-50 mt-2">
+                        <button className="book-now-btn">
                           <i className="fas fa-calendar-check mr-2"></i>
                           Book Now
                         </button>
@@ -892,47 +795,46 @@ function MainComponent() {
                 </div>
               </div>
 
-              {/* Gradient fade effects */}
-              <div className="absolute top-0 left-0 bottom-0 w-15 bg-gradient-to-r from-white to-transparent pointer-events-none" />
-              <div className="absolute top-0 right-0 bottom-0 w-15 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+              <div className="scroller-gradient-left" />
+              <div className="scroller-gradient-right" />
             </div>
           </section>
 
           <section className="mb-16 grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-[#f9f9f9] p-6 rounded-lg">
-              <h2 className="text-3xl font-crimson-text mb-6">
+            <div className="education-section">
+              <h2 className="education-title">
                 Wine Education
               </h2>
               <div className="space-y-4">
-                <div>
-                  <h3 className="text-xl font-crimson-text mb-2">
+                <div className="education-item">
+                  <h3 className="education-item-title">
                     Tasting Notes
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="education-item-description">
                     Learn to identify subtle flavors and aromas
                   </p>
                 </div>
-                <div>
-                  <h3 className="text-xl font-crimson-text mb-2">
+                <div className="education-item">
+                  <h3 className="education-item-title">
                     Food Pairing
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="education-item-description">
                     Perfect wine selections for any meal
                   </p>
                 </div>
-                <div>
-                  <h3 className="text-xl font-crimson-text mb-2">
+                <div className="education-item">
+                  <h3 className="education-item-title">
                     Storage Tips
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="education-item-description">
                     Optimal conditions for aging wines
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-[#1a1a1a] text-white p-6 rounded-lg">
-              <h2 className="text-3xl font-crimson-text mb-6">
+            <div className="newsletter-section">
+              <h2 className="newsletter-title">
                 Newsletter Signup
               </h2>
               <p className="mb-4">
@@ -945,11 +847,11 @@ function MainComponent() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="w-full px-4 py-2 rounded bg-white text-black"
+                  className="newsletter-input"
                 />
                 <button
                   type="submit"
-                  className="w-full bg-[#d4b26a] text-white px-4 py-2 rounded hover:bg-[#c4a25a]"
+                  className="newsletter-button"
                 >
                   Subscribe Now
                 </button>
@@ -959,86 +861,84 @@ function MainComponent() {
 
           <section className="mb-16 text-center mt-16">
             <p>Featured In</p>
-            {/* <h2 className="text-3xl font-crimson-text mb-8">Featured In</h2> */}
             <div className="grid grid-cols-2 md:grid-cols-8 items-center mt-8 ml-16">
               <img
                 src="./clients/carpe.jpg"
                 alt="Carpe Logo"
-                className="h-12 object-contain"
+                className="client-logo"
               />
               <img
                 src="./clients/Appto.jpeg"
                 alt="Appto Logo"
-                className="h-12 object-contain"
-              />{" "}
+                className="client-logo"
+              />
               <img
                 src="./clients/davinci.png"
                 alt="Davinci Logo"
-                className="h-12 object-contain"
-              />{" "}
+                className="client-logo"
+              />
               <img
                 src="./clients/mabu.jpg"
                 alt="Mabu Logo"
-                className="h-12 object-contain"
-              />{" "}
+                className="client-logo"
+              />
               <img
                 src="./clients/mela.png"
                 alt="Mela Logo"
-                className="h-12 object-contain"
+                className="client-logo"
               />
               <img
                 src="./clients/oldrock.jpg"
                 alt="Oldrock Logo"
-                className="h-12 object-contain"
+                className="client-logo"
               />
               <img
                 src="./clients/spar.jpeg"
                 alt="Spar Logo"
-                className="h-12 object-contain"
+                className="client-logo"
               />
               <img
                 src="./clients/life-grand-cafe.jpg"
                 alt="Life Grand Cafe Logo"
-                className="h-12 object-contain"
+                className="client-logo"
               />
             </div>
           </section>
 
           <section className="mb-16">
-            <h2 className="text-3xl font-crimson-text mb-8">
+            <h2 className="section-title">
               What Our Customers Say
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {testimonials.map((testimonial, index) => (
-                <div key={index} className="bg-[#f9f9f9] p-6 rounded-lg">
+                <div key={index} className="testimonial-card">
                   <i className="fas fa-quote-left text-[#d4b26a] text-2xl mb-4"></i>
-                  <p className="text-lg mb-4">{testimonial.text}</p>
-                  <p className="text-gray-600">- {testimonial.author}</p>
+                  <p className="testimonial-text">{testimonial.text}</p>
+                  <p className="testimonial-author">- {testimonial.author}</p>
                 </div>
               ))}
             </div>
           </section>
 
           <section className="mb-16">
-            <h2 className="text-3xl font-crimson-text mb-8">
+            <h2 className="section-title">
               Follow Us on Instagram
             </h2>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {/* Replace YOUR_INSTAGRAM_USERNAME with your actual Instagram handle */}
               <a
                 href="https://www.instagram.com/YOUR_INSTAGRAM_USERNAME/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative"
+                className="instagram-card"
               >
                 <img
                   src="https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Vineyard%2520sunset"
                   alt="Vineyard sunset"
-                  className="w-full h-[200px] object-cover rounded-lg transition-transform duration-500 group-hover:scale-105"
+                  className="instagram-image"
                 />
-                <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 rounded-lg flex items-center justify-center">
-                  <i className="fab fa-instagram text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></i>
+                <div className="instagram-overlay">
+                  <i className="fab fa-instagram instagram-icon"></i>
                 </div>
               </a>
 
@@ -1046,15 +946,15 @@ function MainComponent() {
                 href="https://www.instagram.com/YOUR_INSTAGRAM_USERNAME/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative"
+                className="instagram-card"
               >
                 <img
                   src="https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Wine%2520tasting%2520event"
                   alt="Wine tasting event"
-                  className="w-full h-[200px] object-cover rounded-lg transition-transform duration-500 group-hover:scale-105"
+                  className="instagram-image"
                 />
-                <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 rounded-lg flex items-center justify-center">
-                  <i className="fab fa-instagram text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></i>
+                <div className="instagram-overlay">
+                  <i className="fab fa-instagram instagram-icon"></i>
                 </div>
               </a>
 
@@ -1062,15 +962,15 @@ function MainComponent() {
                 href="https://www.instagram.com/YOUR_INSTAGRAM_USERNAME/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative"
+                className="instagram-card"
               >
                 <img
                   src="https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Barrel%2520room"
                   alt="Barrel room"
-                  className="w-full h-[200px] object-cover rounded-lg transition-transform duration-500 group-hover:scale-105"
+                  className="instagram-image"
                 />
-                <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 rounded-lg flex items-center justify-center">
-                  <i className="fab fa-instagram text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></i>
+                <div className="instagram-overlay">
+                  <i className="fab fa-instagram instagram-icon"></i>
                 </div>
               </a>
 
@@ -1078,61 +978,19 @@ function MainComponent() {
                 href="https://www.instagram.com/YOUR_INSTAGRAM_USERNAME/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group relative"
+                className="instagram-card"
               >
                 <img
                   src="https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Harvest%2520season"
                   alt="Harvest season"
-                  className="w-full h-[200px] object-cover rounded-lg transition-transform duration-500 group-hover:scale-105"
+                  className="instagram-image"
                 />
-                <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 rounded-lg flex items-center justify-center">
-                  <i className="fab fa-instagram text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></i>
+                <div className="instagram-overlay">
+                  <i className="fab fa-instagram instagram-icon"></i>
                 </div>
               </a>
             </div>
           </section>
-
-          {/* <section className="mb-16">
-            <h2 className="text-3xl font-crimson-text mb-8">Follow Us on Instagram</h2>
-
-            <div className="relative">
-              
-              <div className="flex overflow-x-auto pb-6 instagram-scroller snap-x">
-                <div className="flex space-x-4 min-w-max">
-                  {[
-                    "Vineyard sunset",
-                    "Wine tasting event",
-                    "Barrel room",
-                    "Harvest season",
-                    "Wine pairing dinner",
-                    "Vineyard tour",
-                    "Wine bottling",
-                    "Cellar collection",
-                    "Sunset grapes",
-                    "Winery architecture",
-                    "Vintage barrels",
-                    "Wine club event"
-                  ].map((prompt, index) => (
-                    <div key={index} className="snap-center">
-                      <div className="overflow-hidden rounded-lg w-[200px] h-[200px]">
-                        <img
-                          src={`https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=${encodeURIComponent(prompt)}`}
-                          alt={prompt}
-                          className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-             
-              <div className="absolute top-0 left-0 bottom-0 w-24 bg-gradient-to-r from-white to-transparent pointer-events-none" />
-              <div className="absolute top-0 right-0 bottom-0 w-24 bg-gradient-to-l from-white to-transparent pointer-events-none" />
-            </div>
-
-          
-          </section> */}
         </main>
 
         {isCartOpen && (
@@ -1144,7 +1002,6 @@ function MainComponent() {
           />
         )}
       </div>
-
 
       <Footer />
     </>
