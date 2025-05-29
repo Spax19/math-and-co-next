@@ -8,8 +8,10 @@ function EventsPage() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [sortBy, setSortBy] = useState("date");
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [eventFilter, setEventFilter] = useState("upcoming"); // 'upcoming' or 'previous'
   const [bookingData, setBookingData] = useState({
     experience: "",
     eventName: "",
@@ -22,7 +24,7 @@ function EventsPage() {
     email: "",
     phone: "",
     specialRequests: "",
-    availableTimes: []
+    availableTimes: [],
   });
   const [errors, setErrors] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -36,7 +38,8 @@ function EventsPage() {
       category: "virtual",
       price: 45,
       image: "/images/banner.jpeg",
-      description: "Join our sommelier for an interactive virtual tasting experience",
+      description:
+        "Join our sommelier for an interactive virtual tasting experience",
       spots: 20,
       type: "signature",
     },
@@ -47,7 +50,8 @@ function EventsPage() {
       category: "dining",
       price: 150,
       image: "/images/banner.jpeg",
-      description: "Five-course dinner with wine pairings and winemaker stories",
+      description:
+        "Five-course dinner with wine pairings and winemaker stories",
       spots: 30,
       type: "signature",
     },
@@ -65,7 +69,7 @@ function EventsPage() {
     {
       id: 4,
       title: "Wine 101 Workshop",
-      date: "2025-05-01",
+      date: "2025-05-29",
       category: "education",
       price: 75,
       image: "/images/banner.jpeg",
@@ -73,10 +77,33 @@ function EventsPage() {
       spots: 25,
       type: "education",
     },
+    // Past events
+    {
+      id: 5,
+      title: "Spring Wine Festival",
+      date: "2025-04-10",
+      category: "seasonal",
+      price: 60,
+      image: "/images/banner.jpeg",
+      description: "Celebrate spring with our seasonal wine selection",
+      spots: 0,
+      type: "signature",
+    },
+    {
+      id: 6,
+      title: "Holiday Wine Pairing",
+      date: "2025-12-05",
+      category: "dining",
+      price: 120,
+      image: "/images/banner.jpeg",
+      description: "Special holiday menu with perfect wine matches",
+      spots: 0,
+      type: "signature",
+    },
   ];
 
   const categories = [
-    { id: "all", name: "All Events", icon: "fa-calendar-alt" },
+    { id: "all", name: "All Categories", icon: "fa-list" },
     { id: "virtual", name: "Virtual Events", icon: "fa-laptop" },
     { id: "dining", name: "Dining Events", icon: "fa-utensils" },
     { id: "seasonal", name: "Seasonal Events", icon: "fa-sun" },
@@ -84,10 +111,41 @@ function EventsPage() {
   ];
 
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
+  // Check if event is in the past
+  const isPastEvent = (eventDate) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to start of day
+
+    const eventDay = new Date(eventDate);
+    eventDay.setHours(0, 0, 0, 0); // Set to start of day
+
+    return eventDay < today;
+  };
+
+  // Get min and max dates for the selected month
+  const getMonthDateRange = (monthIndex) => {
+    const year = new Date().getFullYear();
+    const firstDay = new Date(year, monthIndex, 1);
+    const lastDay = new Date(year, monthIndex + 1, 0);
+    return {
+      minDate: firstDay.toISOString().split("T")[0],
+      maxDate: lastDay.toISOString().split("T")[0],
+    };
+  };
   const signatureExperiences = [
     {
       id: 1,
@@ -100,8 +158,8 @@ function EventsPage() {
         "Five-course pairing menu",
         "Meet the winemaker",
         "Behind-the-scenes stories",
-        "Exclusive wine access"
-      ]
+        "Exclusive wine access",
+      ],
     },
     {
       id: 2,
@@ -114,8 +172,8 @@ function EventsPage() {
         "Hands-on grape picking",
         "Traditional foot stomping",
         "Farm-to-table lunch",
-        "Take-home bottle"
-      ]
+        "Take-home bottle",
+      ],
     },
     {
       id: 3,
@@ -128,25 +186,54 @@ function EventsPage() {
         "Guided vineyard walk",
         "Barrel room experience",
         "Premium tasting flight",
-        "Scenic photo opportunities"
-      ]
-    }
+        "Scenic photo opportunities",
+      ],
+    },
   ];
 
-  const sortEvents = (events) => {
-    return [...events].sort((a, b) => {
-      if (sortBy === "date") return new Date(a.date) - new Date(b.date);
-      if (sortBy === "price") return a.price - b.price;
-      if (sortBy === "availability") return b.spots - a.spots;
-      return 0;
-    });
+  const filteredEvents = events
+    .filter((event) => {
+      const eventDate = new Date(event.date);
+      const eventMonth = eventDate.getMonth();
+
+      // Filter by event time (upcoming or previous)
+      const timeMatch =
+        (eventFilter === "upcoming" && !isPastEvent(event.date)) ||
+        (eventFilter === "previous" && isPastEvent(event.date));
+
+      // Filter by category
+      const categoryMatch =
+        selectedCategory === "all" || event.category === selectedCategory;
+
+      // Filter by month
+      const monthMatch = eventMonth === selectedMonth;
+
+      // Filter by selected date if any
+      const dateMatch =
+        !selectedDate ||
+        eventDate.toDateString() === new Date(selectedDate).toDateString();
+
+      return timeMatch && categoryMatch && monthMatch && dateMatch;
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  const handleDateSelect = (date) => {
+    setSelectedDate(date);
+    setShowDatePicker(false);
   };
 
-  const filteredEvents = sortEvents(
-    events.filter(
-      (event) => selectedCategory === "all" || event.category === selectedCategory
-    )
-  );
+  const clearDateFilter = () => {
+    setSelectedDate(null);
+  };
+
+  const resetFilters = () => {
+    setSelectedCategory("all");
+    setSelectedMonth(new Date().getMonth());
+    setSelectedDate(null);
+    setEventFilter("upcoming");
+  };
+
+  const monthRange = getMonthDateRange(selectedMonth);
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -162,10 +249,13 @@ function EventsPage() {
     const newErrors = {};
     if (!bookingData.date) newErrors.date = "Please select a date";
     if (!bookingData.time) newErrors.time = "Please select a time";
-    if (bookingData.guests < 1 || bookingData.guests > 12) newErrors.guests = "Please enter 1-12 guests";
+    if (bookingData.guests < 1 || bookingData.guests > 12)
+      newErrors.guests = "Please enter 1-12 guests";
     if (!bookingData.name.trim()) newErrors.name = "Please enter your name";
-    if (!validateEmail(bookingData.email)) newErrors.email = "Please enter a valid email";
-    if (!validatePhone(bookingData.phone)) newErrors.phone = "Please enter a valid phone number";
+    if (!validateEmail(bookingData.email))
+      newErrors.email = "Please enter a valid email";
+    if (!validatePhone(bookingData.phone))
+      newErrors.phone = "Please enter a valid phone number";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -173,12 +263,24 @@ function EventsPage() {
   const handleInputChange = (field, value) => {
     let isValid = true;
     switch (field) {
-      case 'email': isValid = validateEmail(value); break;
-      case 'phone': isValid = validatePhone(value); break;
-      case 'name': isValid = value.trim().length > 0; break;
-      case 'guests': isValid = value >= 1 && value <= 12; break;
-      case 'date': isValid = value !== ""; break;
-      case 'time': isValid = value !== ""; break;
+      case "email":
+        isValid = validateEmail(value);
+        break;
+      case "phone":
+        isValid = validatePhone(value);
+        break;
+      case "name":
+        isValid = value.trim().length > 0;
+        break;
+      case "guests":
+        isValid = value >= 1 && value <= 12;
+        break;
+      case "date":
+        isValid = value !== "";
+        break;
+      case "time":
+        isValid = value !== "";
+        break;
     }
     setBookingData({ ...bookingData, [field]: value });
   };
@@ -196,7 +298,7 @@ function EventsPage() {
       name: "",
       email: "",
       phone: "",
-      specialRequests: ""
+      specialRequests: "",
     });
     setShowBookingModal(true);
   };
@@ -207,7 +309,7 @@ function EventsPage() {
     if (validateForm()) {
       setIsLoading(true);
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         setShowBookingModal(false);
         setBookingData({
           ...bookingData,
@@ -217,7 +319,7 @@ function EventsPage() {
           name: "",
           email: "",
           phone: "",
-          specialRequests: ""
+          specialRequests: "",
         });
         setIsSubmitted(false);
       } finally {
@@ -225,7 +327,6 @@ function EventsPage() {
       }
     }
   };
-
   return (
     <>
       <Navbar />
@@ -247,114 +348,183 @@ function EventsPage() {
         </div>
 
         <div className="events-container">
-          {/* Signature Experiences Section */}
-          <section className="events-section">
-            <div className="signature-experiences-grid">
-              {signatureExperiences.map((experience) => (
-                <div key={experience.id} className="experience-card">
-                  <i className={`fas ${experience.icon} experience-icon`}></i>
-                  <h3 className="experience-title">{experience.title}</h3>
-                  <div className="experience-details">
-                    <span className="experience-price">R {experience.price}/person</span>
-                    <span className="experience-duration">{experience.duration}</span>
-                  </div>
-                  <ul className="experience-highlights">
-                    {experience.highlights.map((highlight, i) => (
-                      <li key={i} className="highlight-item">
-                        <i className="fas fa-check highlight-icon"></i>
-                        {highlight}
-                      </li>
-                    ))}
-                  </ul>
-                  <button
-                    onClick={() => handleBookingClick(experience)}
-                    className="book-now-btn"
-                  >
-                    <i className="fas fa-calendar-check"></i>
-                    Book Now
-                  </button>
-                </div>
-              ))}
+          {/* Event Type Filters */}
+          <div className="combined-filters">
+            {/* Event Type Filters */}
+            <div className="event-type-filters">
+              <button
+                onClick={() => {
+                  setEventFilter("upcoming");
+                  setSelectedDate(null);
+                }}
+                className={`event-type-btn ${
+                  eventFilter === "upcoming" ? "active" : ""
+                }`}
+              >
+                <i className="fas fa-calendar-check"></i> Upcoming
+              </button>
+              <button
+                onClick={() => {
+                  setEventFilter("previous");
+                  setSelectedDate(null);
+                }}
+                className={`event-type-btn ${
+                  eventFilter === "previous" ? "active" : ""
+                }`}
+              >
+                <i className="fas fa-history"></i> Previous
+              </button>
+              {/* Month Dropdown */}
+              <div className="month-dropdown">
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => {
+                    setSelectedMonth(parseInt(e.target.value));
+                    setSelectedDate(null);
+                  }}
+                  className="month-select"
+                >
+                  {/* <i className="fas fa-calendar-day"></i> */}
+                  {monthNames.map((month, index) => (
+                    <option key={month} value={index}>
+                      {month}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
-          </section>
+
+            {/* Date Picker */}
+            {/* <div className="date-picker-container">
+              <button
+                onClick={() => setShowDatePicker(!showDatePicker)}
+                className="date-picker-btn"
+              >
+                <i className="fas fa-calendar-day"></i>
+                {selectedDate
+                  ? new Date(selectedDate).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    })
+                  : "Pick Date"}
+              </button>
+
+              {showDatePicker && (
+                <div className="date-picker-popup">
+                  <input
+                    type="date"
+                    min={monthRange.minDate}
+                    max={monthRange.maxDate}
+                    onChange={(e) => handleDateSelect(e.target.value)}
+                    className="date-picker-input"
+                  />
+                </div>
+              )}
+            </div> */}
+          </div>
 
           {/* Category Filters */}
-          <div className="category-filters">
+          {/* <div className="category-filters">
             {categories.map((category) => (
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`category-btn ${selectedCategory === category.id ? "active" : ""}`}
+                className={`category-btn ${
+                  selectedCategory === category.id ? "active" : ""
+                }`}
               >
                 <i className={`fas ${category.icon}`}></i>
                 {category.name}
               </button>
             ))}
-          </div>
+          </div> */}
 
-          {/* Month Filters */}
-          <div className="month-filters-container">
+          {/* Month and Date Filters */}
+          {/* <div className="month-date-filters">
             <div className="month-filters">
               {monthNames.map((month, index) => (
                 <button
                   key={month}
-                  onClick={() => setSelectedMonth(index)}
-                  className={`month-btn ${selectedMonth === index ? "active" : ""}`}
+                  onClick={() => {
+                    setSelectedMonth(index);
+                    setSelectedDate(null);
+                  }}
+                  className={`month-btn ${
+                    selectedMonth === index ? "active" : ""
+                  }`}
                 >
                   {month}
                 </button>
               ))}
             </div>
-
-            <div className="sort-dropdown">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="sort-select"
-              >
-                <option value="date">Sort by Date</option>
-                <option value="price">Sort by Price</option>
-                <option value="availability">Sort by Availability</option>
-              </select>
-            </div>
-          </div>
+          </div> */}
 
           {/* Events Grid */}
-          <div className="events-grid">
-            {filteredEvents.map((event) => (
-              <div
-                key={event.id}
-                className="event-card"
-                onClick={() => {
-                  setSelectedEvent(event);
-                  setShowEventModal(true);
-                  handleBookingClick(event);
-                }}
-              >
-                <img
-                  src={event.image}
-                  alt={event.title}
-                  className="event-image"
-                />
-                <div className="event-content">
-                  <h3 className="event-title">{event.title}</h3>
-                  <p className="event-description">{event.description}</p>
-                  <div className="event-footer">
-                    <div>
-                      <span className="event-price">R {event.price}</span>
-                      <span className="event-date">
-                        {new Date(event.date).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <button className="event-book-btn">
-                      <i className="fas fa-calendar-check"></i>
-                    </button>
+          {filteredEvents.length > 0 ? (
+            <div className="events-grid">
+              {filteredEvents.map((event) => (
+                <div
+                  key={event.id}
+                  className={`event-card ${
+                    isPastEvent(event.date) ? "past-event" : ""
+                  }`}
+                  onClick={() => {
+                    if (!isPastEvent(event.date)) {
+                      setSelectedEvent(event);
+                      setShowEventModal(true);
+                      handleBookingClick(event);
+                    }
+                  }}
+                >
+                  <div className="event-date-badge">
+                    {new Date(event.date).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
                   </div>
-                  <p className="event-spots">{event.spots} spots available</p>
+                  <img
+                    src={event.image}
+                    alt={event.title}
+                    className="event-image"
+                  />
+                  <div className="event-content">
+                    {/* {isPastEvent(event.date) && (
+                      <div className="event-badge past">Past Event</div>
+                    )} */}
+                    <h3 className="event-title">{event.title}</h3>
+                    <p className="event-description">{event.description}</p>
+                    <div className="event-footer">
+                      <span className="event-price">R {event.price}</span>
+                      {!isPastEvent(event.date) ? (
+                        <button className="event-book-btn">
+                          <i className="fas fa-calendar-check"></i>
+                        </button>
+                      ) : (
+                        <span className="event-status">Event Completed</span>
+                      )}
+                    </div>
+                    {!isPastEvent(event.date) && (
+                      <p className="event-spots">
+                        {event.spots} spots available
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="no-events-message">
+              <i className="fas fa-calendar-times"></i>
+              <h3>No events found matching your criteria</h3>
+              <p>
+                Try adjusting your filters or check back later for new events
+              </p>
+              <button onClick={resetFilters} className="reset-filters-btn">
+                {/* <i className="fas fa-sync-alt"></i>*/} Reset All Filters
+              </button>
+            </div>
+          )}
 
           {/* Private Events Section */}
           <div className="private-events-section">
@@ -386,24 +556,26 @@ function EventsPage() {
                 <p className="private-event-description">
                   Experience our venues before booking
                 </p>
-                <button className="private-event-btn">
-                  Schedule Tour
-                </button>
+                <button className="private-event-btn">Schedule Tour</button>
               </div>
             </div>
             <button
-              onClick={() => handleBookingClick({
-                title: "Private Event Inquiry",
-                type: "private",
-                availableTimes: []
-              }, 150)}
+              onClick={() =>
+                handleBookingClick(
+                  {
+                    title: "Private Event Inquiry",
+                    type: "private",
+                    availableTimes: [],
+                  },
+                  150
+                )
+              }
               className="contact-planner-btn"
             >
               Contact Event Planner
             </button>
           </div>
         </div>
-
         {/* Booking Modal */}
         {showBookingModal && (
           <div className="booking-modal">
@@ -422,7 +594,9 @@ function EventsPage() {
               <div className="modal-body">
                 <div className="modal-header">
                   <h3 className="modal-title">{bookingData.eventName}</h3>
-                  <p className="modal-subtitle">{bookingData.eventType} Experience</p>
+                  <p className="modal-subtitle">
+                    {bookingData.eventType} Experience
+                  </p>
                 </div>
 
                 <form onSubmit={handleBookingSubmit} noValidate>
@@ -437,10 +611,14 @@ function EventsPage() {
                         </label>
                         <input
                           type="date"
-                          className={`form-input ${(isSubmitted && errors.date) ? 'error' : ''}`}
+                          className={`form-input ${
+                            isSubmitted && errors.date ? "error" : ""
+                          }`}
                           value={bookingData.date}
-                          onChange={(e) => handleInputChange('date', e.target.value)}
-                          min={new Date().toISOString().split('T')[0]}
+                          onChange={(e) =>
+                            handleInputChange("date", e.target.value)
+                          }
+                          min={new Date().toISOString().split("T")[0]}
                           required
                         />
                         {isSubmitted && errors.date && (
@@ -453,14 +631,20 @@ function EventsPage() {
                           Time <span className="required">*</span>
                         </label>
                         <select
-                          className={`form-input ${(isSubmitted && errors.time) ? 'error' : ''}`}
+                          className={`form-input ${
+                            isSubmitted && errors.time ? "error" : ""
+                          }`}
                           value={bookingData.time}
-                          onChange={(e) => handleInputChange('time', e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("time", e.target.value)
+                          }
                           required
                         >
                           <option value="">Select a time</option>
-                          {bookingData.availableTimes.map(time => (
-                            <option key={time} value={time}>{time}</option>
+                          {bookingData.availableTimes.map((time) => (
+                            <option key={time} value={time}>
+                              {time}
+                            </option>
                           ))}
                         </select>
                         {isSubmitted && errors.time && (
@@ -476,9 +660,16 @@ function EventsPage() {
                           type="number"
                           min="1"
                           max="12"
-                          className={`form-input ${(isSubmitted && errors.guests) ? 'error' : ''}`}
+                          className={`form-input ${
+                            isSubmitted && errors.guests ? "error" : ""
+                          }`}
                           value={bookingData.guests}
-                          onChange={(e) => handleInputChange('guests', parseInt(e.target.value))}
+                          onChange={(e) =>
+                            handleInputChange(
+                              "guests",
+                              parseInt(e.target.value)
+                            )
+                          }
                           required
                         />
                         {isSubmitted && errors.guests && (
@@ -508,9 +699,13 @@ function EventsPage() {
                         </label>
                         <input
                           type="text"
-                          className={`form-input ${(isSubmitted && errors.name) ? 'error' : ''}`}
+                          className={`form-input ${
+                            isSubmitted && errors.name ? "error" : ""
+                          }`}
                           value={bookingData.name}
-                          onChange={(e) => handleInputChange('name', e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("name", e.target.value)
+                          }
                           required
                         />
                         {isSubmitted && errors.name && (
@@ -524,9 +719,13 @@ function EventsPage() {
                         </label>
                         <input
                           type="email"
-                          className={`form-input ${(isSubmitted && errors.email) ? 'error' : ''}`}
+                          className={`form-input ${
+                            isSubmitted && errors.email ? "error" : ""
+                          }`}
                           value={bookingData.email}
-                          onChange={(e) => handleInputChange('email', e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("email", e.target.value)
+                          }
                           required
                         />
                         {isSubmitted && errors.email && (
@@ -540,9 +739,13 @@ function EventsPage() {
                         </label>
                         <input
                           type="tel"
-                          className={`form-input ${(isSubmitted && errors.phone) ? 'error' : ''}`}
+                          className={`form-input ${
+                            isSubmitted && errors.phone ? "error" : ""
+                          }`}
                           value={bookingData.phone}
-                          onChange={(e) => handleInputChange('phone', e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("phone", e.target.value)
+                          }
                           required
                         />
                         {isSubmitted && errors.phone && (
@@ -551,15 +754,18 @@ function EventsPage() {
                       </div>
 
                       <div className="form-group">
-                        <label className="form-label">
-                          Special Requests
-                        </label>
+                        <label className="form-label">Special Requests</label>
                         <textarea
                           className="form-textarea"
                           rows="3"
                           placeholder="Dietary restrictions, accessibility needs, etc."
                           value={bookingData.specialRequests}
-                          onChange={(e) => setBookingData({ ...bookingData, specialRequests: e.target.value })}
+                          onChange={(e) =>
+                            setBookingData({
+                              ...bookingData,
+                              specialRequests: e.target.value,
+                            })
+                          }
                         />
                       </div>
                     </div>
@@ -568,7 +774,7 @@ function EventsPage() {
                   <div className="modal-footer">
                     <button
                       type="submit"
-                      className={`submit-btn ${isLoading ? 'loading' : ''}`}
+                      className={`modal-submit-btn ${isLoading ? "loading" : ""}`}
                       disabled={isLoading}
                     >
                       {isLoading ? (
@@ -582,7 +788,7 @@ function EventsPage() {
                     </button>
 
                     {isSubmitted && Object.keys(errors).length > 0 && (
-                      <p className="form-error-message">
+                      <p className="error-message">
                         Please fix the errors above to continue
                       </p>
                     )}
