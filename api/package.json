@@ -25,6 +25,7 @@
     "nodemailer": "^6.10.1",
     "nodemon": "^3.1.9",
     "pg": "^8.13.1",
+    "portfinder": "^1.0.37",
     "stripe": "^17.7.0"
   }
 }
