@@ -77,7 +77,7 @@ function BrandPage() {
                   muted
                   playsInline
                   className="story-video"
-                  poster="/images/video-poster.jpg"
+                  poster="/images/about.mp4"
                 >
                   <source src="/images/about.mp4" type="video/mp4" />
                   Your browser does not support the video tag.

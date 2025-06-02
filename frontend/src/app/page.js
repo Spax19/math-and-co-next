@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
@@ -8,6 +8,7 @@ import ProductModal from "../components/productModal";
 import Cart from "../components/cart";
 import { toast } from 'react-toastify';
 import './globals.css';
+import { useSearchParams } from 'next/navigation';
 
 
 function MainComponent() {
@@ -239,6 +240,31 @@ function MainComponent() {
       author: "Sarah M., Wine Enthusiast",
     },
   ];
+
+  // Changed from useLocation to useSearchParams for Next.js
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Check for verification success
+    const verified = searchParams.get('verified');
+    if (verified === 'true') {
+      toast.success('Your account has been successfully verified!', {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      
+      // Clean up URL without refreshing
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('verified');
+        window.history.replaceState({}, '', url.toString());
+      }
+    }
+  }, [searchParams]);
 
   return (
     <>

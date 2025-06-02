@@ -183,15 +183,27 @@ app.post("/register", async (req, res) => {
         from: "kmotsepe807@gmail.com",
         to: email,
         subject: "Email Verification",
-        text: `Hello ${username},\n\nPlease verify your email by clicking the following link:\n\n${verificationLink}\n\nIf you did not request this, please ignore this email.`,
-      };
+        html: `  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #d4b26a;">Welcome to Math & Co!</h2>
+          <p>Hello ${username},</p>
+          <p>Please verify your email address by clicking the button below:</p>
+          <a href="${verificationLink}" 
+             style="display: inline-block; padding: 10px 20px; background-color: #d4b26a; 
+             color: white; text-decoration: none; border-radius: 5px; margin: 20px 0;">
+            Verify Email
+          </a>
+          <p>Or copy and paste this link into your browser:</p>
+          <p style="word-break: break-all;">${verificationLink}</p>
+          <p>If you didn't create an account with us, please ignore this email.</p>
+        </div>
+      `}
 
       transporter.sendMail(mailOptions, (err, info) => {
         if (err) {
           console.error("Error sending verification email:", err);
           return res
             .status(500)
-            .send({ message: "Error sending verification email.", err });
+            .send({ message: "Error sending verification email."});
         }
         res.status(200).send({
           success: true,
@@ -206,7 +218,7 @@ app.get("/verify-email", (req, res) => {
   const { token } = req.query;
 
   // Check if the token is valid
-  const sql = `SELECT * FROM users WHERE verification_token = ?`;
+  const sql = `SELECT * FROM users WHERE verification_token = ? `;
 
   db.query(sql, [token], (err, result) => {
     if (err) {
@@ -223,9 +235,9 @@ app.get("/verify-email", (req, res) => {
     // If the token is valid, update the user's is_verified and status
     const updateSql = `
         UPDATE users 
-        SET is_verified = TRUE, status = 'active' 
+        SET is_verified = TRUE, status = 'active', verification_token = NULL 
         WHERE id = ?
-      `;
+          `;
 
     db.query(updateSql, [user.id], (err, updateResult) => {
       if (err) {
@@ -234,9 +246,10 @@ app.get("/verify-email", (req, res) => {
       }
 
       // Return a success response with a message and status
-      return res.redirect("http://localhost:3000/");
+       res.redirect("http://localhost:3000?verified=true");
     });
   });
+
 });
 
 app.post("/login", (req, res) => {
@@ -268,7 +281,7 @@ app.post("/login", (req, res) => {
 
     const user = result[0];
 
-    // Return specific error messages with consistent structure
+    // Check verification and status
     if (!user.is_verified) {
       return res.status(403).json({
         success: false,
@@ -300,11 +313,26 @@ app.post("/login", (req, res) => {
       if (logErr) console.error("Login log error:", logErr);
     });
 
-    // Successful response
+    // Determine redirect URL based on user type
+    let redirectUrl = 'http://localhost:3000'; // Default for regular users
+    
+    if (user.userType === 'admin') {
+      redirectUrl = './admin/dashboard';
+    } else if (user.userType === 'webAdmin') {
+      redirectUrl = '/web-admin/console';
+    }
+
+    // Successful response with redirect information
     res.status(200).json({
       success: true,
       message: "Login successful",
       userType: user.userType,
+      redirectTo: redirectUrl,
+      userData: {
+        id: user.id,
+        username: user.username,
+        email: user.email
+      }
     });
   });
 });
@@ -990,7 +1018,7 @@ app.put("/edit_distributor/:id", upload.single("image"), (req, res) => {
     const updateQuery = `
             UPDATE distributors
             SET name = ?, contacts = ?, address = ?, image = ?
-            WHERE id = ?`;
+        WHERE id = ? `;
 
     db.query(
       updateQuery,
@@ -1182,6 +1210,6 @@ module.exports = app;
 if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 5174;
   app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${ PORT } `);
   });
 }

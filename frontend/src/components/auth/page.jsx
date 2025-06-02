@@ -35,25 +35,25 @@ const AuthModal = ({ isOpen, onClose }) => {
 
     const validateForm = () => {
         const newErrors = {};
-        
+
         if (!isLogin && !formData.username.trim()) {
             newErrors.username = "Name is required";
         } else if (!isLogin && !validateUsername(formData.username)) {
             newErrors.username = "Name must be 2-50 letters and spaces only";
         }
-        
+
         if (!formData.email.trim()) {
             newErrors.email = "Email is required";
         } else if (!validateEmail(formData.email)) {
             newErrors.email = "Please enter a valid email address";
         }
-        
+
         if (!formData.password.trim()) {
             newErrors.password = "Password is required";
         } else if (!validatePassword(formData.password)) {
             newErrors.password = "Password must be 8-13 characters with at least one uppercase letter, one number, and one special character";
         }
-        
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -63,7 +63,7 @@ const AuthModal = ({ isOpen, onClose }) => {
             ...prev,
             [field]: value
         }));
-        
+
         // Clear error when user types
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: "" }));
@@ -73,7 +73,7 @@ const AuthModal = ({ isOpen, onClose }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         setIsSubmitted(true);
-        
+
         if (!validateForm()) {
             return;
         }
@@ -109,39 +109,38 @@ const AuthModal = ({ isOpen, onClose }) => {
 
     const handleSignInSubmit = async (e) => {
         e.preventDefault();
-        setIsSubmitted(true);
-        
-        if (!validateForm()) {
-            return;
-        }
 
-        setIsLoading(true);
         try {
-            const res = await axios.post("http://localhost:5174/login", {
-                username: formData.username,
-                password: formData.password,
+            const response = await fetch('/http:localhost:3000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
             });
 
-            if (res.status === 200 && res.data?.userType) {
-                const { userType, message } = res.data;
-                localStorage.setItem("role", JSON.stringify(userType));
-                setRole(userType);
+            const data = await response.json();
 
-                setTimeout(() => {
-                    if (userType === "admin" || userType === "webAdmin") {
-                        navigate("/dashboard");
-                    } else {
-                        navigate("/");
-                    }
-                }, 1500);
+            if (data.success) {
+                // Store user data in context/state/localStorage
+                localStorage.setItem('user', JSON.stringify(data.userData));
+
+                // Redirect based on user type
+                if (data.userType === 'admin') {
+                    router.push('./admin/dashboard');
+                } else if (data.userType === 'webAdmin') {
+                    router.push('/web-admin/console');
+                } else {
+                    router.push('http://localhost:3000');
+                }
+
+                toast.success(data.message);
             } else {
-                throw new Error(res.data?.message || "Unexpected response from server.");
+                toast.error(data.message);
             }
-        } catch (err) {
-            console.error("Login Error:", err);
-            setErrors({ form: err.response?.data?.message || "Login failed. Please try again." });
-        } finally {
-            setIsLoading(false);
+        } catch (error) {
+            toast.error('Login failed. Please try again.');
+            console.error('Login error:', error);
         }
     };
 
