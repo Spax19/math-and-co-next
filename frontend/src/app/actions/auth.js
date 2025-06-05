@@ -1,6 +1,6 @@
 import { SignupFormSchema } from '@/app/lib/definitions'
 import { cookies } from 'next/headers'
-import { deleteSession } from '../lib/session'
+import { deleteSession } from '../../lib/session'
 
 
 export async function signup(state, formData) {

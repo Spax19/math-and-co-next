@@ -127,7 +127,7 @@ const AuthModal = ({ isOpen, onClose }) => {
 
                 // Redirect based on user type
                 if (data.userType === 'admin') {
-                    router.push('./admin/dashboard');
+                    router.push('/app/admin/dashboard');
                 } else if (data.userType === 'webAdmin') {
                     router.push('/web-admin/console');
                 } else {

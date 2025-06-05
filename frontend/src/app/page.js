@@ -280,7 +280,7 @@ function MainComponent() {
                   <br />
                   Home of Carbernet.
                 </h1>
-                <Link href="./shop">
+                <Link href="./main/shop">
                   <button className="hero-button">
                     Shop Our Wines
                   </button>

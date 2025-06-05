@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import LoginForm from './auth/loginForm';
+import RegisterForm from './auth/registerForm';
 
 const AuthModal = ({ isOpen, onClose }) => {
     const [isLogin, setIsLogin] = useState(true);
@@ -76,7 +78,7 @@ const AuthModal = ({ isOpen, onClose }) => {
 
     const handleSignInSubmit = async (e) => {
         e.preventDefault();
-    
+
         // Client-side validation
         if (!formData.email.trim()) {
             toast.error("Email is required");
@@ -86,7 +88,7 @@ const AuthModal = ({ isOpen, onClose }) => {
             toast.error("Password is required");
             return;
         }
-    
+
         try {
             const res = await axios.post(
                 "http://localhost:5174/login",
@@ -99,17 +101,17 @@ const AuthModal = ({ isOpen, onClose }) => {
                     timeout: 10000
                 }
             );
-    
+
             // Check for success flag in response
             if (res.data?.success) {
                 const { userType, message } = res.data;
-    
+
                 toast.success(message || "Login successful!");
                 localStorage.setItem("role", JSON.stringify(userType));
-    
+
                 setTimeout(() => {
-                    router.push(userType === "admin" || userType === "webAdmin" 
-                        ? "/dashboard" 
+                    router.push(userType === "admin" || userType === "webAdmin"
+                        ? "/dashboard"
                         : "/profile");
                 }, 1500);
             } else {
@@ -133,21 +135,21 @@ const AuthModal = ({ isOpen, onClose }) => {
                     default:
                         toast.error(err.response.data?.message || "Access forbidden");
                 }
-            } 
+            }
             // Handle other error statuses
             else if (err.response) {
-                toast.error(err.response.data?.message || 
-                          `Error: ${err.response.status} - ${err.response.statusText}`);
-            } 
+                toast.error(err.response.data?.message ||
+                    `Error: ${err.response.status} - ${err.response.statusText}`);
+            }
             // Handle network errors
             else if (err.request) {
                 toast.error("Network error - please check your connection");
-            } 
+            }
             // Handle other errors
             else {
                 toast.error(err.message || "Login failed. Please try again.");
             }
-    
+
             // console.error("Login Error:", {
             //     status: err.response?.status,
             //     errorType: err.response?.data?.errorType,
@@ -169,13 +171,11 @@ const AuthModal = ({ isOpen, onClose }) => {
 
     return (
         <>
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            {/* <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                 <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
                     <div className="p-6">
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-2xl font-bold text-gray-800">
-                                {isLogin ? 'Sign In' : 'Sign Up'}
-                            </h2>
+                         
                             <button
                                 onClick={onClose}
                                 className="text-gray-500 hover:text-gray-700"
@@ -186,7 +186,7 @@ const AuthModal = ({ isOpen, onClose }) => {
                             </button>
                         </div>
 
-                        {/* Social Login Buttons */}
+                  
                         <div className="space-y-3 mb-6">
                             <button
                                 type="button"
@@ -217,7 +217,7 @@ const AuthModal = ({ isOpen, onClose }) => {
                             <div className="flex-1 border-t border-gray-300"></div>
                         </div>
 
-                        {/* Email/Password Form */}
+                  
                         <form onSubmit={isLogin ? handleSignInSubmit : handleSubmit} className="space-y-4">
                             {!isLogin && (
                                 <div>
@@ -312,7 +312,25 @@ const AuthModal = ({ isOpen, onClose }) => {
                         </div>
                     </div>
                 </div>
+            </div> */}
+          
+
+ 
+
+           
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+                {isLogin ? (
+                    <LoginForm
+                        switchToRegister={() => setIsLogin(false)}
+                    />
+                ) : (
+                    <RegisterForm
+                        switchToLogin={() => setIsLogin(true)}
+                    />
+                )}
             </div>
+
+            
         </>
     );
 };

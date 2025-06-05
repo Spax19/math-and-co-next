@@ -317,9 +317,9 @@ app.post("/login", (req, res) => {
     let redirectUrl = 'http://localhost:3000'; // Default for regular users
     
     if (user.userType === 'admin') {
-      redirectUrl = './admin/dashboard';
-    } else if (user.userType === 'webAdmin') {
-      redirectUrl = '/web-admin/console';
+      redirectUrl = '../admin/dashboard';
+    } else if (user.userType === 'web-admin') {
+      redirectUrl = '../web-admin/dashboard';
     }
 
     // Successful response with redirect information
