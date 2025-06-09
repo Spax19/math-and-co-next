@@ -1,22 +1,33 @@
 // components/ProtectedRoute.js
-"use client";
-import { useRouter } from 'next/navigation';
+'use client';
+import {useState, useEffect} from 'react';
 import { useAuth } from '../context/AuthContext';
+import LoginForm from './auth/loginForm';
 
-export default function ProtectedRoute({ children, requiredRole = null }) {
-  const { user, isAuthenticated } = useAuth();
-  const router = useRouter();
+export default function ProtectedRoute({ children, requiredRole = 'user' }) {
+  const { user } = useAuth();
+  const [showLogin, setShowLogin] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-    } else if (requiredRole && user?.role !== requiredRole) {
-      router.push('/unauthorized');
+    if (!user || (requiredRole !== 'user' && user.userType !== requiredRole)) {
+      setShowLogin(true);
     }
-  }, [isAuthenticated, user, requiredRole, router]);
+  }, [user, requiredRole]);
 
-  if (!isAuthenticated || (requiredRole && user?.role !== requiredRole)) {
-    return null; // or a loading spinner
+  if (showLogin) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="w-full max-w-md">
+          <LoginForm 
+            onSuccess={() => setShowLogin(false)}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
   }
 
   return children;

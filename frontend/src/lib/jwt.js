@@ -1,16 +1,22 @@
-// lib/jwt.js
-import { sign, verify } from 'jsonwebtoken';
+import { SignJWT, jwtVerify } from 'jose';
 
-export function generateToken(payload) {
-  if (!process.env.JWT_SECRET) {
-    throw new Error('JWT_SECRET not configured');
-  }
-  return sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+// Convert secret to Uint8Array
+const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+
+export async function createToken(payload) {
+  return await new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('24h')
+    .sign(secret);
 }
 
-export function verifyToken(token) {
-  if (!process.env.JWT_SECRET) {
-    throw new Error('JWT_SECRET not configured');
+export async function verifyToken(token) {
+  try {
+    const { payload } = await jwtVerify(token, secret);
+    return payload;
+  } catch (error) {
+    console.error('Token verification failed:', error);
+    return null;
   }
-  return verify(token, process.env.JWT_SECRET);
 }

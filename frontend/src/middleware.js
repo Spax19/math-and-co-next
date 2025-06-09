@@ -1,19 +1,17 @@
 // middleware.js
 import { NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
 import { verifyToken } from './lib/jwt';
-
 
 export async function middleware(request) {
   const token = request.cookies.get('auth-token')?.value;
   const { pathname } = request.nextUrl;
 
-  // Protected routes
+  // Route definitions
   const protectedRoutes = ['/profile', '/admin', '/webadmin'];
   const adminRoutes = ['/admin'];
   const webadminRoutes = ['/webadmin'];
 
-  // Check if route is protected
+  // Check if current route is protected
   const isProtected = protectedRoutes.some(route => pathname.startsWith(route));
   
   if (isProtected) {
@@ -22,33 +20,38 @@ export async function middleware(request) {
     }
 
     try {
-      // Verify token 
-      const decoded = verifyToken(token);
-
-      // Check admin routes
-      if (adminRoutes.some(route => pathname.startsWith(route)) && decoded.role !== 'admin') {
-        return NextResponse.redirect(new URL('/unauthorized', request.url));
+      // Verify token - make sure verifyToken returns the decoded payload
+      const decoded = await verifyToken(token);
+      
+      if (!decoded) {
+        throw new Error('Invalid token');
       }
 
-      // Check webadmin routes
-      if (webadminRoutes.some(route => pathname.startsWith(route)) && decoded.role !== 'webadmin') {
-        return NextResponse.redirect(new URL('/unauthorized', request.url));
+      // Check admin access
+      const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route));
+      if (isAdminRoute && decoded.role !== 'admin') {
+        return NextResponse.redirect(new URL('/main/unauthorized', request.url));
       }
 
-      // Add user to request headers
-      const requestHeaders = new Headers(request.headers);
-      requestHeaders.set('x-user-id', decoded.userId);
-      requestHeaders.set('x-user-role', decoded.role);
+      // Check webadmin access
+      const isWebadminRoute = webadminRoutes.some(route => pathname.startsWith(route));
+      if (isWebadminRoute && decoded.role !== 'webadmin') {
+        return NextResponse.redirect(new URL('/main/unauthorized', request.url));
+      }
+
+      // Add user info to headers
+      const headers = new Headers(request.headers);
+      headers.set('x-user-id', decoded.userId);
+      headers.set('x-user-email', decoded.email);
+      headers.set('x-user-role', decoded.role);
 
       return NextResponse.next({
-        request: {
-          headers: requestHeaders,
-        },
+        request: { headers },
       });
 
     } catch (error) {
-      console.error('Token verification failed:', error.message);
-      const response = NextResponse.redirect(new URL('/login', request.url));
+      console.error('Authentication error:', error);
+      const response = NextResponse.redirect(new URL('/', request.url));
       response.cookies.delete('auth-token');
       return response;
     }
@@ -56,3 +59,12 @@ export async function middleware(request) {
 
   return NextResponse.next();
 }
+
+// Config to specify which paths should use middleware
+export const config = {
+  matcher: [
+    '/profile/:path*',
+    '/admin/dashboard:path*',
+    '/webadmin/dashboard:path*'
+  ],
+};

@@ -1,26 +1,13 @@
 'use client';
-import { useAuth } from '@/context/AuthContext';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import ProtectedRoute from '../../../components/protectedRoutes';
 
 export default function AdminDashboard() {
-  const { user } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!user || user.userType !== 'admin') {
-      router.push('/login');
-    }
-  }, [user, router]);
-
-  if (!user || user.userType !== 'admin') {
-    return <div>Loading...</div>;
-  }
-
   return (
-    <div>
-      <h1>Admin Dashboard</h1>
-      {/* Admin content */}
-    </div>
+    <ProtectedRoute requiredRole="admin">
+      <div className="p-6">
+        <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
+        {/* Admin content */}
+      </div>
+    </ProtectedRoute>
   );
 }

@@ -10,7 +10,14 @@ import AuthModal from './auth/authModal'; // Make sure this path is correct
 
 const Navbar = ({ cart = [], setIsCartOpen }) => {
   const router = useRouter();
-  const { user, isAuthenticated, isAdmin, isWebAdmin, logout } = useAuth();
+  // Destructure only what you need
+  const {
+    user,
+    isAuthenticated,
+    isAdmin,
+    isWebAdmin,
+    logout
+  } = useAuth();
   const pathname = usePathname();
   const isMobile = useIsMobile();
   const { theme, toggleTheme } = useTheme();
@@ -83,10 +90,10 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
       <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="text-2xl font-crimson-text hover:text-[#d4b26a] mr-4">
-          <Image 
-            src="/images/Math&Co.png" 
-            alt="Math&Co Logo" 
-            width={100} 
+          <Image
+            src="/images/Math&Co.png"
+            alt="Math&Co Logo"
+            width={100}
             height={80}
             className="w-25 h-20"
           />
@@ -99,9 +106,8 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`hover:text-[#d4b26a] transition-colors ${
-                  pathname === link.href ? 'text-[#d4b26a]' : ''
-                }`}
+                className={`hover:text-[#d4b26a] transition-colors ${pathname === link.href ? 'text-[#d4b26a]' : ''
+                  }`}
               >
                 {link.name}
               </Link>
@@ -112,7 +118,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
         {/* Right-aligned Icons */}
         <div className="flex items-center space-x-4">
           {/* Theme Toggle */}
-          <button 
+          <button
             onClick={toggleTheme}
             aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
             className="p-2 rounded-full hover:bg-gray-700"
@@ -126,7 +132,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
 
           {/* Cart Icon (hidden for admin) */}
           {!isAdmin && (
-            <button 
+            <button
               className="relative hover:text-[#d4b26a] transition-colors"
               onClick={() => setIsCartOpen(true)}
               aria-label="Open cart"
@@ -215,9 +221,8 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`py-2 hover:text-[#d4b26a] transition-colors ${
-                    pathname === link.href ? 'text-[#d4b26a]' : ''
-                  }`}
+                  className={`py-2 hover:text-[#d4b26a] transition-colors ${pathname === link.href ? 'text-[#d4b26a]' : ''
+                    }`}
                   onClick={closeAll}
                 >
                   {link.name}

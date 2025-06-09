@@ -182,7 +182,7 @@ const RegisterForm = ({ onSuccess, switchToLogin }) => {
                     </p>
                 </div>
 
-                <div>
+                {/* <div>
                     <label htmlFor="inviteCode" className="block text-sm font-medium text-gray-700 mb-1">
                         Invite Code (optional)
                     </label>
@@ -198,7 +198,7 @@ const RegisterForm = ({ onSuccess, switchToLogin }) => {
                     <p className="mt-1 text-xs text-gray-500">
                         Required for admin registration
                     </p>
-                </div>
+                </div> */}
                 {error && (
                     <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">
                         {error}
