@@ -1,6 +1,6 @@
 // app/api/auth/logout/route.js
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query } from '../../../../lib/db';
 
 export async function POST(request) {
   const token = request.cookies.get('session-token')?.value;
