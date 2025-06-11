@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
+import LoadingSpinner from "../components/loadingSpinner";
 import Image from "next/image";
 import Navbar from "../components/navbar";
 import Footer from "../components/footer";
@@ -11,7 +12,7 @@ import './globals.css';
 import { useSearchParams } from 'next/navigation';
 
 
-function MainComponent() {
+function MainComponentContent() {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState(0);
@@ -1034,4 +1035,12 @@ function MainComponent() {
   );
 }
 
-export default MainComponent;
+
+
+export default function MainComponent() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <MainComponentContent />
+    </Suspense>
+  );
+}
