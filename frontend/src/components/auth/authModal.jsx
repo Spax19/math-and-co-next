@@ -1,6 +1,6 @@
 "use client";
 import { useState } from 'react';
-import LoginForm from './LoginForm';
+import LoginForm from './loginForm';
 import RegisterForm from './RegisterForm';
 import SocialAuth from "./socialAuth";
 import AuthDivider from "./authDivider";
