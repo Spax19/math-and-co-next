@@ -1,9 +1,10 @@
 "use client";
 import { useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { toast } from 'react-toastify';
+import LoadingSpinner from '../../../components/loadingSpinner';
 
-export default function VerifyEmailSentPage() {
+export default function VerifyEmailContent() {
     const searchParams = useSearchParams();
     const email = searchParams.get('email');
 
@@ -46,4 +47,12 @@ export default function VerifyEmailSentPage() {
             </div>
         </div>
     );
+}
+
+export default function VerifyEmailSentPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <VerifyEmailContent />
+    </Suspense>
+  );
 }
