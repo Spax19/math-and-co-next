@@ -6,4 +6,4 @@ function webAdminNavbar() {
   )
 }
 
-export default AdminNavbar
+export default webAdminNavbar
