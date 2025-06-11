@@ -4,7 +4,7 @@ import { useEffect, Suspense } from 'react';
 import { toast } from 'react-toastify';
 import LoadingSpinner from '../../../components/loadingSpinner';
 
-export default function VerifyEmailContent() {
+function VerifyEmailContent() {
     const searchParams = useSearchParams();
     const email = searchParams.get('email');
 
