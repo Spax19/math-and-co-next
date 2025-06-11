@@ -1,12 +1,12 @@
-// app/verify-email/page.js
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import VerificationModal from '../../../components/verificationModal';
 import { useRouter } from 'next/navigation';
+import LoadingSpinner from '../../../components/loadingSpinner';
 
 
-export default function VerifyEmailPage() {
+function VerifyEmailPageContent() {
     const searchParams = useSearchParams();
     const token = searchParams.get('token');
     const [verificationStatus, setVerificationStatus] = useState({
@@ -76,4 +76,12 @@ export default function VerifyEmailPage() {
             )}
         </div>
     );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <VerifyEmailPageContent />
+    </Suspense>
+  );
 }
