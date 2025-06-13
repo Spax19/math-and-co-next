@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, useRef } from "react";
 import LoadingSpinner from "../components/loadingSpinner";
 import Image from "next/image";
 import Navbar from "../components/navbar";
@@ -10,7 +10,7 @@ import Cart from "../components/cart";
 import { toast } from 'react-toastify';
 import './globals.css';
 import { useSearchParams } from 'next/navigation';
-
+import BookingModal from "../components/bookingModal";
 
 function MainComponentContent() {
   const [cart, setCart] = useState([]);
@@ -21,6 +21,24 @@ function MainComponentContent() {
   const [error, setError] = useState(null);
   const [email, setEmail] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [bookingData, setBookingData] = useState({
+    experience: "",
+    eventName: "",
+    eventType: "",
+    price: 0,
+    date: "",
+    time: "",
+    guests: 1,
+    name: "",
+    email: "",
+    phone: "",
+    specialRequests: "",
+    availableTimes: [],
+  });
+  const [errors, setErrors] = useState({});
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const openModal = (wine) => {
     setSelectedProduct(wine);
@@ -85,6 +103,57 @@ function MainComponentContent() {
         draggable: true,
       }
     );
+  };
+
+  const handleBookingClick = (experience) => {
+    setBookingData({
+      experience: experience.name,
+      eventName: experience.name,
+      eventType: experience.type,
+      price: experience.price,
+      availableTimes: experience.availableTimes,
+      date: "",
+      time: "",
+      guests: 1,
+      name: "",
+      email: "",
+      phone: "",
+      specialRequests: "",
+      duration: experience.duration,
+      highlights: experience.highlights
+    });
+    setShowBookingModal(true);
+  };
+
+  const handleInputChange = (field, value) => {
+    setBookingData({ ...bookingData, [field]: value });
+  };
+
+  const handleBookingSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitted(true);
+
+    if (validateForm()) {
+      setIsLoading(true);
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setShowBookingModal(false);
+        setBookingData({
+          ...bookingData,
+          date: "",
+          time: "",
+          guests: 1,
+          name: "",
+          email: "",
+          phone: "",
+          specialRequests: "",
+        });
+        setIsSubmitted(false);
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   const featuredWines = [
@@ -215,32 +284,53 @@ function MainComponentContent() {
 
   const experiences = [
     {
+      id: 1,
       name: "Tasting Room",
       image: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Tasting%2520Room",
       description: "Guided tastings of our finest wines",
+      type: "tasting",
+      price: 150,
+      duration: "1 hour",
+      availableTimes: ["10:00", "12:00", "14:00", "16:00"],
+      highlights: [
+        "Sample 5 premium wines",
+        "Learn tasting techniques",
+        "Vineyard views"
+      ]
     },
     {
+      id: 2,
       name: "Vineyard Tours",
       image: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Vineyard%2520Tours",
       description: "Walk through our historic vineyards",
+      type: "tour",
+      price: 150,
+      duration: "2 hours",
+      availableTimes: ["09:00", "11:00", "13:00"],
+      highlights: [
+        "Guided vineyard walk",
+        "Meet the winemaker",
+        "Includes tasting"
+      ]
     },
     {
+      id: 3,
       name: "Wine Pairing",
       image: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Wine%2520Pairing",
       description: "Chef-curated food and wine experiences",
-    },
+      type: "dining",
+      price: 150,
+      duration: "3 hours",
+      availableTimes: ["18:00", "18:30", "19:00"],
+      highlights: [
+        "5-course meal",
+        "Premium wine pairings",
+        "Private dining room"
+      ]
+    }
   ];
 
-  const testimonials = [
-    {
-      text: "The finest wine experience in the region",
-      author: "James W., Wine Club Member",
-    },
-    {
-      text: "Exceptional quality and service",
-      author: "Sarah M., Wine Enthusiast",
-    },
-  ];
+
 
   // Changed from useLocation to useSearchParams for Next.js
   const searchParams = useSearchParams();
@@ -257,7 +347,7 @@ function MainComponentContent() {
         pauseOnHover: true,
         draggable: true,
       });
-      
+
       // Clean up URL without refreshing
       if (typeof window !== 'undefined') {
         const url = new URL(window.location.href);
@@ -782,17 +872,16 @@ function MainComponentContent() {
           </section>
 
           <section className="mb-16">
-            <h2 className="section-title">
-              Winery Experience
-            </h2>
+            <h2 className="section-title">Winery Experience</h2>
 
             <div className="relative">
               <div className="flex overflow-x-auto pb-6 experience-scroller">
                 <div className="flex space-x-8 min-w-max">
-                  {experiences.map((exp, index) => (
+                  {experiences.map((exp) => (
                     <div
-                      key={index}
+                      key={exp.id}
                       className="experience-card"
+                      onClick={() => handleBookingClick(exp)}
                     >
                       <div className="experience-image-container">
                         <img
@@ -800,6 +889,9 @@ function MainComponentContent() {
                           alt={exp.name}
                           className="experience-image"
                         />
+                        <div className="experience-price-badge">
+                          R{exp.price} per person
+                        </div>
                       </div>
 
                       <div className="experience-content">
@@ -810,9 +902,23 @@ function MainComponentContent() {
                           <p className="experience-description">
                             {exp.description}
                           </p>
+                          {/* <div className="experience-highlights">
+                            {exp.highlights.map((highlight, i) => (
+                              <div key={i} className="highlight-item">
+                                <i className="fas fa-check-circle highlight-icon"></i>
+                                <span>{highlight}</span>
+                              </div>
+                            ))}
+                          </div> */}
                         </div>
 
-                        <button className="book-now-btn">
+                        <button
+                          className="book-now-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleBookingClick(exp);
+                          }}
+                        >
                           <i className="fas fa-calendar-check mr-2"></i>
                           Book Now
                         </button>
@@ -886,66 +992,8 @@ function MainComponentContent() {
             </div>
           </section>
 
-          <section className="mb-16 text-center mt-16">
-            <p>Featured In</p>
-            <div className="grid grid-cols-2 md:grid-cols-8 items-center mt-8 ml-16">
-              <img
-                src="./clients/carpe.jpg"
-                alt="Carpe Logo"
-                className="client-logo"
-              />
-              <img
-                src="./clients/Appto.jpeg"
-                alt="Appto Logo"
-                className="client-logo"
-              />
-              <img
-                src="./clients/davinci.png"
-                alt="Davinci Logo"
-                className="client-logo"
-              />
-              <img
-                src="./clients/mabu.jpg"
-                alt="Mabu Logo"
-                className="client-logo"
-              />
-              <img
-                src="./clients/mela.png"
-                alt="Mela Logo"
-                className="client-logo"
-              />
-              <img
-                src="./clients/oldrock.jpg"
-                alt="Oldrock Logo"
-                className="client-logo"
-              />
-              <img
-                src="./clients/spar.jpeg"
-                alt="Spar Logo"
-                className="client-logo"
-              />
-              <img
-                src="./clients/life-grand-cafe.jpg"
-                alt="Life Grand Cafe Logo"
-                className="client-logo"
-              />
-            </div>
-          </section>
-
-          <section className="mb-16">
-            <h2 className="section-title">
-              What Our Customers Say
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {testimonials.map((testimonial, index) => (
-                <div key={index} className="testimonial-card">
-                  <i className="fas fa-quote-left text-[#d4b26a] text-2xl mb-4"></i>
-                  <p className="testimonial-text">{testimonial.text}</p>
-                  <p className="testimonial-author">- {testimonial.author}</p>
-                </div>
-              ))}
-            </div>
-          </section>
+          <FeaturedClients />
+          <TestimonialsSection />
 
           <section className="mb-16">
             <h2 className="section-title">
@@ -954,7 +1002,7 @@ function MainComponentContent() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <a
-                href="https://www.instagram.com/YOUR_INSTAGRAM_USERNAME/"
+                href="https://www.instagram.com/mathandco_/?hl=en"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="instagram-card"
@@ -970,7 +1018,7 @@ function MainComponentContent() {
               </a>
 
               <a
-                href="https://www.instagram.com/YOUR_INSTAGRAM_USERNAME/"
+                href="https://www.instagram.com/mathandco_/?hl=en"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="instagram-card"
@@ -986,14 +1034,15 @@ function MainComponentContent() {
               </a>
 
               <a
-                href="https://www.instagram.com/YOUR_INSTAGRAM_USERNAME/"
+                href="https://www.instagram.com/mathandco_/?hl=en"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="instagram-card"
               >
                 <img
-                  src="https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Barrel%2520room"
-                  alt="Barrel room"
+                  href="https://www.instagram.com/mathandco_/?hl=en"
+                  src="./images/insta.jpeg"
+                  alt="Wine bottles"
                   className="instagram-image"
                 />
                 <div className="instagram-overlay">
@@ -1002,7 +1051,7 @@ function MainComponentContent() {
               </a>
 
               <a
-                href="https://www.instagram.com/YOUR_INSTAGRAM_USERNAME/"
+                href="https://www.instagram.com/mathandco_/?hl=en"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="instagram-card"
@@ -1028,6 +1077,21 @@ function MainComponentContent() {
             setCart={setCart}
           />
         )}
+
+        <BookingModal
+          isOpen={showBookingModal}
+          onClose={() => {
+            setShowBookingModal(false);
+            setErrors({});
+            setIsSubmitted(false);
+          }}
+          bookingData={bookingData}
+          onSubmit={handleBookingSubmit}
+          errors={errors}
+          isSubmitted={isSubmitted}
+          isLoading={isLoading}
+          onInputChange={handleInputChange}
+        />
       </div>
 
       <Footer />
@@ -1035,7 +1099,225 @@ function MainComponentContent() {
   );
 }
 
+function FeaturedClients() {
+  const scrollContainerRef = useRef(null);
 
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    let scrollAmount = 0;
+    const scrollSpeed = 0.5;
+    const scrollWidth = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+
+    const scroll = () => {
+      if (scrollAmount >= scrollWidth) {
+        scrollAmount = 0;
+        scrollContainer.scrollLeft = 0;
+      } else {
+        scrollAmount += scrollSpeed;
+        scrollContainer.scrollLeft = scrollAmount;
+      }
+      requestAnimationFrame(scroll);
+    };
+
+    const scrollTimeout = setTimeout(() => {
+      requestAnimationFrame(scroll);
+    }, 1000);
+
+    const handleMouseEnter = () => {
+      scrollAmount = scrollContainer.scrollLeft;
+      cancelAnimationFrame(scroll);
+    };
+
+    const handleMouseLeave = () => {
+      requestAnimationFrame(scroll);
+    };
+
+    scrollContainer.addEventListener('mouseenter', handleMouseEnter);
+    scrollContainer.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      clearTimeout(scrollTimeout);
+      cancelAnimationFrame(scroll);
+      scrollContainer.removeEventListener('mouseenter', handleMouseEnter);
+      scrollContainer.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
+
+  const clients = [
+    { name: "Carpe", logo: "./clients/carpe.jpg" },
+    { name: "Appto", logo: "./clients/Appto.jpeg" },
+    { name: "Davinci", logo: "./clients/davinci.png" },
+    { name: "Mabu", logo: "./clients/mabu.jpg" },
+    { name: "Mela", logo: "./clients/mela.png" },
+    { name: "Oldrock", logo: "./clients/oldrock.jpg" },
+    { name: "Spar", logo: "./clients/spar.jpeg" },
+    { name: "Life Grand Cafe", logo: "./clients/life-grand-cafe.jpg" },
+    { name: "Carpe", logo: "./clients/carpe.jpg" },
+    { name: "Appto", logo: "./clients/Appto.jpeg" },
+    { name: "Davinci", logo: "./clients/davinci.png" },
+    { name: "Mabu", logo: "./clients/mabu.jpg" },
+  ];
+
+  return (
+    <section className="mb-16 mt-16" aria-label="Featured in these publications">
+      <div className="text-center">
+        <h2 className="section-title mb-2">Featured In</h2>
+        <div
+          ref={scrollContainerRef}
+          className="flex overflow-x-hidden py-4 relative"
+        >
+          <div className="flex items-center animate-scroll whitespace-nowrap">
+            {clients.map((client, index) => (
+              <div
+                key={`${client.name}-${index}`}
+                className="inline-flex items-center justify-center px-8 mx-4"
+              >
+                <img
+                  src={client.logo}
+                  alt={`${client.name} Logo - Featured Partner`}
+                  className="client-logo h-12 object-contain max-w-[120px] opacity-70 hover:opacity-100 transition-opacity duration-300"
+                  loading="lazy"
+                  width="120"
+                  height="48"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+function TestimonialsSection() {
+  const scrollContainerRef = useRef(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const testimonials = [
+    {
+      text: "The finest wine experience in the region. Their Cabernet Sauvignon is absolutely exceptional!",
+      author: "James W., Wine Club Member",
+      rating: 5
+    },
+    {
+      text: "Exceptional quality and service. The vineyard tour was educational and the tasting room was superb.",
+      author: "Sarah M., Wine Enthusiast",
+      rating: 5
+    },
+    {
+      text: "Their MCC Brut Rosé is my go-to celebration wine. Perfect balance of flavor and bubbles!",
+      author: "David T., Sommelier",
+      rating: 4
+    },
+    {
+      text: "The wine pairing dinner was an unforgettable experience. Each course complemented the wines perfectly.",
+      author: "Emily R., Food Blogger",
+      rating: 5
+    },
+  ];
+
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    let scrollAmount = 0;
+    const scrollSpeed = 0.3;
+    const cardWidth = scrollContainer.firstChild?.offsetWidth || 0;
+    const scrollWidth = cardWidth * testimonials.length;
+
+    const scroll = () => {
+      if (isPaused) return;
+
+      if (scrollAmount >= scrollWidth) {
+        scrollAmount = 0;
+        scrollContainer.scrollLeft = 0;
+        setActiveIndex(0);
+      } else {
+        scrollAmount += scrollSpeed;
+        scrollContainer.scrollLeft = scrollAmount;
+        setActiveIndex(Math.floor(scrollAmount / cardWidth) % testimonials.length);
+      }
+      requestAnimationFrame(scroll);
+    };
+
+    const scrollTimeout = setTimeout(() => {
+      requestAnimationFrame(scroll);
+    }, 1000);
+
+    return () => {
+      clearTimeout(scrollTimeout);
+      cancelAnimationFrame(scroll);
+    };
+  }, [isPaused, testimonials.length]);
+
+  const goToTestimonial = (index) => {
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) {
+      const cardWidth = scrollContainer.firstChild?.offsetWidth || 0;
+      scrollContainer.scrollLeft = index * cardWidth;
+      setActiveIndex(index);
+    }
+  };
+
+  return (
+    <section className="mb-16 py-8" aria-label="Customer testimonials">
+      <h2 className="section-title">What Our Customers Say</h2>
+
+      <div
+        ref={scrollContainerRef}
+        className="relative overflow-hidden"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
+        <div className="flex pb-6">
+          {[...testimonials, ...testimonials.slice(0, 1)].map((testimonial, index) => (
+            <div
+              key={`${testimonial.author}-${index}`}
+              className="testimonial-card flex-shrink-0 w-[90vw] sm:w-[80vw] md:w-[40vw] lg:w-[30vw] px-4"
+            >
+              <div className="bg-white p-8 rounded-lg shadow-lg h-full border border-gray-100">
+                <div className="flex mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <i
+                      key={i}
+                      className={`fas fa-star ${i < testimonial.rating ? 'text-[#d4b26a]' : 'text-gray-300'} mr-1`}
+                      aria-hidden="true"
+                    ></i>
+                  ))}
+                </div>
+                <i className="fas fa-quote-left text-[#d4b26a] text-2xl mb-4 opacity-50" aria-hidden="true"></i>
+                <p className="text-gray-700 mb-6 text-lg leading-relaxed">
+                  {testimonial.text}
+                </p>
+                <p className="font-medium text-gray-900">
+                  - {testimonial.author}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white to-transparent z-10"></div>
+        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-white to-transparent z-10"></div>
+      </div>
+
+      <div className="flex justify-center mt-8 space-x-2">
+        {testimonials.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => goToTestimonial(index)}
+            className={`w-3 h-3 rounded-full transition-colors ${index === activeIndex ? 'bg-[#d4b26a] w-6' : 'bg-gray-300'}`}
+            aria-label={`View testimonial from ${testimonials[index].author}`}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
 
 export default function MainComponent() {
   return (

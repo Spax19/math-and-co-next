@@ -2,6 +2,8 @@
 import Footer from "../../../components/footer";
 import Navbar from "../../../components/navbar";
 import React, { useState } from "react";
+import BookingModal from "../../../components/bookingModal";
+
 
 function EventsPage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -42,6 +44,13 @@ function EventsPage() {
         "Join our sommelier for an interactive virtual tasting experience",
       spots: 20,
       type: "signature",
+      duration: "3 hours",
+      availableTimes: ["18:00", "18:30", "19:00"],
+      highlights: [
+        "5-course meal",
+        "Premium wine pairings",
+        "Private dining room"
+      ]
     },
     {
       id: 2,
@@ -54,6 +63,13 @@ function EventsPage() {
         "Five-course dinner with wine pairings and winemaker stories",
       spots: 30,
       type: "signature",
+      duration: "3 hours",
+      availableTimes: ["18:00", "18:30", "19:00"],
+      highlights: [
+        "5-course meal",
+        "Premium wine pairings",
+        "Private dining room"
+      ]
     },
     {
       id: 3,
@@ -65,6 +81,13 @@ function EventsPage() {
       description: "Hands-on harvest experience with lunch and wine",
       spots: 40,
       type: "signature",
+      duration: "3 hours",
+      availableTimes: ["18:00", "18:30", "19:00"],
+      highlights: [
+        "5-course meal",
+        "Premium wine pairings",
+        "Private dining room"
+      ]
     },
     {
       id: 4,
@@ -76,6 +99,13 @@ function EventsPage() {
       description: "Introduction to wine appreciation and tasting",
       spots: 25,
       type: "education",
+      duration: "3 hours",
+      availableTimes: ["18:00", "18:30", "19:00"],
+      highlights: [
+        "5-course meal",
+        "Premium wine pairings",
+        "Private dining room"
+      ]
     },
     // Past events
     {
@@ -88,6 +118,13 @@ function EventsPage() {
       description: "Celebrate spring with our seasonal wine selection",
       spots: 0,
       type: "signature",
+      duration: "3 hours",
+      availableTimes: ["18:00", "18:30", "19:00"],
+      highlights: [
+        "5-course meal",
+        "Premium wine pairings",
+        "Private dining room"
+      ]
     },
     {
       id: 6,
@@ -99,6 +136,13 @@ function EventsPage() {
       description: "Special holiday menu with perfect wine matches",
       spots: 0,
       type: "signature",
+      duration: "3 hours",
+      availableTimes: ["18:00", "18:30", "19:00"],
+      highlights: [
+        "5-course meal",
+        "Premium wine pairings",
+        "Private dining room"
+      ]
     },
   ];
 
@@ -260,55 +304,42 @@ function EventsPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (field, value) => {
-    let isValid = true;
-    switch (field) {
-      case "email":
-        isValid = validateEmail(value);
-        break;
-      case "phone":
-        isValid = validatePhone(value);
-        break;
-      case "name":
-        isValid = value.trim().length > 0;
-        break;
-      case "guests":
-        isValid = value >= 1 && value <= 12;
-        break;
-      case "date":
-        isValid = value !== "";
-        break;
-      case "time":
-        isValid = value !== "";
-        break;
-    }
-    setBookingData({ ...bookingData, [field]: value });
-  };
-
-  const handleBookingClick = (experience, customPrice = null) => {
+  // Update the handleBookingClick function to include all event details
+  const handleBookingClick = (event, customPrice = null) => {
     setBookingData({
-      experience: experience.title,
-      eventName: experience.title,
-      eventType: experience.type || "private",
-      price: customPrice !== null ? customPrice : experience.price,
-      availableTimes: experience.availableTimes || [],
-      date: "",
+      experience: event.title,
+      eventName: event.title,
+      eventType: event.type || "event",
+      price: customPrice !== null ? customPrice : event.price,
+      availableTimes: event.availableTimes || [],
+      date: event.date, // Pre-fill with event date
       time: "",
       guests: 1,
       name: "",
       email: "",
       phone: "",
       specialRequests: "",
+      duration: event.duration,
+      highlights: event.highlights,
+      description: event.description,
+      image: event.image
     });
     setShowBookingModal(true);
+  };
+
+
+  const handleInputChange = (field, value) => {
+    setBookingData({ ...bookingData, [field]: value });
   };
 
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitted(true);
+
     if (validateForm()) {
       setIsLoading(true);
       try {
+        // Simulate API call
         await new Promise((resolve) => setTimeout(resolve, 1000));
         setShowBookingModal(false);
         setBookingData({
@@ -357,9 +388,8 @@ function EventsPage() {
                   setEventFilter("upcoming");
                   setSelectedDate(null);
                 }}
-                className={`event-type-btn ${
-                  eventFilter === "upcoming" ? "active" : ""
-                }`}
+                className={`event-type-btn ${eventFilter === "upcoming" ? "active" : ""
+                  }`}
               >
                 <i className="fas fa-calendar-check"></i> Upcoming
               </button>
@@ -368,9 +398,8 @@ function EventsPage() {
                   setEventFilter("previous");
                   setSelectedDate(null);
                 }}
-                className={`event-type-btn ${
-                  eventFilter === "previous" ? "active" : ""
-                }`}
+                className={`event-type-btn ${eventFilter === "previous" ? "active" : ""
+                  }`}
               >
                 <i className="fas fa-history"></i> Previous
               </button>
@@ -465,9 +494,8 @@ function EventsPage() {
               {filteredEvents.map((event) => (
                 <div
                   key={event.id}
-                  className={`event-card ${
-                    isPastEvent(event.date) ? "past-event" : ""
-                  }`}
+                  className={`event-card ${isPastEvent(event.date) ? "past-event" : ""
+                    }`}
                   onClick={() => {
                     if (!isPastEvent(event.date)) {
                       setSelectedEvent(event);
@@ -577,227 +605,20 @@ function EventsPage() {
           </div>
         </div>
         {/* Booking Modal */}
-        {showBookingModal && (
-          <div className="booking-modal">
-            <div className="modal-content">
-              <button
-                onClick={() => {
-                  setShowBookingModal(false);
-                  setErrors({});
-                  setIsSubmitted(false);
-                }}
-                className="modal-close-btn"
-              >
-                <i className="fas fa-times"></i>
-              </button>
-
-              <div className="modal-body">
-                <div className="modal-header">
-                  <h3 className="modal-title">{bookingData.eventName}</h3>
-                  <p className="modal-subtitle">
-                    {bookingData.eventType} Experience
-                  </p>
-                </div>
-
-                <form onSubmit={handleBookingSubmit} noValidate>
-                  <div className="modal-form-grid">
-                    {/* Left Column - Booking Details */}
-                    <div className="form-column">
-                      <h4 className="form-section-title">Booking Details</h4>
-
-                      <div className="form-group">
-                        <label className="form-label">
-                          Date <span className="required">*</span>
-                        </label>
-                        <input
-                          type="date"
-                          className={`form-input ${
-                            isSubmitted && errors.date ? "error" : ""
-                          }`}
-                          value={bookingData.date}
-                          onChange={(e) =>
-                            handleInputChange("date", e.target.value)
-                          }
-                          min={new Date().toISOString().split("T")[0]}
-                          required
-                        />
-                        {isSubmitted && errors.date && (
-                          <p className="error-message">{errors.date}</p>
-                        )}
-                      </div>
-
-                      <div className="form-group">
-                        <label className="form-label">
-                          Time <span className="required">*</span>
-                        </label>
-                        <select
-                          className={`form-input ${
-                            isSubmitted && errors.time ? "error" : ""
-                          }`}
-                          value={bookingData.time}
-                          onChange={(e) =>
-                            handleInputChange("time", e.target.value)
-                          }
-                          required
-                        >
-                          <option value="">Select a time</option>
-                          {bookingData.availableTimes.map((time) => (
-                            <option key={time} value={time}>
-                              {time}
-                            </option>
-                          ))}
-                        </select>
-                        {isSubmitted && errors.time && (
-                          <p className="error-message">{errors.time}</p>
-                        )}
-                      </div>
-
-                      <div className="form-group">
-                        <label className="form-label">
-                          Number of Guests <span className="required">*</span>
-                        </label>
-                        <input
-                          type="number"
-                          min="1"
-                          max="12"
-                          className={`form-input ${
-                            isSubmitted && errors.guests ? "error" : ""
-                          }`}
-                          value={bookingData.guests}
-                          onChange={(e) =>
-                            handleInputChange(
-                              "guests",
-                              parseInt(e.target.value)
-                            )
-                          }
-                          required
-                        />
-                        {isSubmitted && errors.guests && (
-                          <p className="error-message">{errors.guests}</p>
-                        )}
-                      </div>
-
-                      <div className="price-summary">
-                        <div className="price-row">
-                          <span>Price per person:</span>
-                          <span>R{bookingData.price}</span>
-                        </div>
-                        <div className="price-total">
-                          <span>Total:</span>
-                          <span>R{bookingData.price * bookingData.guests}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right Column - Personal Information */}
-                    <div className="form-column">
-                      <h4 className="form-section-title">Your Information</h4>
-
-                      <div className="form-group">
-                        <label className="form-label">
-                          Full Name <span className="required">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          className={`form-input ${
-                            isSubmitted && errors.name ? "error" : ""
-                          }`}
-                          value={bookingData.name}
-                          onChange={(e) =>
-                            handleInputChange("name", e.target.value)
-                          }
-                          required
-                        />
-                        {isSubmitted && errors.name && (
-                          <p className="error-message">{errors.name}</p>
-                        )}
-                      </div>
-
-                      <div className="form-group">
-                        <label className="form-label">
-                          Email Address <span className="required">*</span>
-                        </label>
-                        <input
-                          type="email"
-                          className={`form-input ${
-                            isSubmitted && errors.email ? "error" : ""
-                          }`}
-                          value={bookingData.email}
-                          onChange={(e) =>
-                            handleInputChange("email", e.target.value)
-                          }
-                          required
-                        />
-                        {isSubmitted && errors.email && (
-                          <p className="error-message">{errors.email}</p>
-                        )}
-                      </div>
-
-                      <div className="form-group">
-                        <label className="form-label">
-                          Phone Number <span className="required">*</span>
-                        </label>
-                        <input
-                          type="tel"
-                          className={`form-input ${
-                            isSubmitted && errors.phone ? "error" : ""
-                          }`}
-                          value={bookingData.phone}
-                          onChange={(e) =>
-                            handleInputChange("phone", e.target.value)
-                          }
-                          required
-                        />
-                        {isSubmitted && errors.phone && (
-                          <p className="error-message">{errors.phone}</p>
-                        )}
-                      </div>
-
-                      <div className="form-group">
-                        <label className="form-label">Special Requests</label>
-                        <textarea
-                          className="form-textarea"
-                          rows="3"
-                          placeholder="Dietary restrictions, accessibility needs, etc."
-                          value={bookingData.specialRequests}
-                          onChange={(e) =>
-                            setBookingData({
-                              ...bookingData,
-                              specialRequests: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="modal-footer">
-                    <button
-                      type="submit"
-                      className={`modal-submit-btn ${isLoading ? "loading" : ""}`}
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <i className="fas fa-spinner fa-spin"></i>
-                          Processing...
-                        </>
-                      ) : (
-                        `Confirm Booking for ${bookingData.eventName}`
-                      )}
-                    </button>
-
-                    {isSubmitted && Object.keys(errors).length > 0 && (
-                      <p className="error-message">
-                        Please fix the errors above to continue
-                      </p>
-                    )}
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        )}
+        <BookingModal
+          isOpen={showBookingModal}
+          onClose={() => {
+            setShowBookingModal(false);
+            setErrors({});
+            setIsSubmitted(false);
+          }}
+          bookingData={bookingData}
+          onSubmit={handleBookingSubmit}
+          errors={errors}
+          isSubmitted={isSubmitted}
+          isLoading={isLoading}
+          onInputChange={handleInputChange}
+        />
       </div>
       <Footer />
     </>
