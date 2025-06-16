@@ -19,7 +19,7 @@ const AuthModal = ({ isOpen, onClose }) => {
       />
 
       {/* Modal Container - needs to be above the overlay */}
-      <div className="relative w-full max-w-md bg-white rounded-lg shadow-xl z-[1002] mx-auto">
+      <div className="absolute w-full max-w-md bg-white rounded-lg shadow-xl z-[1002] mx-auto top-8">
         {/* Close Button */}
         <button
           onClick={onClose}
