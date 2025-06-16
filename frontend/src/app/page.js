@@ -389,7 +389,7 @@ function MainComponentContent() {
          
         </div>
 
-        <main className="container px-4 mb-16">
+        <main className="container px-4 mb-16 pt-4">
           <section className="mb-16 text-center relative mt-4">
             <div className="flex justify-center items-center mb-16 relative">
               <div className="text-center">
