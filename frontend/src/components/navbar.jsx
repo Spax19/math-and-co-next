@@ -136,7 +136,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
         {/* Right-aligned Icons */}
         <div className="navbar__controls">
           {/* Theme Toggle */}
-          <button
+          {/* <button
             onClick={toggleTheme}
             aria-label={`Switch to ${
               theme === "light" ? "dark" : "light"
@@ -148,7 +148,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
             ) : (
               <i className="fas fa-sun navbar__theme-icon"></i>
             )}
-          </button>
+          </button> */}
 
           {/* Cart Icon */}
           {!isAdmin && (

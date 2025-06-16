@@ -363,7 +363,17 @@ function MainComponentContent() {
 
       <div className="main-container">
         <div className="hero-banner">
-          <div className="hero-overlay">
+          <div className="hero-image-container">
+            <Image
+              src="/path-to-your-image.jpg"
+              alt="Winery landscape"
+              layout="fill"
+              objectFit="cover"
+              quality={80}
+              priority
+            />
+          </div>
+          
             <div className="hero-content">
               <div className="hero-text-container">
                 <h1 className="hero-title">
@@ -372,13 +382,11 @@ function MainComponentContent() {
                   Home of Carbernet.
                 </h1>
                 <Link href="./main/shop">
-                  <button className="hero-button">
-                    Shop Our Wines
-                  </button>
+                  <button className="hero-button">Shop Our Wines</button>
                 </Link>
               </div>
             </div>
-          </div>
+         
         </div>
 
         <main className="container px-4 mb-16">
@@ -550,21 +558,18 @@ function MainComponentContent() {
                   </div>
 
                   <div className="flex-grow">
-                    <h3 className="product-name">
-                      {wine.name}
-                    </h3>
+                    <h3 className="product-name">{wine.name}</h3>
 
                     <div className="star-rating">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <i
                           key={star}
-                          className={`${star <= wine.rating ? "fas fa-star" : "far fa-star"
-                            } text-[#d4b26a] text-sm`}
+                          className={`${
+                            star <= wine.rating ? "fas fa-star" : "far fa-star"
+                          } text-[#d4b26a] text-sm`}
                         ></i>
                       ))}
-                      <span className="review-count">
-                        ({wine.rating})
-                      </span>
+                      <span className="review-count">({wine.rating})</span>
                     </div>
                     <p className="text-gray-500 text-xs mb-2">
                       ({wine.reviews} reviews)
@@ -622,9 +627,7 @@ function MainComponentContent() {
                       className="sale-product-card"
                       onClick={() => setSelectedProduct(wine)}
                     >
-                      <div className="sale-badge">
-                        Sale
-                      </div>
+                      <div className="sale-badge">Sale</div>
 
                       <div className="sale-product-image-container">
                         <img
@@ -635,9 +638,7 @@ function MainComponentContent() {
                       </div>
 
                       <div className="flex-grow">
-                        <h3 className="product-name">
-                          {wine.name}
-                        </h3>
+                        <h3 className="product-name">{wine.name}</h3>
 
                         <p className="sale-product-description">
                           {wine.description}
@@ -645,9 +646,7 @@ function MainComponentContent() {
                       </div>
 
                       <div className="flex justify-between items-center mt-4">
-                        <span className="product-price">
-                          R{wine.price}
-                        </span>
+                        <span className="product-price">R{wine.price}</span>
                         <button
                           className="add-to-cart-btn"
                           onClick={(e) => {
@@ -703,9 +702,7 @@ function MainComponentContent() {
                     />
                   </svg>
                 </div>
-                <h3 className="service-name">
-                  Discover Wine Distributors
-                </h3>
+                <h3 className="service-name">Discover Wine Distributors</h3>
                 <p className="service-description">
                   Order before 3pm and get your order the next day as standard
                 </p>
@@ -750,11 +747,10 @@ function MainComponentContent() {
                     />
                   </svg>
                 </div>
-                <h3 className="service-name">
-                  Wine Tasting & Tours
-                </h3>
+                <h3 className="service-name">Wine Tasting & Tours</h3>
                 <p className="service-description">
-                  Handcrafted experiences made with real passion and craftsmanship
+                  Handcrafted experiences made with real passion and
+                  craftsmanship
                 </p>
                 <button className="service-button">
                   Book now
@@ -797,9 +793,7 @@ function MainComponentContent() {
                     />
                   </svg>
                 </div>
-                <h3 className="service-name">
-                  Wine for Each Occasion
-                </h3>
+                <h3 className="service-name">Wine for Each Occasion</h3>
                 <p className="service-description">
                   For our quality you wont find better prices anywhere
                 </p>
@@ -844,9 +838,7 @@ function MainComponentContent() {
                     />
                   </svg>
                 </div>
-                <h3 className="service-name">
-                  Recycled Packaging
-                </h3>
+                <h3 className="service-name">Recycled Packaging</h3>
                 <p className="service-description">
                   100% recycled materials for a sustainable footprint
                 </p>
@@ -896,9 +888,7 @@ function MainComponentContent() {
 
                       <div className="experience-content">
                         <div className="flex-grow">
-                          <h3 className="product-name">
-                            {exp.name}
-                          </h3>
+                          <h3 className="product-name">{exp.name}</h3>
                           <p className="experience-description">
                             {exp.description}
                           </p>
@@ -935,30 +925,22 @@ function MainComponentContent() {
 
           <section className="mb-16 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="education-section">
-              <h2 className="education-title">
-                Wine Education
-              </h2>
+              <h2 className="education-title">Wine Education</h2>
               <div className="space-y-4">
                 <div className="education-item">
-                  <h3 className="education-item-title">
-                    Tasting Notes
-                  </h3>
+                  <h3 className="education-item-title">Tasting Notes</h3>
                   <p className="education-item-description">
                     Learn to identify subtle flavors and aromas
                   </p>
                 </div>
                 <div className="education-item">
-                  <h3 className="education-item-title">
-                    Food Pairing
-                  </h3>
+                  <h3 className="education-item-title">Food Pairing</h3>
                   <p className="education-item-description">
                     Perfect wine selections for any meal
                   </p>
                 </div>
                 <div className="education-item">
-                  <h3 className="education-item-title">
-                    Storage Tips
-                  </h3>
+                  <h3 className="education-item-title">Storage Tips</h3>
                   <p className="education-item-description">
                     Optimal conditions for aging wines
                   </p>
@@ -967,9 +949,7 @@ function MainComponentContent() {
             </div>
 
             <div className="newsletter-section">
-              <h2 className="newsletter-title">
-                Newsletter Signup
-              </h2>
+              <h2 className="newsletter-title">Newsletter Signup</h2>
               <p className="mb-4">
                 Join our wine community and receive 10% off your first purchase
               </p>
@@ -982,10 +962,7 @@ function MainComponentContent() {
                   placeholder="Enter your email"
                   className="newsletter-input"
                 />
-                <button
-                  type="submit"
-                  className="newsletter-button"
-                >
+                <button type="submit" className="newsletter-button">
                   Subscribe Now
                 </button>
               </form>
@@ -996,9 +973,7 @@ function MainComponentContent() {
           <TestimonialsSection />
 
           <section className="mb-16">
-            <h2 className="section-title">
-              Follow Us on Instagram
-            </h2>
+            <h2 className="section-title">Follow Us on Instagram</h2>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <a

@@ -15,7 +15,7 @@ const Footer = () => {
           {/* Logo and Social */}
           <div className="text-center md:text-left md:w-1/3">
             <img
-              src="./images/Math&Co.png"
+              src="/images/Math&Co.png"
               alt="Math&Co Logo"
               className="w-32 mx-auto md:mx-0 mb-5"
             />
@@ -62,11 +62,11 @@ const Footer = () => {
         {/* Bottom Section */}
         <div className="border-t border-gray-700 pt-5 mt-10">
           <div className="flex justify-center flex-wrap gap-2 mb-5">
-            <img src="./images/visa.png" alt="Visa" className="h-8 w-auto" />
-            <img src="./images/mastercard.png" alt="Mastercard" className="h-8 w-auto" />
-            <img src="./images/amex.png" alt="Amex" className="h-8 w-auto" />
-            <img src="./images/paypal.png" alt="Paypal" className="h-8 w-auto" />
-            <img src="./images/discover.png" alt="Discover" className="h-8 w-auto" />
+            <img src="/images/visa.png" alt="Visa" className="h-8 w-auto" />
+            <img src="/images/mastercard.png" alt="Mastercard" className="h-8 w-auto" />
+            <img src="/images/amex.png" alt="Amex" className="h-8 w-auto" />
+            <img src="/images/paypal.png" alt="Paypal" className="h-8 w-auto" />
+            <img src="/images/discover.png" alt="Discover" className="h-8 w-auto" />
           </div>
 
           <div className="text-center">
