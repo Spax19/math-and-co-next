@@ -873,7 +873,7 @@ function MainComponentContent() {
                     <div
                       key={exp.id}
                       className="experience-card"
-                      onClick={() => handleBookingClick(exp)}
+                      
                     >
                       <div className="experience-image-container">
                         <img
@@ -881,9 +881,9 @@ function MainComponentContent() {
                           alt={exp.name}
                           className="experience-image"
                         />
-                        <div className="experience-price-badge">
+                        {/* <div className="experience-price-badge">
                           R{exp.price} per person
-                        </div>
+                        </div> */}
                       </div>
 
                       <div className="experience-content">
