@@ -300,7 +300,7 @@ const LoginForm = ({onSuccess, switchToRegister }) => {
             <div className="text-sm">
               <Link
                 href="/forgot-password"
-                className="font-medium text-#d4b26a hover:text-indigo-500"
+                className="font-medium text-[#d4b26a] hover:text-indigo-500"
               >
                 Forgot password?
               </Link>
@@ -348,7 +348,7 @@ const LoginForm = ({onSuccess, switchToRegister }) => {
           Don't have an account?{" "}
           <button
             onClick={switchToRegister}
-            className="font-medium text-#d4b26a hover:underline focus:outline-none"
+            className="font-medium text-[#d4b26a] hover:underline focus:outline-none"
           >
             Sign up
           </button>
