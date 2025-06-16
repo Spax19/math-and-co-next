@@ -260,7 +260,6 @@ const contentConfig = {
       title: "Sphere Infused Waters",
       subtitle: "Innovative hydration reimagined",
       bgImage: "/images/sphere.jpg",
-
     },
     about: {
       title: "The Sphere Difference",
@@ -269,7 +268,7 @@ const contentConfig = {
         "Each Sphere product is crafted by our team of flavor scientists and nutritionists to deliver perfect balance - never too sweet, always refreshing.",
         "We partner with organic farms worldwide to source the freshest ingredients at peak seasonality.",
       ],
-      image: "/images/sphere-about.jpg",
+      image: "/images/hydrology-about.jpg",
     },
     products: {
       title: "Our Infused Collection",
@@ -544,69 +543,79 @@ const BeveragesPage = () => {
               backgroundImage: `url(${contentConfig[activeTab].welcome.bgImage})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
-              opacity: 0.4, // Very light overlay
+              opacity: 0.4,
               filter: "blur(2px) brightness(1.1)",
             }}
           />
 
-          {/* Gradient Overlay (existing) */}
+          {/* Gradient Overlay */}
           <div className="absolute inset-0 z-1 bg-black/10" />
 
-          <div className="max-w-7xl mx-auto text-center relative z-10">
-            <div className="inline-block relative">
-              <h1 className="text-5xl md:text-6xl font-bold mb-4 relative z-10 text-white">
-                {contentConfig[activeTab].welcome.title}
-              </h1>
-              <div className="absolute -bottom-2 left-0 right-0 h-3 bg-white/30 z-0"></div>
-            </div>
-            <p className="text-xl text-gray-200 max-w-2xl mx-auto mt-4">
-              {contentConfig[activeTab].welcome.subtitle}
-            </p>
-
-            {/* Tab Switch (unchanged) */}
-            <div className="inline-flex rounded-full overflow-hidden bg-white/20 backdrop-blur-sm mt-8">
-              <button
-                onClick={() => {
-                  setActiveTab("pentagon");
-                  setActiveFilter("all");
-                  setSearchQuery("");
-                }}
-                className={`px-6 py-2 flex items-center transition-colors ${
-                  activeTab === "pentagon"
-                    ? `${contentConfig.pentagon.gradient} text-white`
-                    : "text-white hover:bg-white/10"
-                }`}
-              >
-                <i className="fas fa-wine-glass-alt mr-2"></i> Pentagon
-              </button>
-              <button
-                onClick={() => {
-                  setActiveTab("hydrology");
-                  setActiveFilter("all");
-                  setSearchQuery("");
-                }}
-                className={`px-6 py-2 flex items-center transition-colors ${
-                  activeTab === "hydrology"
-                    ? `${contentConfig.hydrology.gradient} text-[#C0C0C0]`
-                    : "text-white hover:bg-white/10"
-                }`}
-              >
-                <i className="fas fa-tint mr-2"></i> Hydrology
-              </button>
-              <button
-                onClick={() => {
-                  setActiveTab("sphere");
-                  setActiveFilter("all");
-                  setSearchQuery("");
-                }}
-                className={`px-6 py-2 flex items-center transition-colors ${
-                  activeTab === "sphere"
-                    ? `${contentConfig.sphere.gradient} text-[#FFFFFF]`
-                    : "text-white hover:bg-white/10"
-                }`}
-              >
-                <i className="fas fa-circle-notch mr-2"></i> Sphere
-              </button>
+          {/* Content Container - Responsive Alignment */}
+          <div className="max-w-7xl mx-auto relative z-10">
+            <div className="lg:flex lg:justify-center">
+              {" "}
+              {/* Right-align on lg screens */}
+              <div className="text-center lg:text-center ">
+                {" "}
+                {/* Half width on desktop, centered on mobile */}
+                {/* Title with underline effect */}
+                <div className="inline-block relative">
+                  <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 relative z-10 text-white">
+                    {contentConfig[activeTab].welcome.title}
+                  </h1>
+                  <div className="absolute -bottom-2 left-0 right-0 h-3 bg-white/30 z-0"></div>
+                </div>
+                {/* Subtitle */}
+                <p className="text-lg sm:text-xl text-gray-200 mx-auto lg:mx-0 mt-4 max-w-2xl">
+                  {contentConfig[activeTab].welcome.subtitle}
+                </p>
+                {/* Tab Switch - Responsive */}
+                <div className="inline-flex rounded-full overflow-hidden bg-white/20 backdrop-blur-sm mt-8 flex-wrap justify-center lg:justify-end">
+                  <button
+                    onClick={() => {
+                      setActiveTab("pentagon");
+                      setActiveFilter("all");
+                      setSearchQuery("");
+                    }}
+                    className={`px-4 sm:px-6 py-2 flex items-center transition-colors ${
+                      activeTab === "pentagon"
+                        ? `${contentConfig.pentagon.gradient} text-white`
+                        : "text-white hover:bg-white/10"
+                    }`}
+                  >
+                    <i className="fas fa-wine-glass-alt mr-2"></i> Pentagon
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab("hydrology");
+                      setActiveFilter("all");
+                      setSearchQuery("");
+                    }}
+                    className={`px-4 sm:px-6 py-2 flex items-center transition-colors ${
+                      activeTab === "hydrology"
+                        ? `${contentConfig.hydrology.gradient} text-[#C0C0C0]`
+                        : "text-white hover:bg-white/10"
+                    }`}
+                  >
+                    <i className="fas fa-tint mr-2"></i> Hydrology
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab("sphere");
+                      setActiveFilter("all");
+                      setSearchQuery("");
+                    }}
+                    className={`px-4 sm:px-6 py-2 flex items-center transition-colors ${
+                      activeTab === "sphere"
+                        ? `${contentConfig.sphere.gradient} text-[#FFFFFF]`
+                        : "text-white hover:bg-white/10"
+                    }`}
+                  >
+                    <i className="fas fa-circle-notch mr-2"></i> Sphere
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

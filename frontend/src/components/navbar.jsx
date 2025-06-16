@@ -37,6 +37,35 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
   const pathname = usePathname();
   const isMobile = useIsMobile();
   const { theme, toggleTheme } = useTheme();
+ const [isMobileView, setIsMobileView] = useState(false);
+
+ useEffect(() => {
+   const handleScroll = () => {
+     const currentScrollY = window.scrollY;
+     setScrolled(currentScrollY > 10);
+
+     if (currentScrollY > lastScrollY && currentScrollY > 100) {
+       setVisible(false);
+     } else if (currentScrollY < lastScrollY) {
+       setVisible(true);
+     }
+
+     setLastScrollY(currentScrollY);
+   };
+
+   const checkMobile = () => {
+     setIsMobileView(window.innerWidth < 768);
+   };
+
+   checkMobile();
+   window.addEventListener("scroll", handleScroll, { passive: true });
+   window.addEventListener("resize", checkMobile);
+
+   return () => {
+     window.removeEventListener("scroll", handleScroll);
+     window.removeEventListener("resize", checkMobile);
+   };
+ }, [lastScrollY]);
 
   const [uiState, setUiState] = useState({
     isMenuOpen: false,
@@ -98,11 +127,12 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
 
   return (
     <header
-      className={`navbar ${visible ? "navbar--visible" : "navbar--hidden"} ${
-        scrolled ? "navbar--scrolled" : ""
-      } ${theme === "light" ? "light-theme" : "dark-theme"}`}
+      className={`fixed top-0 left-0 right-0 z-[900] navbar ${
+        visible ? "navbar--visible" : "navbar--hidden"
+      } ${scrolled ? "navbar--scrolled" : ""} ${
+        theme === "light" ? "light-theme" : "dark-theme"
+      }`}
     >
-      
       <nav className="navbar__container">
         {/* Logo */}
         <Link href="/" className="navbar__logo-link">
@@ -289,7 +319,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
         )}
       </nav>
 
-      
+      <div className="navbar-spacer" style={{ height: 'var(--navbar-height)' }}></div>
 
       {/* Auth Modal */}
       {uiState.activeModal === "auth" && (
