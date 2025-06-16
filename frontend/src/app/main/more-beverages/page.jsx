@@ -1,17 +1,45 @@
 "use client";
 import Footer from "../../../components/footer";
 import Navbar from "../../../components/navbar";
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import "../../globals.css";
 
 // ==================== COMPONENTS ====================
 
-const PageHeader = ({ gradient, color, title, subtitle }) => (
-  <header className={`bevs-header ${gradient}`}>
-    <div className="bevs-container">
-      <h1 className="bevs-header__title" style={{ color }}>{title}</h1>
+const PageHeader = ({ gradient, color, title, subtitle, bgImage }) => (
+  <header className={`bevs-header relative overflow-hidden ${gradient}`}>
+    {/* Blurred Image Background */}
+    <div
+      className="absolute inset-0 z-0"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        filter: "blur(8px) brightness(0.7)",
+        maskImage:
+          "linear-gradient(to bottom, rgba(0,0,0,0.8) 30%, transparent 100%)",
+      }}
+    />
+
+    {/* Gradient Overlay */}
+    <div
+      className="absolute inset-0 z-1"
+      style={{
+        background: `conic-gradient(from -20deg at 25% 35%, rgba(26,18,6,0.9) 0deg, rgba(92,58,29,0.8) 90deg, rgba(74,46,16,0.7) 180deg)`,
+        mixBlendMode: "multiply",
+      }}
+    />
+
+    {/* Content */}
+    <div className="bevs-container relative z-10">
+      <h1 className="bevs-header__title" style={{ color }}>
+        {title}
+      </h1>
       <p className="bevs-header__subtitle">{subtitle}</p>
-      <div className="bevs-header__divider" style={{ backgroundColor: color }}></div>
+      <div
+        className="bevs-header__divider"
+        style={{ backgroundColor: color }}
+      ></div>
     </div>
   </header>
 );
@@ -19,14 +47,23 @@ const PageHeader = ({ gradient, color, title, subtitle }) => (
 const AboutSection = ({ color, title, content, image, reverse = false }) => (
   <section className="bevs-section bevs-section--white">
     <div className="bevs-container">
-      <div className={`bevs-about ${reverse ? 'bevs-about--reverse' : ''}`}>
+      <div className={`bevs-about ${reverse ? "bevs-about--reverse" : ""}`}>
         <div className="bevs-about__image">
-          <img src={image} alt={title} className="bevs-about__img" loading="lazy" />
+          <img
+            src={image}
+            alt={title}
+            className="bevs-about__img"
+            loading="lazy"
+          />
         </div>
         <div className="bevs-about__text">
-          <h2 className="bevs-about__heading" style={{ color }}>{title}</h2>
+          <h2 className="bevs-about__heading" style={{ color }}>
+            {title}
+          </h2>
           {content.map((paragraph, index) => (
-            <p key={index} className="bevs-about__paragraph">{paragraph}</p>
+            <p key={index} className="bevs-about__paragraph">
+              {paragraph}
+            </p>
           ))}
         </div>
       </div>
@@ -42,26 +79,30 @@ const ProductsSection = ({
   activeFilter,
   setActiveFilter,
   searchQuery,
-  setSearchQuery
+  setSearchQuery,
 }) => (
   <section className="bevs-section bevs-section--gray">
     <div className="bevs-container">
-      <h2 className="bevs-section__title" style={{ color }}>{title}</h2>
+      <h2 className="bevs-section__title" style={{ color }}>
+        {title}
+      </h2>
 
       <div className="bevs-filters">
-        {filters.map(filter => (
+        {filters.map((filter) => (
           <button
             key={filter.id}
             onClick={() => setActiveFilter(filter.id)}
-            className={`bevs-filter ${activeFilter === filter.id ? 'bevs-filter--active' : ''}`}
-            style={{ backgroundColor: activeFilter === filter.id ? color : '' }}
+            className={`bevs-filter ${
+              activeFilter === filter.id ? "bevs-filter--active" : ""
+            }`}
+            style={{ backgroundColor: activeFilter === filter.id ? color : "" }}
           >
             {filter.name}
           </button>
         ))}
       </div>
 
-      <div className="bevs-search">
+      {/* <div className="bevs-search">
         <input
           type="text"
           placeholder={`Search ${title.toLowerCase()}...`}
@@ -72,19 +113,27 @@ const ProductsSection = ({
         <button className="bevs-search__button">
           <i className="fas fa-search"></i>
         </button>
-      </div>
+      </div> */}
 
       <div className="bevs-products">
-        {items.map(item => (
+        {items.map((item) => (
           <article key={item.id} className="bevs-product">
             <div className="bevs-product__content">
               <div className="bevs-product__image">
-                <img src={item.image} alt={item.name} className="bevs-product__img" loading="lazy" />
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="bevs-product__img"
+                  loading="lazy"
+                />
               </div>
               <div className="bevs-product__details">
                 <div className="bevs-product__header">
                   <h3 className="bevs-product__name">{item.name}</h3>
-                  <span className="bevs-product__type" style={{ backgroundColor: color }}>
+                  <span
+                    className="bevs-product__type"
+                    style={{ backgroundColor: color }}
+                  >
                     {item.type}
                   </span>
                 </div>
@@ -106,12 +155,19 @@ const DeliverySection = ({ color, title, content, image }) => (
     <div className="bevs-container">
       <div className="bevs-delivery">
         <div className="bevs-delivery__text">
-          <h2 className="bevs-delivery__title" style={{ color }}>{title}</h2>
+          <h2 className="bevs-delivery__title" style={{ color }}>
+            {title}
+          </h2>
           <ul className="bevs-delivery__list">
             {content.map((item, index) => (
               <li key={index} className="bevs-delivery__item">
                 <svg className="bevs-delivery__icon" style={{ color }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
                 <span className="bevs-delivery__text-content">{item}</span>
               </li>
@@ -119,7 +175,12 @@ const DeliverySection = ({ color, title, content, image }) => (
           </ul>
         </div>
         <div className="bevs-delivery__image">
-          <img src={image} alt={title} className="bevs-delivery__img" loading="lazy" />
+          <img
+            src={image}
+            alt={title}
+            className="bevs-delivery__img"
+            loading="lazy"
+          />
         </div>
       </div>
     </div>
@@ -130,26 +191,28 @@ const DeliverySection = ({ color, title, content, image }) => (
 
 const contentConfig = {
   hydrology: {
-    gradient: "bg-gradient-to-br from-blue-500 via-blue-600 to-blue-800",
-    color: "#3B82F6",
+    gradient:
+      "bg-[conic-gradient(at_20%_10%,_#000000_0%,_#1a1206_40%,_#2a220f_70%,_#d4b26a_100%)]",
+    color: "#000",
     textColor: "#C0C0C0",
     filters: [
       { id: "all", name: "All Products" },
       { id: "still", name: "Still Waters" },
-      { id: "sparkling", name: "Sparkling" }
+      { id: "sparkling", name: "Sparkling" },
     ],
     welcome: {
       title: "Hydrology Premium Waters",
-      subtitle: "Nature's purity in every drop"
+      subtitle: "Nature's purity in every drop",
+      bgImage: "/images/hydrology.jpg",
     },
     about: {
       title: "Our Water Philosophy",
       content: [
         "Founded in 2010, Hydrology has dedicated itself to preserving water in its most natural state. Our waters are sourced from protected aquifers and glaciers, untouched by human pollution.",
         "We believe water should be consumed as nature intended - with its original mineral composition intact. Our proprietary bottling process ensures every bottle maintains the water's natural properties.",
-        "Hydrology is committed to sustainable sourcing and carbon-neutral operations. For every bottle sold, we protect 10 square feet of watershed land."
+        "Hydrology is committed to sustainable sourcing and carbon-neutral operations. For every bottle sold, we protect 10 square feet of watershed land.",
       ],
-      image: "/images/hydrology-about.jpg"
+      image: "/images/hydrology-about.jpg",
     },
     products: {
       title: "Our Water Collection",
@@ -159,50 +222,54 @@ const contentConfig = {
           name: "Alpine Spring",
           type: "still",
           description: "Ultra-pure water filtered through ancient glaciers",
-          price: "$8.99",
-          image: "/images/hydrology-alpine.png"
+          price: "R8.99",
+          image: "/images/hydrology.jpg",
         },
         {
           id: 2,
           name: "Volcanic Sparkling",
           type: "sparkling",
           description: "Naturally carbonated with volcanic mineral infusion",
-          price: "$9.99",
-          image: "/images/hydrology-volcanic.png"
-        }
-      ]
+          price: "R9.99",
+          image: "/images/hydrology.jpg",
+        },
+      ],
     },
     delivery: {
       title: "Sustainable Delivery",
       content: [
         "We deliver nationwide in eco-friendly packaging made from 100% recycled materials",
         "Standard delivery: 3-5 business days ($5.99)",
-        "Express delivery: 1-2 business days ($12.99)"
+        "Express delivery: 1-2 business days ($12.99)",
       ],
-      image: "/images/hydrology-delivery.jpg"
-    }
+      image: "/images/delivery.jpg",
+    },
   },
   sphere: {
-    gradient: "bg-gradient-to-br from-emerald-400 via-emerald-500 to-emerald-700",
-    color: "#10B981",
-    textColor: "#FFFFFF",
+    gradient:
+      "bg-[conic-gradient(from_-20deg_at_25%_35%,#1a1206_0deg,#5c3a1d_90deg,#4a2e10_180deg,#3a240b_270deg,#8a6d3b_360deg)]",
+    color: "#000",
+    textColor: "#000",
     filters: [
       { id: "all", name: "All Flavors" },
       { id: "citrus", name: "Citrus" },
-      { id: "berry", name: "Berry" }
+      { id: "berry", name: "Berry" },
     ],
+
     welcome: {
       title: "Sphere Infused Waters",
-      subtitle: "Innovative hydration reimagined"
+      subtitle: "Innovative hydration reimagined",
+      bgImage: "/images/sphere.jpg",
+
     },
     about: {
       title: "The Sphere Difference",
       content: [
         "Launched in 2018, Sphere was born from a desire to revolutionize infused beverages. Our proprietary infusion process extracts maximum flavor and nutrients without artificial additives.",
         "Each Sphere product is crafted by our team of flavor scientists and nutritionists to deliver perfect balance - never too sweet, always refreshing.",
-        "We partner with organic farms worldwide to source the freshest ingredients at peak seasonality."
+        "We partner with organic farms worldwide to source the freshest ingredients at peak seasonality.",
       ],
-      image: "/images/sphere-about.jpg"
+      image: "/images/sphere-about.jpg",
     },
     products: {
       title: "Our Infused Collection",
@@ -212,50 +279,52 @@ const contentConfig = {
           name: "Citrus Burst",
           type: "citrus",
           description: "Zesty blend of organic citrus fruits",
-          price: "$5.99",
-          image: "/images/sphere-citrus.png"
+          price: "R5.99",
+          image: "/images/sphere.jpg",
         },
         {
           id: 2,
           name: "Berry Medley",
           type: "berry",
           description: "Antioxidant-rich berry infusion",
-          price: "$6.49",
-          image: "/images/sphere-berry.png"
-        }
-      ]
+          price: "R6.49",
+          image: "/images/sphere.jpg",
+        },
+      ],
     },
     delivery: {
       title: "Flexible Delivery",
       content: [
         "Nationwide shipping in 100% compostable packaging",
         "Standard delivery: 2-4 business days ($4.99)",
-        "Express delivery: 1 business day ($9.99)"
+        "Express delivery: 1 business day ($9.99)",
       ],
-      image: "/images/sphere-delivery.jpg"
-    }
+      image: "/images/delivery.jpg",
+    },
   },
   pentagon: {
-    gradient: "bg-gradient-to-br from-purple-500 via-purple-600 to-purple-800",
-    color: "#7E22CE",
-    textColor: "#D4B26A",
+    gradient:
+      "bg-[conic-gradient(at_top_right,_#f8f2e8_0%,_#f8f2e8_10%,_#1e0e03_30%,_#5c3a1d_60%,_#d4b26a_90%)]",
+    color: "#000",
+    textColor: "#000",
     filters: [
       { id: "all", name: "All Wines" },
       { id: "red", name: "Red Wines" },
-      { id: "white", name: "White Wines" }
+      { id: "white", name: "White Wines" },
     ],
     welcome: {
       title: "Pentagon Fine Wines",
-      subtitle: "The pinnacle of winemaking artistry"
+      subtitle: "The pinnacle of winemaking artistry",
+      bgImage: "/images/pentagon.jpg",
     },
     about: {
       title: "Our Winemaking Heritage",
       content: [
         "Established in 1995, Pentagon has built a reputation for uncompromising quality. Our winemakers combine old-world techniques with cutting-edge technology.",
         "Each vineyard partner is carefully selected for unique terroir and sustainable practices. We produce small lots that express the pure character of each site.",
-        "Pentagon wines are aged to perfection in our temperature-controlled cellars before release."
+        "Pentagon wines are aged to perfection in our temperature-controlled cellars before release.",
       ],
-      image: "/images/pentagon-about.jpg"
+      image: "/images/pentagon-about.jpg",
     },
     products: {
       title: "Our Wine Selection",
@@ -265,29 +334,29 @@ const contentConfig = {
           name: "Black Label Reserve",
           type: "red",
           description: "Small-batch crafted with extraordinary care",
-          price: "$89.99",
-          image: "/images/pentagon-black.png"
+          price: "R89.99",
+          image: "/images/pentagon.jpg",
         },
         {
           id: 2,
           name: "Gold Signature",
           type: "white",
           description: "Our flagship blend representing perfection",
-          price: "$129.99",
-          image: "/images/pentagon-gold.png"
-        }
-      ]
+          price: "R129.99",
+          image: "/images/pentagon.jpg",
+        },
+      ],
     },
     delivery: {
       title: "Premium Delivery",
       content: [
         "Temperature-controlled shipping nationwide",
         "Standard delivery: 5-7 business days ($9.99)",
-        "Express delivery: 2-3 business days ($19.99)"
+        "Express delivery: 2-3 business days ($19.99)",
       ],
-      image: "/images/pentagon-delivery.jpg"
-    }
-  }
+      image: "/images/delivery.jpg",
+    },
+  },
 };
 
 const HydrologyPage = () => {
@@ -295,9 +364,10 @@ const HydrologyPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const content = contentConfig.hydrology;
 
-  const filteredItems = content.products.items.filter(item => {
+  const filteredItems = content.products.items.filter((item) => {
     const matchesFilter = activeFilter === "all" || item.type === activeFilter;
-    const matchesSearch = searchQuery === "" ||
+    const matchesSearch =
+      searchQuery === "" ||
       item.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
@@ -344,9 +414,10 @@ const SpherePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const content = contentConfig.sphere;
 
-  const filteredItems = content.products.items.filter(item => {
+  const filteredItems = content.products.items.filter((item) => {
     const matchesFilter = activeFilter === "all" || item.type === activeFilter;
-    const matchesSearch = searchQuery === "" ||
+    const matchesSearch =
+      searchQuery === "" ||
       item.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
@@ -358,6 +429,7 @@ const SpherePage = () => {
         color={content.color}
         title={content.welcome.title}
         subtitle={content.welcome.subtitle}
+        bgImage={content.welcome.bgImage}
       /> */}
 
       <AboutSection
@@ -394,9 +466,10 @@ const PentagonPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const content = contentConfig.pentagon;
 
-  const filteredItems = content.products.items.filter(item => {
+  const filteredItems = content.products.items.filter((item) => {
     const matchesFilter = activeFilter === "all" || item.type === activeFilter;
-    const matchesSearch = searchQuery === "" ||
+    const matchesSearch =
+      searchQuery === "" ||
       item.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
@@ -444,16 +517,44 @@ const BeveragesPage = () => {
   const [activeTab, setActiveTab] = useState("hydrology");
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  
+  // Preload images in your main component
+  useEffect(() => {
+    [
+      contentConfig.hydrology.welcome.bgImage,
+      contentConfig.sphere.welcome.bgImage,
+      contentConfig.pentagon.welcome.bgImage,
+    ].forEach((url) => {
+      const img = new Image();
+      img.src = url;
+    });
+  }, []);
+
   return (
     <>
       <Navbar />
       <div className="bevs-root">
         {/* Hero Section with Tabs */}
-        <div className={`w-full ${contentConfig[activeTab].gradient} text-white py-16 px-4 sm:px-6 lg:px-8`}>
-          <div className="max-w-7xl mx-auto text-center">
+        <div
+          className={`w-full relative overflow-hidden py-16 px-4 sm:px-6 lg:px-8 ${contentConfig[activeTab].gradient}`}
+        >
+          {/* Dynamic Background Image */}
+          <div
+            className="absolute inset-0 z-0"
+            style={{
+              backgroundImage: `url(${contentConfig[activeTab].welcome.bgImage})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              opacity: 0.4, // Very light overlay
+              filter: "blur(2px) brightness(1.1)",
+            }}
+          />
+
+          {/* Gradient Overlay (existing) */}
+          <div className="absolute inset-0 z-1 bg-black/10" />
+
+          <div className="max-w-7xl mx-auto text-center relative z-10">
             <div className="inline-block relative">
-              <h1 className="text-5xl md:text-6xl font-bold mb-4 relative z-10">
+              <h1 className="text-5xl md:text-6xl font-bold mb-4 relative z-10 text-white">
                 {contentConfig[activeTab].welcome.title}
               </h1>
               <div className="absolute -bottom-2 left-0 right-0 h-3 bg-white/30 z-0"></div>
@@ -462,7 +563,7 @@ const BeveragesPage = () => {
               {contentConfig[activeTab].welcome.subtitle}
             </p>
 
-            {/* Tab Switch - Preserved your exact Tailwind styling */}
+            {/* Tab Switch (unchanged) */}
             <div className="inline-flex rounded-full overflow-hidden bg-white/20 backdrop-blur-sm mt-8">
               <button
                 onClick={() => {
@@ -470,10 +571,11 @@ const BeveragesPage = () => {
                   setActiveFilter("all");
                   setSearchQuery("");
                 }}
-                className={`px-6 py-2 flex items-center transition-colors ${activeTab === "pentagon"
-                    ? `${contentConfig.pentagon.gradient} text-[#D4B26A]`
+                className={`px-6 py-2 flex items-center transition-colors ${
+                  activeTab === "pentagon"
+                    ? `${contentConfig.pentagon.gradient} text-white`
                     : "text-white hover:bg-white/10"
-                  }`}
+                }`}
               >
                 <i className="fas fa-wine-glass-alt mr-2"></i> Pentagon
               </button>
@@ -483,10 +585,11 @@ const BeveragesPage = () => {
                   setActiveFilter("all");
                   setSearchQuery("");
                 }}
-                className={`px-6 py-2 flex items-center transition-colors ${activeTab === "hydrology"
+                className={`px-6 py-2 flex items-center transition-colors ${
+                  activeTab === "hydrology"
                     ? `${contentConfig.hydrology.gradient} text-[#C0C0C0]`
                     : "text-white hover:bg-white/10"
-                  }`}
+                }`}
               >
                 <i className="fas fa-tint mr-2"></i> Hydrology
               </button>
@@ -496,10 +599,11 @@ const BeveragesPage = () => {
                   setActiveFilter("all");
                   setSearchQuery("");
                 }}
-                className={`px-6 py-2 flex items-center transition-colors ${activeTab === "sphere"
+                className={`px-6 py-2 flex items-center transition-colors ${
+                  activeTab === "sphere"
                     ? `${contentConfig.sphere.gradient} text-[#FFFFFF]`
                     : "text-white hover:bg-white/10"
-                  }`}
+                }`}
               >
                 <i className="fas fa-circle-notch mr-2"></i> Sphere
               </button>

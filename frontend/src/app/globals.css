@@ -1,64 +1,60 @@
 @import "tailwindcss";
 
 /* globals.css */
+/* app/globals.css */
 :root {
   /* Light theme colors */
-  --text-primary: #1a1a1a;
-  --text-secondary: #4a5568;
-  --bg-primary: #ffffff;
-  --bg-secondary: #f7fafc;
-  --accent-color: #d4b26a;
-  --nav-bg: #000;
-  --nav-text: #ffffff;
-  --border-color: #e2e8f0;
-}
+  --light-text-primary: #fff;
+  --light-text-secondary: #a67c00;
+  --light-bg-primary: #000;
+  --light-bg-secondary: #f8f8f8;
+  --light-border-color: rgba(0, 0, 0, 0.1);
 
-[data-theme="dark"] {
   /* Dark theme colors */
-  --text-primary: #ffffff;
-  --text-secondary: #e2e8f0;
-  --bg-primary: #1a1a1a;
-  --bg-secondary: #2d3748;
-  --accent-color: #d4b26a;
-  --nav-bg: #0b0c0e;
-  --nav-text: #ffffff;
-  --border-color: #4a5568;
+  --dark-text-primary: #ffffff;
+  --dark-text-secondary: #d4b26a;
+  --dark-bg-primary: #000;
+  --dark-bg-secondary: #1a1a1a;
+  --dark-border-color: rgba(255, 255, 255, 0.1);
 }
 
-/* globals.css */
-/* globals.css */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Global theme classes */
+.light-theme {
+  --text-primary: var(--light-text-primary);
+  --text-secondary: var(--light-text-secondary);
+  --bg-primary: var(--light-bg-primary);
+  --bg-secondary: var(--light-bg-secondary);
+  --border-color: var(--light-border-color);
 }
 
-/* Base styles */
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  background-color: var(--bg-primary);
+.dark-theme {
+  --text-primary: var(--dark-text-primary);
+  --text-secondary: var(--dark-text-secondary);
+  --bg-primary: var(--dark-bg-primary);
+  --bg-secondary: var(--dark-bg-secondary);
+  --border-color: var(--dark-border-color);
+}
+
+/* Apply to all elements */
+.global-theme {
   color: var(--text-primary);
+  background-color: var(--bg-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+/* Example of styling main page elements */
+.main-content {
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
 }
 
-* {
-  box-sizing: border-box;
-  transition: background-color 0.3s ease, color 0.3s ease;
+.main-title {
+  color: var(--text-secondary);
+}
+
+.card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
 }
 
 /* Navbar specific styles */
@@ -123,6 +119,7 @@ body {
 .main-container {
   min-height: 100vh;
   background-color: white;
+  
 }
 
 /* Hero Banner Styles */
@@ -131,6 +128,7 @@ body {
   height: 500px;
   width: 100%;
   margin-bottom: 4rem;
+ 
 }
 
 .hero-overlay {
@@ -748,6 +746,7 @@ body {
 .about-page {
   min-height: 100vh;
   background-color: white;
+  margin-top: 1.5em;;
 }
 
 /* Hero Section */
@@ -1187,6 +1186,7 @@ body {
   background: linear-gradient(to right, #d4b26a, black);
   color: white;
   padding: 4rem 1rem;
+  margin-top: 1.5em;
 }
 
 .shop-hero-content {
@@ -1303,7 +1303,9 @@ body {
   appearance: none;
   cursor: pointer;
 }
-
+.filter-dropdown option{
+  color: black;
+}
 .dropdown-icon {
   pointer-events: none;
   position: absolute;
@@ -1790,6 +1792,7 @@ body {
 .events-page {
   min-height: 100vh;
   background-color: white;
+  margin-top: 1em;
   font-family: "Arial", sans-serif;
 }
 
@@ -3150,6 +3153,7 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
   color: #333;
+  margin-top: 1.5em;
   background-color: #f9f9f9;
   overflow-x: hidden;
 }
@@ -3327,7 +3331,7 @@ body {
 .bevs-about__img {
   width: 100%;
   height: auto;
-  border-radius: 0.75rem;
+  border-radius: 0.2rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
@@ -3457,10 +3461,9 @@ body {
 }
 
 .bevs-product__img {
-  width: 100%;
-  height: auto;
-  max-height: 16rem;
-  object-fit: contain;
+  min-width: 10em;
+  min-height: 12.5em;
+  object-fit: cover;
 }
 
 .bevs-product__details {
@@ -3682,7 +3685,6 @@ body {
 .bevs-delivery__img,
 .bevs-find__img {
   width: 100%;
-  height: auto;
   border-radius: 0.75rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
@@ -3819,6 +3821,10 @@ body {
   font-size: 1.25rem;
   font-weight: 600;
   margin-top: 1rem;
+  display: flex;
+  flex-direction: row;
+  align-content: space-between;
+  gap: 8em;
 }
 
 .bevs-tabs-container {

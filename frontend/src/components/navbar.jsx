@@ -1,56 +1,68 @@
 "use client";
-import { useMemo, useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { usePathname, useRouter } from 'next/navigation';
-import { useAuth } from '../context/AuthContext';
-import { useIsMobile } from '../hooks/useIsMobile';
-import { useTheme } from '../hooks/useTheme';
-import AuthModal from './auth/authModal'; // Make sure this path is correct
+import { useMemo, useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "../context/AuthContext";
+import { useIsMobile } from "../hooks/useIsMobile";
+import { useTheme } from "../hooks/useTheme";
+import AuthModal from "./auth/authModal";
+import "./styles.css";
 
 const Navbar = ({ cart = [], setIsCartOpen }) => {
   const router = useRouter();
-  // Destructure only what you need
-  const {
-    user,
-    isAuthenticated,
-    isAdmin,
-    isWebAdmin,
-    logout
-  } = useAuth();
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [visible, setVisible] = useState(true);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      setScrolled(currentScrollY > 10);
+
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setVisible(false);
+      } else if (currentScrollY < lastScrollY) {
+        setVisible(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
+  const { user, isAuthenticated, isAdmin, isWebAdmin, logout } = useAuth();
   const pathname = usePathname();
   const isMobile = useIsMobile();
   const { theme, toggleTheme } = useTheme();
 
-  // State management for UI
   const [uiState, setUiState] = useState({
     isMenuOpen: false,
     isProfileOpen: false,
-    activeModal: null
+    activeModal: null,
   });
 
-  // Navigation links configuration
   const commonNavLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'Shop', href: '/main/shop' },
-    { name: 'Our Brand', href: '/main/our-brand' },
-    { name: 'Blog', href: '/main/blog' },
-    { name: 'Events', href: '/main/events' },
-    { name: 'Education', href: '/main/education' },
-    { name: 'Contact', href: '/main/contact' },
+    { name: "Home", href: "/" },
+    { name: "Shop", href: "/main/shop" },
+    { name: "Our Brand", href: "/main/our-brand" },
+    { name: "Events", href: "/main/events" },
+    { name: "More Beverages", href: "/main/more-beverages" },
+    { name: "Contact", href: "/main/contact" },
   ];
 
   const adminLinks = [
-    { name: 'Dashboard', href: '/admin/dashboard' },
-    { name: 'Products', href: '/admin/products' }
+    { name: "Dashboard", href: "/admin/dashboard" },
+    { name: "Products", href: "/admin/products" },
   ];
 
   const webadminLinks = [
-    { name: 'System Settings', href: '/webAdmin/settings' },
-    { name: 'Users', href: '/webAdmin/users' }
+    { name: "System Settings", href: "/webAdmin/settings" },
+    { name: "Users", href: "/webAdmin/users" },
   ];
 
-  // Combined navigation links
   const navLinks = useMemo(() => {
     const links = [...commonNavLinks];
     if (isAdmin) links.push(...adminLinks);
@@ -58,138 +70,148 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
     return links;
   }, [isAdmin, isWebAdmin]);
 
-  // UI state handlers
   const toggleState = (key) => {
-    setUiState(prev => ({ ...prev, [key]: !prev[key] }));
+    setUiState((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const closeAll = () => {
     setUiState({
       isMenuOpen: false,
       isProfileOpen: false,
-      activeModal: null
+      activeModal: null,
     });
   };
 
   const handleLogout = () => {
     logout();
     closeAll();
-    router.push('/');
+    router.push("/");
   };
 
   const toggleAuthModal = () => {
-    setUiState(prev => ({
+    setUiState((prev) => ({
       ...prev,
-      activeModal: 'auth',
-      isProfileOpen: false
+      activeModal: "auth",
+      isProfileOpen: false,
     }));
   };
 
   return (
-    <header className="navbar sticky top-0 z-50">
-      <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
+    <header
+      className={`navbar ${visible ? "navbar--visible" : "navbar--hidden"} ${
+        scrolled ? "navbar--scrolled" : ""
+      } ${theme === "light" ? "light-theme" : "dark-theme"}`}
+    >
+      
+      <nav className="navbar__container">
         {/* Logo */}
-        <Link href="/" className="text-2xl font-crimson-text hover:text-[#d4b26a] mr-4">
+        <Link href="/" className="navbar__logo-link">
           <Image
             src="/images/Math&Co.png"
             alt="Math&Co Logo"
             width={100}
             height={80}
-            className="w-25 h-20"
+            className="navbar__logo-image"
           />
         </Link>
 
         {/* Desktop Navigation */}
         {!isMobile && (
-          <div className="flex-1 justify-center flex space-x-6">
+          <div className="navbar__links">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`hover:text-[#d4b26a] transition-colors ${pathname === link.href ? 'text-[#d4b26a]' : ''
-                  }`}
+                className={`navbar__link ${
+                  pathname === link.href ? "navbar__link--active" : ""
+                }`}
               >
                 {link.name}
+                <span className="navbar__link-underline"></span>
               </Link>
             ))}
           </div>
         )}
 
         {/* Right-aligned Icons */}
-        <div className="flex items-center space-x-4">
+        <div className="navbar__controls">
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-            className="p-2 rounded-full hover:bg-gray-700"
+            aria-label={`Switch to ${
+              theme === "light" ? "dark" : "light"
+            } mode`}
+            className="navbar__theme-toggle"
           >
-            {theme === 'light' ? (
-              <i className="fas fa-moon text-xl"></i>
+            {theme === "light" ? (
+              <i className="fas fa-moon navbar__theme-icon"></i>
             ) : (
-              <i className="fas fa-sun text-xl"></i>
+              <i className="fas fa-sun navbar__theme-icon"></i>
             )}
           </button>
 
-          {/* Cart Icon (hidden for admin) */}
+          {/* Cart Icon */}
           {!isAdmin && (
             <button
-              className="relative hover:text-[#d4b26a] transition-colors"
+              className="navbar__cart-button"
               onClick={() => setIsCartOpen(true)}
               aria-label="Open cart"
             >
-              <i className="fas fa-shopping-cart text-xl"></i>
+              <i className="fas fa-shopping-cart navbar__cart-icon"></i>
               {cart.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-[#d4b26a] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                  {cart.length}
-                </span>
+                <span className="navbar__cart-badge">{cart.length}</span>
               )}
             </button>
           )}
 
           {/* Profile Dropdown */}
-          <div className="relative">
+          <div className="navbar__profile-dropdown">
             <button
-              onClick={() => toggleState('isProfileOpen')}
-              className="hover:text-[#d4b26a] transition-colors"
+              onClick={() => toggleState("isProfileOpen")}
+              className="navbar__profile-button"
               aria-label="User profile"
               aria-expanded={uiState.isProfileOpen}
             >
-              <i className="fas fa-user text-xl"></i>
+              <i className="fas fa-user navbar__profile-icon"></i>
             </button>
 
             {uiState.isProfileOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg py-1 z-50">
+              <div className="navbar__dropdown-menu">
                 {isAuthenticated ? (
                   <>
                     <Link
                       href="/profile"
-                      className="block px-4 py-2 hover:bg-gray-100"
+                      className="navbar__dropdown-item"
                       onClick={closeAll}
                     >
-                      <i className="fas fa-user-circle mr-2"></i> Profile
+                      <i className="fas fa-user-circle navbar__dropdown-icon"></i>{" "}
+                      Profile
                     </Link>
                     {isAdmin && (
                       <Link
                         href="/admin/dashboard"
-                        className="block px-4 py-2 hover:bg-gray-100"
+                        className="navbar__dropdown-item"
                         onClick={closeAll}
                       >
-                        <i className="fas fa-tachometer-alt mr-2"></i> Admin
+                        <i className="fas fa-tachometer-alt navbar__dropdown-icon"></i>{" "}
+                        Admin
                       </Link>
                     )}
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                      className="navbar__dropdown-item"
                     >
-                      <i className="fas fa-sign-out-alt mr-2"></i> Logout
+                      <i className="fas fa-sign-out-alt navbar__dropdown-icon"></i>{" "}
+                      Logout
                     </button>
                   </>
                 ) : (
                   <button
                     onClick={toggleAuthModal}
-                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                    className="navbar__dropdown-item"
                   >
-                    <i className="fas fa-sign-in-alt mr-2"></i> Login
+                    <i className="fas fa-sign-in-alt navbar__dropdown-icon"></i>{" "}
+                    Login
                   </button>
                 )}
               </div>
@@ -199,15 +221,15 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
           {/* Mobile Menu Button */}
           {isMobile && (
             <button
-              onClick={() => toggleState('isMenuOpen')}
-              className="text-white hover:text-[#d4b26a] transition-colors"
+              onClick={() => toggleState("isMenuOpen")}
+              className="navbar__mobile-menu-button"
               aria-label="Toggle menu"
               aria-expanded={uiState.isMenuOpen}
             >
               {uiState.isMenuOpen ? (
-                <i className="fas fa-times text-xl"></i>
+                <i className="fas fa-times navbar__mobile-menu-icon"></i>
               ) : (
-                <i className="fas fa-bars text-xl"></i>
+                <i className="fas fa-bars navbar__mobile-menu-icon"></i>
               )}
             </button>
           )}
@@ -215,35 +237,38 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
 
         {/* Mobile Menu */}
         {isMobile && uiState.isMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-[#2a2a2a] px-4 py-2">
-            <div className="flex flex-col space-y-3">
+          <div className="navbar__mobile-menu">
+            <div className="navbar__mobile-menu-content">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`py-2 hover:text-[#d4b26a] transition-colors ${pathname === link.href ? 'text-[#d4b26a]' : ''
-                    }`}
+                  className={`navbar__mobile-link ${
+                    pathname === link.href ? "navbar__mobile-link--active" : ""
+                  }`}
                   onClick={closeAll}
                 >
                   {link.name}
                 </Link>
               ))}
 
-              <div className="pt-2 border-t border-gray-700">
+              <div className="navbar__mobile-menu-footer">
                 {isAuthenticated ? (
                   <>
                     <Link
                       href="/profile"
-                      className="block py-2 hover:text-[#d4b26a] transition-colors"
+                      className="navbar__mobile-menu-item"
                       onClick={closeAll}
                     >
-                      <i className="fas fa-user-circle mr-2"></i> Profile
+                      <i className="fas fa-user-circle navbar__mobile-menu-icon"></i>{" "}
+                      Profile
                     </Link>
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left py-2 hover:text-[#d4b26a] transition-colors"
+                      className="navbar__mobile-menu-item"
                     >
-                      <i className="fas fa-sign-out-alt mr-2"></i> Logout
+                      <i className="fas fa-sign-out-alt navbar__mobile-menu-icon"></i>{" "}
+                      Logout
                     </button>
                   </>
                 ) : (
@@ -252,9 +277,10 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
                       toggleAuthModal();
                       closeAll();
                     }}
-                    className="block w-full text-left py-2 hover:text-[#d4b26a] transition-colors"
+                    className="navbar__mobile-menu-item"
                   >
-                    <i className="fas fa-sign-in-alt mr-2"></i> Login
+                    <i className="fas fa-sign-in-alt navbar__mobile-menu-icon"></i>{" "}
+                    Login
                   </button>
                 )}
               </div>
@@ -263,12 +289,11 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
         )}
       </nav>
 
+      
+
       {/* Auth Modal */}
-      {uiState.activeModal === 'auth' && (
-        <AuthModal
-          isOpen={true}
-          onClose={closeAll}
-        />
+      {uiState.activeModal === "auth" && (
+        <AuthModal isOpen={true} onClose={closeAll} />
       )}
     </header>
   );

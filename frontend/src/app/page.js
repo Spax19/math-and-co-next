@@ -438,7 +438,7 @@ function MainComponentContent() {
                       href={
                         collection.link
                           ? collection.link
-                          : `/shop?${collection.filter}`
+                          : `/main/shop?${collection.filter}`
                       }
                       className="block"
                     >
