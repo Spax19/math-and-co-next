@@ -5,7 +5,7 @@ import { FaWineBottle, FaHome, FaCalendarAlt, FaBoxes, FaUserCog, FaExclamationT
 import { GiWineBottle } from 'react-icons/gi';
 import LoadingSpinner from "../../../components/loadingSpinner";
 import "../../globals.css";
-import AdminSidebar from '../../../components/admin/AdminSidebar';
+import AdminSidebar from '../../../components/admin/adminSidebar';
 
 
 export default function AdminDashboard() {
