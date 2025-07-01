@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
-import { query } from '../../../../lib/db';
-import bcrypt from 'bcryptjs';
-import { SignJWT } from 'jose';
+import { NextResponse } from "next/server";
+import { query } from "../../../../lib/db";
+import bcrypt from "bcryptjs";
+import { SignJWT } from "jose";
 
 export async function POST(request) {
   try {
@@ -28,7 +28,7 @@ export async function POST(request) {
 
     // Database query
     const [user] = await query(
-      'SELECT id, email, password, userType, is_verified FROM users WHERE email = ?',
+      "SELECT id, email, password, userType, is_verified FROM users WHERE email = ?",
       [email.toLowerCase().trim()]
     );
 
@@ -41,10 +41,10 @@ export async function POST(request) {
 
     if (!user.is_verified) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: "Please verify your email before logging in",
-          unverified: true 
+          unverified: true,
         },
         { status: 403 }
       );
@@ -64,10 +64,10 @@ export async function POST(request) {
     const token = await new SignJWT({
       userId: user.id,
       email: user.email,
-      role: user.userType
+      role: user.userType,
     })
-      .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('24h')
+      .setProtectedHeader({ alg: "HS256" })
+      .setExpirationTime("24h")
       .sign(secret);
 
     // Create response
@@ -76,25 +76,31 @@ export async function POST(request) {
       user: {
         id: user.id,
         email: user.email,
-        role: user.userType
-      }
+        role: user.userType,
+      },
     });
 
     // Set cookie
     response.cookies.set({
-      name: 'auth-token',
+      name: "auth-token",
       value: token,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
       maxAge: 60 * 60 * 24, // 1 day
-      path: '/'
+      path: "/",
     });
 
-    return response;
+    response.headers.set(
+      "Access-Control-Allow-Origin",
+      "https://yourdomain.com"
+    );
+    response.headers.set("Access-Control-Allow-Methods", "POST");
 
+    return response;
+    
   } catch (error) {
-    console.error('Login error:', error);
+    console.error("Login error:", error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },
       { status: 500 }

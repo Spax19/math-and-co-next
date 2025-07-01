@@ -48,6 +48,7 @@ export async function middleware(request) {
       return NextResponse.next({
         request: { headers },
       });
+      
 
     } catch (error) {
       console.error('Authentication error:', error);

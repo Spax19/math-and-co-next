@@ -1,0 +1,17 @@
+{
+  "env": {
+    "DB_HOST": "localhost",
+    "DB_USER": "root",
+    "DB_PASSWORD": "",
+    "DB_NAME": "math-and-co-2",
+    "JWT_SECRET": "kdbeywhsgfluensfehrbfrwhrioendg",
+    "EMAIL_USER": "kmotsepe807@gmail.com",
+    "EMAIL_PASSWORD": "nffu dqvm ovhx frfx",
+    "NEXT_PUBLIC_BASE_URL": "https://math-and-co-next-efj8-git-main-spax19s-projects.vercel.app/"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_BASE_URL": "https://math-and-co-next-efj8-git-main-spax19s-projects.vercel.app/"
+    }
+  }
+}
