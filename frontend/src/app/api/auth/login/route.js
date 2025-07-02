@@ -57,6 +57,14 @@ export async function POST(request) {
       role: user.role,
     });
 
+    // Add this after successful login but before returning the response
+    const [profile] = await query(
+      `SELECT phone, address FROM users WHERE id = ?`,
+      [user.id]
+    );
+
+    const isProfileComplete = profile.phone && profile.address;
+
     // 6. Create response with token and user data
     const response = NextResponse.json({
       success: true,
@@ -66,6 +74,7 @@ export async function POST(request) {
         email: user.email,
         role: user.role,
       },
+      profileComplete: isProfileComplete,
     });
 
     // 7. Set HTTP-only cookie (optional - choose either this or return token)
