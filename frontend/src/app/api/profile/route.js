@@ -15,17 +15,22 @@ export async function GET(request) {
     }
 
     // 2. Fetch user profile data
+    // In your route handler
     const [profile] = await query(
       `SELECT 
-        id, 
-        username, 
-        email, 
-        COALESCE(phone, '') as phone, 
-        COALESCE(address, '') as address, 
-        COALESCE(avatar, '/default-avatar.png') as avatar,
-        created_at as joinedDate
-      FROM users 
-      WHERE id = ?`,
+    id, 
+    username, 
+    email, 
+    COALESCE(phone, '') as phone, 
+    COALESCE(address, '') as address, 
+    CASE 
+      WHEN avatar IS NULL THEN '/default-avatar.png'
+      WHEN avatar = '' THEN '/default-avatar.png'
+      ELSE avatar
+      END as avatar,
+      created_at as joinedDate
+    FROM users 
+    WHERE id = ?`,
       [user.id]
     );
 

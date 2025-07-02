@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { query } from "../../../../lib/db";
+import { createToken } from "../../../../lib/auth";
 import bcrypt from "bcryptjs";
-import { SignJWT } from "jose";
 
 export async function POST(request) {
   try {
@@ -15,15 +15,9 @@ export async function POST(request) {
       );
     }
 
-    // 2. Verify JWT_SECRET is set
-    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
-      console.error("JWT_SECRET is not properly configured");
-      throw new Error("Server configuration error");
-    }
-
-    // 3. Database lookup
+    // 2. Database lookup
     const [user] = await query(
-      `SELECT id, email, password, userType, is_verified 
+      `SELECT id, email, password, userType as role, is_verified 
        FROM users WHERE email = ?`,
       [email.toLowerCase().trim()]
     );
@@ -35,7 +29,7 @@ export async function POST(request) {
       );
     }
 
-    // 4. Check verification status
+    // 3. Check verification status
     if (!user.is_verified) {
       return NextResponse.json(
         {
@@ -47,7 +41,7 @@ export async function POST(request) {
       );
     }
 
-    // 5. Verify password
+    // 4. Verify password
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       return NextResponse.json(
@@ -56,50 +50,38 @@ export async function POST(request) {
       );
     }
 
-    // 6. Create JWT token
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-    const token = await new SignJWT({
-      userId: user.id,
+    // 5. Create token
+    const token = await createToken({
+      id: user.id,
       email: user.email,
-      role: user.userType,
-    })
-      .setProtectedHeader({ alg: "HS256" })
-      .setExpirationTime("24h")
-      .sign(secret);
+      role: user.role,
+    });
 
-    // 7. Create and return response
+    // 6. Create response with token and user data
     const response = NextResponse.json({
       success: true,
+      token,
       user: {
         id: user.id,
         email: user.email,
-        role: user.userType,
+        role: user.role,
       },
     });
 
-    // Set secure cookie
+    // 7. Set HTTP-only cookie (optional - choose either this or return token)
     response.cookies.set({
       name: "auth-token",
       value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "lax", // Changed from 'strict' for better compatibility
-      maxAge: 60 * 60 * 24,
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24, // 1 day
       path: "/",
     });
 
     return response;
   } catch (error) {
     console.error("Login error:", error);
-
-    // Differentiate between client and server errors
-    if (error instanceof SyntaxError) {
-      return NextResponse.json(
-        { success: false, error: "Invalid request body" },
-        { status: 400 }
-      );
-    }
-
     return NextResponse.json(
       {
         success: false,

@@ -44,14 +44,10 @@ export async function createToken(user) {
 }
 
 // More robust token verification
+// lib/auth.js
 export async function verifyToken(token) {
   if (!token || typeof token !== "string") {
     console.error("Invalid token format");
-    return null;
-  }
-
-  if (!process.env.JWT_SECRET) {
-    console.error("JWT_SECRET is not configured");
     return null;
   }
 
@@ -62,15 +58,22 @@ export async function verifyToken(token) {
       clockTolerance: 15, // 15 seconds tolerance for clock skew
     });
 
-    // Validate required claims
-    if (!payload.userId || !payload.email || !payload.role) {
-      console.error("Token missing required claims");
+    // Add these debug logs
+    console.log("Token payload:", payload);
+    console.log("JWT_SECRET exists:", !!process.env.JWT_SECRET);
+
+    if (!payload?.userId) {
+      console.error("Token missing userId");
       return null;
     }
 
     return payload;
   } catch (error) {
-    console.error("Token verification failed:", error.name);
+    console.error("JWT Verification Error Details:", {
+      name: error.name,
+      message: error.message,
+      token: token.substring(0, 10) + "...", // Log first 10 chars for debugging
+    });
     return null;
   }
 }

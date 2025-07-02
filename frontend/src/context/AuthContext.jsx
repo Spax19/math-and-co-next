@@ -2,6 +2,7 @@
 'use client';
 import { createContext, useContext, useState, useEffect } from 'react';
 import { verifyToken } from '../lib/jwt';
+import { setToken, removeToken } from "../lib/auth/token.js";
 
 const AuthContext = createContext();
 
@@ -36,8 +37,8 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    document.cookie = 'auth-token=; Max-Age=0; path=/';
     setUser(null);
+    removeToken();
   };
 
   const value = {
@@ -50,7 +51,11 @@ export function AuthProvider({ children }) {
     logout
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 // Custom hook

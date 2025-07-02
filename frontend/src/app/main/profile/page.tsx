@@ -33,7 +33,7 @@ export default function ProfilePage() {
     const fetchProfileData = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch("../api/profile", {
+        const response = await fetch("/api/profile", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
