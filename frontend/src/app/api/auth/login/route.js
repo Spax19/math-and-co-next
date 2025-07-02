@@ -5,20 +5,9 @@ import { SignJWT } from "jose";
 
 export async function POST(request) {
   try {
-    // Parse JSON body
-    let body;
-    try {
-      body = await request.json();
-    } catch (e) {
-      return NextResponse.json(
-        { success: false, error: "Invalid JSON body" },
-        { status: 400 }
-      );
-    }
+    // 1. Parse and validate request
+    const { email, password } = await request.json();
 
-    const { email, password } = body;
-
-    // Validate input
     if (!email || !password) {
       return NextResponse.json(
         { success: false, error: "Email and password are required" },
@@ -26,9 +15,16 @@ export async function POST(request) {
       );
     }
 
-    // Database query
+    // 2. Verify JWT_SECRET is set
+    if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+      console.error("JWT_SECRET is not properly configured");
+      throw new Error("Server configuration error");
+    }
+
+    // 3. Database lookup
     const [user] = await query(
-      "SELECT id, email, password, userType, is_verified FROM users WHERE email = ?",
+      `SELECT id, email, password, userType, is_verified 
+       FROM users WHERE email = ?`,
       [email.toLowerCase().trim()]
     );
 
@@ -39,6 +35,7 @@ export async function POST(request) {
       );
     }
 
+    // 4. Check verification status
     if (!user.is_verified) {
       return NextResponse.json(
         {
@@ -50,7 +47,7 @@ export async function POST(request) {
       );
     }
 
-    // Password verification
+    // 5. Verify password
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       return NextResponse.json(
@@ -59,7 +56,7 @@ export async function POST(request) {
       );
     }
 
-    // Create JWT token
+    // 6. Create JWT token
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
     const token = await new SignJWT({
       userId: user.id,
@@ -70,7 +67,7 @@ export async function POST(request) {
       .setExpirationTime("24h")
       .sign(secret);
 
-    // Create response
+    // 7. Create and return response
     const response = NextResponse.json({
       success: true,
       user: {
@@ -80,29 +77,34 @@ export async function POST(request) {
       },
     });
 
-    // Set cookie
+    // Set secure cookie
     response.cookies.set({
       name: "auth-token",
       value: token,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24, // 1 day
+      sameSite: "lax", // Changed from 'strict' for better compatibility
+      maxAge: 60 * 60 * 24,
       path: "/",
     });
 
-    response.headers.set(
-      "Access-Control-Allow-Origin",
-      "https://yourdomain.com"
-    );
-    response.headers.set("Access-Control-Allow-Methods", "POST");
-
     return response;
-    
   } catch (error) {
     console.error("Login error:", error);
+
+    // Differentiate between client and server errors
+    if (error instanceof SyntaxError) {
+      return NextResponse.json(
+        { success: false, error: "Invalid request body" },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { success: false, error: "Internal server error" },
+      {
+        success: false,
+        error: error.message || "Internal server error",
+      },
       { status: 500 }
     );
   }

@@ -1,28 +1,25 @@
-// lib/db.js
-import mysql from "mysql2/promise";
+import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
 
-// Configuration with defaults
-const dbConfig = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  ssl: {
-    rejectUnauthorized: true,
-  },
+dotenv.config();
+
+// Create a connection pool
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'math-and-co',
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0,
-};
-
-console.log("Database configuration:", {
-  host: dbConfig.host,
-  user: dbConfig.user,
-  database: dbConfig.database,
+  queueLimit: 0
 });
 
-const pool = mysql.createPool(dbConfig);
-
+/**
+ * Execute a SQL query with parameters
+ * @param {string} sql - The SQL query string
+ * @param {Array} params - The parameters for the query
+ * @returns {Promise<Array|Object>} - The query results
+ */
 export async function query(sql, params) {
   let connection;
   try {
@@ -30,20 +27,34 @@ export async function query(sql, params) {
     const [rows] = await connection.execute(sql, params);
     return rows;
   } catch (error) {
-    console.error("Database error:", {
-      sql,
-      params,
-      error: error.message,
-    });
+    console.error('Database query error:', error);
     throw error;
   } finally {
     if (connection) connection.release();
   }
 }
 
-module.exports = {
-  query: async (sql, params) => {
-    const [rows] = await pool.query(sql, params);
-    return rows;
-  },
-};
+/**
+ * Execute a SQL query in a transaction
+ * @param {function} callback - The function containing queries to execute
+ * @returns {Promise} - The result of the transaction
+ */
+export async function transaction(callback) {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    await connection.beginTransaction();
+    
+    const result = await callback(connection);
+    await connection.commit();
+    
+    return result;
+  } catch (error) {
+    if (connection) await connection.rollback();
+    console.error('Transaction error:', error);
+    throw error;
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
