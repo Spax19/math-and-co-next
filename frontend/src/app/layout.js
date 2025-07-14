@@ -1,10 +1,8 @@
-
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ToastContainer, toast } from 'react-toastify';
 import { AuthProvider } from '../context/AuthContext';
 import ThemeWrapper from '../context/themeContext';
-
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +25,7 @@ export default function RootLayout({ children }) {
   // const [authMode, setAuthMode] = useState('login'); // 'login' or 'register
 
   return (
+
     <html lang="en">
       <head>
         <link
@@ -39,13 +38,13 @@ export default function RootLayout({ children }) {
       >
         <AuthProvider>
           <ThemeWrapper>
-            <ToastContainer
-              position="top-right"
-              autoClose={2500}
-              hideProgressBar={false}
-            />
+            <ToastContainer position="top-right" autoClose={2500} hideProgressBar={false} />
             {children}
-          
+            {/* <AuthModal 
+            isOpen={showAuthModal}
+            onClose={() => setShowAuthModal(false)}
+            defaultMode={authMode}
+          /> */}
           </ThemeWrapper>
         </AuthProvider>
       </body>

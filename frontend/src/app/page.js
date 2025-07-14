@@ -7,11 +7,10 @@ import Footer from "../components/footer";
 import Link from "next/link";
 import ProductModal from "../components/productModal";
 import Cart from "../components/cart";
-import { toast } from "react-toastify";
-import "./globals.css";
-import { useSearchParams } from "next/navigation";
+import { toast } from 'react-toastify';
+import './globals.css';
+import { useSearchParams } from 'next/navigation';
 import BookingModal from "../components/bookingModal";
-import ProfileCompletionModal from "../components/completeProfileModal";
 
 function MainComponentContent() {
   const [cart, setCart] = useState([]);
@@ -50,9 +49,9 @@ function MainComponentContent() {
   };
 
   const addToCart = (item) => {
-    setCart((prevCart) => {
+    setCart(prevCart => {
       const existingItemIndex = prevCart.findIndex(
-        (cartItem) => cartItem.id === item.id && !cartItem.isCase
+        cartItem => cartItem.id === item.id && !cartItem.isCase
       );
 
       if (existingItemIndex >= 0) {
@@ -71,7 +70,7 @@ function MainComponentContent() {
 
     // Show toast notification
     const existingItem = cart.find(
-      (cartItem) => cartItem.id === item.id && !cartItem.isCase
+      cartItem => cartItem.id === item.id && !cartItem.isCase
     );
 
     toast.success(
@@ -86,8 +85,7 @@ function MainComponentContent() {
             {existingItem ? "Added another" : "Added to cart"} {item.name}
           </p>
           <p className="text-sm">
-            R{item.price.toFixed(2)}{" "}
-            {item.case_price && `| Case: R${item.case_price.toFixed(2)}`}
+            R{item.price.toFixed(2)} {item.case_price && `| Case: R${item.case_price.toFixed(2)}`}
           </p>
           {existingItem && (
             <p className="text-xs text-gray-500">
@@ -122,7 +120,7 @@ function MainComponentContent() {
       phone: "",
       specialRequests: "",
       duration: experience.duration,
-      highlights: experience.highlights,
+      highlights: experience.highlights
     });
     setShowBookingModal(true);
   };
@@ -198,7 +196,7 @@ function MainComponentContent() {
       name: "MCC Brut Rosé",
       price: 604.35,
       case_image: "./images/MCC-Brut-Rose-Box.png",
-      case_price: 3626.1,
+      case_price: 3626.10,
       image_url: "./images/MCC-Brut-Rose.png",
       description: "Made from 60% Pinot Noir and 40% Chardonnay grapes.",
       rating: 5,
@@ -215,7 +213,7 @@ function MainComponentContent() {
       description: "Made from 60% Pinot Noir and 40% Chardonnay grapes.",
       isNew: true,
       case_image: "./images/MCC-Brut-Rose-Box.png",
-      case_price: 3000.0,
+      case_price: 3000.00,
       rating: 5,
       reviews: 112,
     },
@@ -229,7 +227,7 @@ function MainComponentContent() {
       rating: 3,
       reviews: 64,
       case_image: "./images/Brut-Box.png",
-      case_price: 3000.0,
+      case_price: 3000.00,
     },
   ];
 
@@ -288,8 +286,7 @@ function MainComponentContent() {
     {
       id: 1,
       name: "Tasting Room",
-      image:
-        "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Tasting%2520Room",
+      image: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Tasting%2520Room",
       description: "Guided tastings of our finest wines",
       type: "tasting",
       price: 150,
@@ -298,14 +295,13 @@ function MainComponentContent() {
       highlights: [
         "Sample 5 premium wines",
         "Learn tasting techniques",
-        "Vineyard views",
-      ],
+        "Vineyard views"
+      ]
     },
     {
       id: 2,
       name: "Vineyard Tours",
-      image:
-        "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Vineyard%2520Tours",
+      image: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Vineyard%2520Tours",
       description: "Walk through our historic vineyards",
       type: "tour",
       price: 150,
@@ -314,14 +310,13 @@ function MainComponentContent() {
       highlights: [
         "Guided vineyard walk",
         "Meet the winemaker",
-        "Includes tasting",
-      ],
+        "Includes tasting"
+      ]
     },
     {
       id: 3,
       name: "Wine Pairing",
-      image:
-        "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Wine%2520Pairing",
+      image: "https://e1a4c9d0d2f9f737c5e1.ucr.io/https://www.create.xyz/api/ai-img?prompt=Wine%2520Pairing",
       description: "Chef-curated food and wine experiences",
       type: "dining",
       price: 150,
@@ -330,19 +325,21 @@ function MainComponentContent() {
       highlights: [
         "5-course meal",
         "Premium wine pairings",
-        "Private dining room",
-      ],
-    },
+        "Private dining room"
+      ]
+    }
   ];
+
+
 
   // Changed from useLocation to useSearchParams for Next.js
   const searchParams = useSearchParams();
 
   useEffect(() => {
     // Check for verification success
-    const verified = searchParams.get("verified");
-    if (verified === "true") {
-      toast.success("Your account has been successfully verified!", {
+    const verified = searchParams.get('verified');
+    if (verified === 'true') {
+      toast.success('Your account has been successfully verified!', {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: false,
@@ -352,24 +349,13 @@ function MainComponentContent() {
       });
 
       // Clean up URL without refreshing
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         const url = new URL(window.location.href);
-        url.searchParams.delete("verified");
-        window.history.replaceState({}, "", url.toString());
+        url.searchParams.delete('verified');
+        window.history.replaceState({}, '', url.toString());
       }
     }
   }, [searchParams]);
-
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [userData, setUserData] = useState(null);
-
-  const handleLoginSuccess = (user) => {
-    setShowLogin(false);
-    if (!user.profileComplete) {
-      setShowProfileModal(true);
-      setUserData(user);
-    }
-  };
 
   return (
     <>
@@ -387,19 +373,20 @@ function MainComponentContent() {
               priority
             />
           </div>
-
-          <div className="hero-content">
-            <div className="hero-text-container">
-              <h1 className="hero-title">
-                The Taste of Nature.
-                <br />
-                Home of Carbernet.
-              </h1>
-              <Link href="./main/shop">
-                <button className="hero-button">Shop Our Wines</button>
-              </Link>
+          
+            <div className="hero-content">
+              <div className="hero-text-container">
+                <h1 className="hero-title">
+                  The Taste of Nature.
+                  <br />
+                  Home of Carbernet.
+                </h1>
+                <Link href="./main/shop">
+                  <button className="hero-button">Shop Our Wines</button>
+                </Link>
+              </div>
             </div>
-          </div>
+         
         </div>
 
         <main className="container px-4 mb-16 pt-4">
@@ -883,7 +870,11 @@ function MainComponentContent() {
               <div className="flex overflow-x-auto pb-6 experience-scroller">
                 <div className="flex space-x-8 min-w-max">
                   {experiences.map((exp) => (
-                    <div key={exp.id} className="experience-card">
+                    <div
+                      key={exp.id}
+                      className="experience-card"
+                      
+                    >
                       <div className="experience-image-container">
                         <img
                           src={exp.image}
@@ -1076,7 +1067,6 @@ function MainComponentContent() {
           isLoading={isLoading}
           onInputChange={handleInputChange}
         />
-        {showProfileModal && <ProfileCompletionModal />}
       </div>
 
       <Footer />
@@ -1093,8 +1083,7 @@ function FeaturedClients() {
 
     let scrollAmount = 0;
     const scrollSpeed = 0.5;
-    const scrollWidth =
-      scrollContainer.scrollWidth - scrollContainer.clientWidth;
+    const scrollWidth = scrollContainer.scrollWidth - scrollContainer.clientWidth;
 
     const scroll = () => {
       if (scrollAmount >= scrollWidth) {
@@ -1120,14 +1109,14 @@ function FeaturedClients() {
       requestAnimationFrame(scroll);
     };
 
-    scrollContainer.addEventListener("mouseenter", handleMouseEnter);
-    scrollContainer.addEventListener("mouseleave", handleMouseLeave);
+    scrollContainer.addEventListener('mouseenter', handleMouseEnter);
+    scrollContainer.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
       clearTimeout(scrollTimeout);
       cancelAnimationFrame(scroll);
-      scrollContainer.removeEventListener("mouseenter", handleMouseEnter);
-      scrollContainer.removeEventListener("mouseleave", handleMouseLeave);
+      scrollContainer.removeEventListener('mouseenter', handleMouseEnter);
+      scrollContainer.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, []);
 
@@ -1147,10 +1136,7 @@ function FeaturedClients() {
   ];
 
   return (
-    <section
-      className="mb-16 mt-16"
-      aria-label="Featured in these publications"
-    >
+    <section className="mb-16 mt-16" aria-label="Featured in these publications">
       <div className="text-center">
         <h2 className="section-title mb-2">Featured In</h2>
         <div
@@ -1180,6 +1166,7 @@ function FeaturedClients() {
   );
 }
 
+
 function TestimonialsSection() {
   const scrollContainerRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
@@ -1189,22 +1176,22 @@ function TestimonialsSection() {
     {
       text: "The finest wine experience in the region. Their Cabernet Sauvignon is absolutely exceptional!",
       author: "James W., Wine Club Member",
-      rating: 5,
+      rating: 5
     },
     {
       text: "Exceptional quality and service. The vineyard tour was educational and the tasting room was superb.",
       author: "Sarah M., Wine Enthusiast",
-      rating: 5,
+      rating: 5
     },
     {
       text: "Their MCC Brut Rosé is my go-to celebration wine. Perfect balance of flavor and bubbles!",
       author: "David T., Sommelier",
-      rating: 4,
+      rating: 4
     },
     {
       text: "The wine pairing dinner was an unforgettable experience. Each course complemented the wines perfectly.",
       author: "Emily R., Food Blogger",
-      rating: 5,
+      rating: 5
     },
   ];
 
@@ -1227,9 +1214,7 @@ function TestimonialsSection() {
       } else {
         scrollAmount += scrollSpeed;
         scrollContainer.scrollLeft = scrollAmount;
-        setActiveIndex(
-          Math.floor(scrollAmount / cardWidth) % testimonials.length
-        );
+        setActiveIndex(Math.floor(scrollAmount / cardWidth) % testimonials.length);
       }
       requestAnimationFrame(scroll);
     };
@@ -1264,40 +1249,31 @@ function TestimonialsSection() {
         onMouseLeave={() => setIsPaused(false)}
       >
         <div className="flex pb-6">
-          {[...testimonials, ...testimonials.slice(0, 1)].map(
-            (testimonial, index) => (
-              <div
-                key={`${testimonial.author}-${index}`}
-                className="testimonial-card flex-shrink-0 w-[90vw] sm:w-[80vw] md:w-[40vw] lg:w-[30vw] px-4"
-              >
-                <div className="bg-white p-8 rounded-lg shadow-lg h-full border border-gray-100">
-                  <div className="flex mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <i
-                        key={i}
-                        className={`fas fa-star ${
-                          i < testimonial.rating
-                            ? "text-[#d4b26a]"
-                            : "text-gray-300"
-                        } mr-1`}
-                        aria-hidden="true"
-                      ></i>
-                    ))}
-                  </div>
-                  <i
-                    className="fas fa-quote-left text-[#d4b26a] text-2xl mb-4 opacity-50"
-                    aria-hidden="true"
-                  ></i>
-                  <p className="text-gray-700 mb-6 text-lg leading-relaxed">
-                    {testimonial.text}
-                  </p>
-                  <p className="font-medium text-gray-900">
-                    - {testimonial.author}
-                  </p>
+          {[...testimonials, ...testimonials.slice(0, 1)].map((testimonial, index) => (
+            <div
+              key={`${testimonial.author}-${index}`}
+              className="testimonial-card flex-shrink-0 w-[90vw] sm:w-[80vw] md:w-[40vw] lg:w-[30vw] px-4"
+            >
+              <div className="bg-white p-8 rounded-lg shadow-lg h-full border border-gray-100">
+                <div className="flex mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <i
+                      key={i}
+                      className={`fas fa-star ${i < testimonial.rating ? 'text-[#d4b26a]' : 'text-gray-300'} mr-1`}
+                      aria-hidden="true"
+                    ></i>
+                  ))}
                 </div>
+                <i className="fas fa-quote-left text-[#d4b26a] text-2xl mb-4 opacity-50" aria-hidden="true"></i>
+                <p className="text-gray-700 mb-6 text-lg leading-relaxed">
+                  {testimonial.text}
+                </p>
+                <p className="font-medium text-gray-900">
+                  - {testimonial.author}
+                </p>
               </div>
-            )
-          )}
+            </div>
+          ))}
         </div>
 
         <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white to-transparent z-10"></div>
@@ -1309,9 +1285,7 @@ function TestimonialsSection() {
           <button
             key={index}
             onClick={() => goToTestimonial(index)}
-            className={`w-3 h-3 rounded-full transition-colors ${
-              index === activeIndex ? "bg-[#d4b26a] w-6" : "bg-gray-300"
-            }`}
+            className={`w-3 h-3 rounded-full transition-colors ${index === activeIndex ? 'bg-[#d4b26a] w-6' : 'bg-gray-300'}`}
             aria-label={`View testimonial from ${testimonials[index].author}`}
           />
         ))}

@@ -114,7 +114,7 @@ body {
   /* Darker gold on hover */
 }
 
-/*----------------------HOME PAGE----------------------------------- */
+/*HOME PAGE */
 /* Main Container Styles */
 .main-container {
   min-height: 100vh;
@@ -124,6 +124,7 @@ body {
 body.modal-open {
   overflow: hidden;
 }
+/* Hero Banner Styles */
 /* Hero Banner Styles */
 .hero-banner {
   position: relative;
@@ -234,7 +235,7 @@ body.modal-open {
   background-color: #c4a25a;
 }
 
-/*------------------------ Collection Card Styles -----------------------------*/
+/* Collection Card Styles */
 .collection-card {
   position: relative;
   height: 420px;
@@ -375,7 +376,7 @@ body.modal-open {
   box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
 }
 
-/* -----------------------------Product Card Styles------------------------------ */
+/* Product Card Styles */
 .product-card {
   background-color: #f9f9f9;
   padding: 1.5rem;
@@ -449,7 +450,7 @@ body.modal-open {
   background-color: #c4a25a;
 }
 
-/* --------------------------Sale Product Card Styles -----------------------------------*/
+/* Sale Product Card Styles */
 .sale-product-card {
   background-color: #f9f9f9;
   padding: 1.5rem;
@@ -505,7 +506,7 @@ body.modal-open {
   overflow: hidden;
 }
 
-/*---------------------------- Service Card Styles -----------------------------------*/
+/* Service Card Styles */
 .service-card {
   background-color: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(12px);
@@ -555,7 +556,7 @@ body.modal-open {
   background-color: #d4b26a;
 }
 
-/*------------------------ Experience Card Styles------------------------------------ */
+/* Experience Card Styles */
 .experience-card {
   background-color: #f9f9f9;
   border-radius: 0.5rem;
@@ -623,7 +624,7 @@ body.modal-open {
   transform: scale(1.05);
 }
 
-/*-------------------------- Education Section Styles------------------------------- */
+/* Education Section Styles */
 .education-section {
   background-color: #f9f9f9;
   padding: 1.5rem;
@@ -650,7 +651,7 @@ body.modal-open {
   color: #4b5563;
 }
 
-/*---------------------------- Newsletter Section Styles--------------------------------------*/
+/* Newsletter Section Styles */
 .newsletter-section {
   background-color: #1a1a1a;
   color: white;
@@ -684,7 +685,7 @@ body.modal-open {
   background-color: #c4a25a;
 }
 
-/* -----------------------------------Testimonial Card Styles------------------------------------- */
+/* Testimonial Card Styles */
 .testimonial-card {
   background-color: #f9f9f9;
   padding: 1.5rem;
@@ -783,7 +784,8 @@ body.modal-open {
   object-fit: contain;
 }
 
-/*------------------------------ABOUT PAGE*---------------------------*/
+/*ABOUT PAGE*/
+/* About Page Styles */
 .about-page {
   min-height: 100vh;
   background-color: white;
@@ -1221,7 +1223,7 @@ body.modal-open {
   color: #4b5563;
 }
 
-/* --------------------------------SHOP PAGE ------------------------------*/
+/* SHOP PAGE */
 .shop-hero {
   width: 100%;
   background: linear-gradient(to right, #d4b26a, black);
@@ -1477,7 +1479,7 @@ body.modal-open {
 }
 
 
-/*----------------------------- Events Page Styles -------------------------------------*/
+/* Events Page Styles */
 
 /* Event Type Filters */
 .event-type-filters {
@@ -2538,7 +2540,7 @@ body.modal-open {
   margin-top: 0.5rem;
 }
 
-/*--------------------------- Blog Page Styles------------------------------------- */
+/* Blog Page Styles */
 
 .blog-page {
   font-family: "Inter", sans-serif;
@@ -2971,7 +2973,7 @@ body.modal-open {
 }
 
 
-/* ----------------------------ADMIN DAHSBOARD -----------------------------------------*/
+/* ADMIN DAHSBOARD */
 .admin-container {
   display: flex;
   min-height: 100vh;
@@ -3186,7 +3188,7 @@ body.modal-open {
   font-weight: 600;
 }
 
-/*--------------------------BEVERAGES PAGE------------------------------------------ */
+/*BEVERAGES PAGE */
 .bevs-root {
   margin: 0;
   padding: 0;
