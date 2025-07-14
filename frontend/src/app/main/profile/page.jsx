@@ -42,13 +42,14 @@ export default function ProfilePage() {
         if (!response.ok) throw new Error("Failed to fetch profile");
 
         const data = await response.json();
+        
         setUserData({
           username: data.username,
           email: data.email,
           phone: data.phone || "",
           address: data.address || "",
-          avatar: data.avatar || "/default-avatar.png",
-          joinedDate: new Date(data.createdAt).toLocaleDateString(),
+          avatar: data.avatar || "./images/default-avatar.jpg",
+          joinedDate: new Date(data.joinedDate).toLocaleDateString(),
         });
         setOrders(data.orders || []);
       } catch (error) {
@@ -141,8 +142,10 @@ export default function ProfilePage() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
+   
+    toast.success("Logged out.");
     router.push("/");
-    toast.success("Logged out successfully");
+    window.location.href = "/";
   };
 
   const handleAvatarUpload = async (e) => {
@@ -196,7 +199,7 @@ export default function ProfilePage() {
   return (
     <>
       <Navbar cart={cart} setIsCartOpen={setIsCartOpen} />
-      <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 py-8 mt-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="bg-white rounded-xl shadow-md overflow-hidden">
             {/* Profile Header */}

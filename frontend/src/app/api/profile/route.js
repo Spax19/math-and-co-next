@@ -24,8 +24,8 @@ export async function GET(request) {
     COALESCE(phone, '') as phone, 
     COALESCE(address, '') as address, 
     CASE 
-      WHEN avatar IS NULL THEN '/default-avatar.png'
-      WHEN avatar = '' THEN '/default-avatar.png'
+      WHEN avatar IS NULL THEN '/images/default-avatar.jpg'
+      WHEN avatar = '' THEN '/images/default-avatar.jpg'
       ELSE avatar
       END as avatar,
       created_at as joinedDate

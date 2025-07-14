@@ -35,7 +35,7 @@ export async function createToken(user) {
   return await new SignJWT({
     userId: user.id,
     email: user.email,
-    role: user.userType,
+    role: user.role,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()

@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { query } from "../../../lib/db";
-import { verifyToken } from "../../../lib/auth";
+import { verifyToken, extractToken } from "../../../lib/auth"; 
 import bcrypt from "bcryptjs";
 
 export async function PUT(request) {
   try {
-    // Verify JWT token
-    const decoded = await verifyToken(request);
+    // 1. Extract the token from the request
+    const token = extractToken(request); //
+
+    // 2. Verify the token string
+    const decoded = await verifyToken(token);
     if (!decoded) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

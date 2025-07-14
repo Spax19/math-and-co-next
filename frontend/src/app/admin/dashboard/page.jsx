@@ -112,21 +112,21 @@ const Dashboard = () => {
 
   useEffect(() => {
     //Fetch all available distributors
-    const fetchDistributors = async () => {
-      try {
-        const response = await fetch('http://localhost:5174/get_distributors');
-        if (response.ok) {
-          const data = await response.json();
-          setDistributors(data);
-        } else {
-          toast.error('Error fetching distributors');
-        }
-      } catch (error) {
-        console.error('Error fetching distributors:', error);
-      }
-    };
+    //const fetchDistributors = async () => {
+     // try {
+    //     const response = await fetch('http://localhost:5174/get_distributors');
+    //     if (response.ok) {
+    //       const data = await response.json();
+    //       setDistributors(data);
+    //     } else {
+    //       toast.error('Error fetching distributors');
+    //     }
+    //   } catch (error) {
+    //     console.error('Error fetching distributors:', error);
+    //   }
+    // };
 
-    fetchDistributors();
+    // fetchDistributors();
 
     // Fetch the visit count when the component mounts
     // const getVisitCount = async () => {
@@ -319,9 +319,9 @@ const Dashboard = () => {
     }
   };
 
-  if (loading) {
-    return <LoadingSpinner/>;
-  }
+  // if (loading) {
+  //   return <LoadingSpinner/>;
+  // }
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);

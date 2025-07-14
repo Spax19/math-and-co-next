@@ -6,6 +6,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { useTheme } from "../hooks/useTheme";
+// AuthModal might still be used for other authentication flows if applicable,
+// but it won't be triggered by the Login/Register links directly anymore.
+// If AuthModal is only for Login/Register, you can remove this import entirely.
 import AuthModal from "./auth/authModal";
 import "./styles.css";
 
@@ -41,7 +44,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
   const [uiState, setUiState] = useState({
     isMenuOpen: false,
     isProfileOpen: false,
-    activeModal: null,
+    // activeModal: null, // Removed activeModal state since AuthModal is no longer triggered by Login/Register directly
   });
 
   const commonNavLinks = [
@@ -78,7 +81,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
     setUiState({
       isMenuOpen: false,
       isProfileOpen: false,
-      activeModal: null,
+      // activeModal: null, // Removed activeModal from closeAll
     });
   };
 
@@ -88,13 +91,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
     router.push("/");
   };
 
-  const toggleAuthModal = () => {
-    setUiState((prev) => ({
-      ...prev,
-      activeModal: "auth",
-      isProfileOpen: false,
-    }));
-  };
+  // Removed toggleAuthModal as we are no longer using it for Login/Register links
 
   return (
     <header
@@ -134,7 +131,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
 
         {/* Right-aligned Icons */}
         <div className="navbar__controls">
-          {/* Theme Toggle */}
+          {/* Theme Toggle (commented out in your original code, left as is) */}
           {/* <button
             onClick={toggleTheme}
             aria-label={`Switch to ${
@@ -179,7 +176,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
                 {isAuthenticated ? (
                   <>
                     <Link
-                      href="/profile"
+                      href="/main/profile"
                       className="navbar__dropdown-item"
                       onClick={closeAll}
                     >
@@ -205,13 +202,26 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
                     </button>
                   </>
                 ) : (
-                  <button
-                    onClick={toggleAuthModal}
-                    className="navbar__dropdown-item"
-                  >
-                    <i className="fas fa-sign-in-alt navbar__dropdown-icon"></i>{" "}
-                    Login
-                  </button>
+                  <>
+                    {/* Direct link to Register Page */}
+                    <Link
+                      href="../main/register" // Assuming your register page is at /register
+                      className="navbar__dropdown-item"
+                      onClick={closeAll} // Close dropdown after clicking
+                    >
+                      <i className="fas fa-user-plus navbar__dropdown-icon"></i>{" "}
+                      Register
+                    </Link>
+                    {/* Direct link to Login Page */}
+                    <Link
+                      href="../main/login" // Assuming your login page is at /login
+                      className="navbar__dropdown-item"
+                      onClick={closeAll} // Close dropdown after clicking
+                    >
+                      <i className="fas fa-sign-in-alt navbar__dropdown-icon"></i>{" "}
+                      Login
+                    </Link>
+                  </>
                 )}
               </div>
             )}
@@ -255,7 +265,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
                 {isAuthenticated ? (
                   <>
                     <Link
-                      href="/profile"
+                      href="/main/profile"
                       className="navbar__mobile-menu-item"
                       onClick={closeAll}
                     >
@@ -271,16 +281,26 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
                     </button>
                   </>
                 ) : (
-                  <button
-                    onClick={() => {
-                      toggleAuthModal();
-                      closeAll();
-                    }}
-                    className="navbar__mobile-menu-item"
-                  >
-                    <i className="fas fa-sign-in-alt navbar__mobile-menu-icon"></i>{" "}
-                    Login
-                  </button>
+                  <>
+                    {/* Direct link to Register Page in Mobile */}
+                    <Link
+                      href="../main/register" // Assuming your register page is at /register
+                      className="navbar__mobile-menu-item"
+                      onClick={closeAll} // Close dropdown after clicking
+                    >
+                      <i className="fas fa-user-plus navbar__mobile-menu-icon"></i>{" "}
+                      Register
+                    </Link>
+                    {/* Direct link to Login Page in Mobile */}
+                    <Link
+                      href="../main/login" // Assuming your login page is at /login
+                      className="navbar__mobile-menu-item"
+                      onClick={closeAll} // Close dropdown after clicking
+                    >
+                      <i className="fas fa-sign-in-alt navbar__mobile-menu-icon"></i>{" "}
+                      Login
+                    </Link>
+                  </>
                 )}
               </div>
             </div>
@@ -288,10 +308,10 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
         )}
       </nav>
 
-      {/* Auth Modal */}
-      {uiState.activeModal === "auth" && (
+      {/* Auth Modal - if it's still used for other flows, keep it. Otherwise, remove it. */}
+      {/* {uiState.activeModal === "auth" && (
         <AuthModal isOpen={true} onClose={closeAll} />
-      )}
+      )} */}
     </header>
   );
 };

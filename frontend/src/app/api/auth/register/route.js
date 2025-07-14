@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 
-const ALLOWED_USER_TYPES = ["user", "admin", "webadmin"];
+const ALLOWED_USER_TYPES = ["user", "admin", "web-admin"];
 
 export async function POST(request) {
   try {

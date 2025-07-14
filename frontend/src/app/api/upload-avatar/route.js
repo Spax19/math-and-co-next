@@ -1,6 +1,7 @@
+// src/app/api/upload-avatar/route.js
 import { NextResponse } from "next/server";
 import { query } from "../../../lib/db";
-import { verifyToken } from "../../../lib/auth";
+import { verifyToken, extractToken } from "../../../lib/auth"; 
 import fs from "fs";
 import path from "path";
 
@@ -12,8 +13,11 @@ export const config = {
 
 export async function POST(request) {
   try {
-    // Verify JWT token
-    const decoded = await verifyToken(request);
+    // 1. Extract the token from the request
+    const token = extractToken(request); // 
+
+    // 2. Verify the token string
+    const decoded = await verifyToken(token); 
     if (!decoded) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -25,7 +29,7 @@ export async function POST(request) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
-    // Validate file type and size
+    // Validate file type and size (client-side already does this, but good to have server-side too)
     if (!file.type.startsWith("image/")) {
       return NextResponse.json(
         { error: "Only image files are allowed" },
@@ -48,6 +52,14 @@ export async function POST(request) {
 
     // Generate unique filename
     const ext = path.extname(file.name);
+    // Ensure decoded.userId exists from the JWT payload
+    if (!decoded.userId) {
+      console.error("Decoded token is missing userId:", decoded);
+      return NextResponse.json(
+        { error: "Invalid token payload: missing userId" },
+        { status: 400 }
+      );
+    }
     const filename = `avatar-${decoded.userId}-${Date.now()}${ext}`;
     const filePath = path.join(uploadDir, filename);
 
@@ -67,8 +79,9 @@ export async function POST(request) {
     });
   } catch (error) {
     console.error("Avatar upload error:", error);
+    // Make sure to return specific error details from server if possible during dev
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", details: error.message }, // Added details for debugging
       { status: 500 }
     );
   }
