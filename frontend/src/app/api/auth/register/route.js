@@ -1,134 +1,110 @@
-import { query } from "../../../../lib/db";
-import bcrypt from "bcrypt";
+// src/app/api/auth/register/route.js
+import { connectToDB } from "../../../../lib/db";
+import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import nodemailer from "nodemailer";
+import { sendVerificationEmail } from "../../../../lib/email";
 
-const ALLOWED_USER_TYPES = ["user", "admin", "webadmin"];
+// Special admin passwords (store these in environment variables in production)
+const ADMIN_PASSWORD = "math-and-co-admin@123";
+const WEB_ADMIN_PASSWORD = "math-and-co-webadmin@123";
 
 export async function POST(request) {
   try {
     const { username, email, password, inviteCode } = await request.json();
 
-    // Input validation
-    if (!email || !email.includes("@")) {
-      return new Response(
-        JSON.stringify({ message: "Valid email is required" }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json" },
-        }
+    // Validate required fields
+    if (!username || !email || !password) {
+      return Response.json(
+        { success: false, message: "All fields are required" },
+        { status: 400 }
+      );
+    }
+
+    // Validate username (letters and spaces only, 2-50 chars)
+    if (!/^[a-zA-Z\s]{2,50}$/.test(username)) {
+      return Response.json(
+        { success: false, message: "Name must be 2-50 letters only" },
+        { status: 400 }
+      );
+    }
+
+    // Validate email format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return Response.json(
+        { success: false, message: "Please enter a valid email address" },
+        { status: 400 }
       );
     }
 
     // Check if email exists
-    const existingUser = await query("SELECT id FROM users WHERE email = ?", [
-      email,
-    ]);
+    const existingUser = await connectToDB(
+      "SELECT id FROM users WHERE email = ?",
+      [email]
+    );
+
     if (existingUser.length > 0) {
-      return new Response(JSON.stringify({ message: "Email already in use" }), {
-        status: 409,
-        headers: { "Content-Type": "application/json" },
-      });
+      return Response.json(
+        { success: false, message: "Email already in use" },
+        { status: 409 }
+      );
+    }
+
+    // Add this validation before userType determination
+    if (password.length < 8) {
+      return Response.json(
+        { success: false, message: "Password must be at least 8 characters" },
+        { status: 400 }
+      );
+    }
+
+    // Determine userType based on password
+    let userType = "user";
+    if (password === ADMIN_PASSWORD) {
+      userType = "admin";
+    } else if (password === WEB_ADMIN_PASSWORD) {
+      userType = "web-admin";
     }
 
     // Process registration
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
     const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    await query(
-      `INSERT INTO users (username, email, password, userType, verification_token, status)
-       VALUES (?, ?, ?, 'user', ?, 'inactive')`,
-      [username, email, hashedPassword, verificationToken]
+    await connectToDB(
+      `INSERT INTO users 
+             (username, email, password, userType, verification_token, verification_expires, status)
+             VALUES (?, ?, ?, ?, ?, ?, 'inactive')`,
+      [
+        username,
+        email,
+        hashedPassword,
+        userType,
+        verificationToken,
+        verificationExpires,
+      ]
     );
 
-    // Send verification email
-    if (process.env.EMAIL_HOST) {
-      await sendVerificationEmail(email, username, verificationToken);
-    }
+    // Send verification email with username
+    await sendVerificationEmail(email, username, verificationToken);
 
-    return new Response(
-      JSON.stringify({
+    return Response.json(
+      {
         success: true,
-        message: "Registration successful! Please check your email.",
-      }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
+        message:
+          "Registration successful! Please check your email to verify your account.",
+        email: email,
+        userType: userType, // Return the assigned user type
+      },
+      { status: 201 }
     );
   } catch (error) {
     console.error("Registration error:", error);
-    return new Response(
-      JSON.stringify({ message: "Registration failed. Please try again." }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+    return Response.json(
+      {
+        success: false,
+        message: error.message || "Registration failed. Please try again.",
+      },
+      { status: 500 }
     );
-  }
-}
-
-async function sendVerificationEmail(email, username, token) {
-  const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT || 587,
-    secure: process.env.EMAIL_SECURE === "true",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-
-  const verificationLink = `${process.env.NEXTAUTH_URL}/main/verify-email?token=${token}`;
-
-  const mailOptions = {
-    from: `"Math & Co" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
-    to: email,
-    subject: "Verify Your Email Address",
-    html: `  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #d4b26a;">Welcome to Math & Co!</h2>
-            <p>Hello ${username},</p>
-            <p>Please verify your email address by clicking the button below:</p>
-            <a href="${verificationLink}" 
-                style="display: inline-block; padding: 10px 20px; background-color: #d4b26a; 
-                color: white; text-decoration: none; border-radius: 5px; margin: 20px 0;">
-                Verify Email
-            </a>
-            <p>Or copy and paste this link into your browser:</p>
-            <p style="word-break: break-all;">${verificationLink}</p>
-            <p>If you didn't create an account with us, please ignore this email.</p>
-            </div>
-        `,
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-  } catch (emailError) {
-    console.error("Failed to send verification email:", emailError);
-    // Don't fail the registration if email fails
-  }
-}
-
-export async function GET(request) {
-  const { searchParams } = new URL(request.url);
-  const token = searchParams.get("token");
-
-  if (!token) {
-    return errorResponse(400, "Verification token is required");
-  }
-
-  try {
-    const user = await query(
-      "SELECT id FROM users WHERE verification_token = ?",
-      [token]
-    );
-
-    if (user.length === 0) {
-      return errorResponse(400, "Invalid or expired verification token");
-    }
-
-    await query(
-      "UPDATE users SET is_verified = TRUE, status = 'active', verification_token = NULL WHERE id = ?",
-      [user[0].id]
-    );
-
-    return successResponse("Email verified successfully!");
-  } catch (error) {
-    console.error("Verification error:", error);
-    return errorResponse(500, "Email verification failed");
   }
 }
