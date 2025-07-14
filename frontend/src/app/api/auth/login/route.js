@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query } from "../../../../lib/db";
+import { connectToDB } from "../../../../lib/db";
 import { createToken } from "../../../../lib/auth";
 import bcrypt from "bcryptjs";
 
@@ -16,7 +16,7 @@ export async function POST(request) {
     }
 
     // 2. Database lookup
-    const [user] = await query(
+    const [user] = await connectToDB(
       `SELECT id, email, password, userType as role, is_verified 
        FROM users WHERE email = ?`,
       [email.toLowerCase().trim()]
@@ -58,7 +58,7 @@ export async function POST(request) {
     });
 
     // Add this after successful login but before returning the response
-    const [profile] = await query(
+    const [profile] = await connectToDB(
       `SELECT phone, address FROM users WHERE id = ?`,
       [user.id]
     );
