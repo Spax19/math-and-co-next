@@ -89,8 +89,10 @@ const RegisterForm = ({ onSuccess, switchToLogin }) => {
             }
 
             // Success case
-            toast.success(data.message);
-            router.push('/');
+            //toast.success(data.message);
+            router.push(
+              "/main/verify-email?email=" + encodeURIComponent(formData.email)
+            );
 
             if (onSuccess) onSuccess();
 

@@ -1,5 +1,5 @@
 // app/api/auth/verify-email/route.js
-import { query } from '../../../../lib/db';
+import { connectToDB } from '../../../../lib/db';
 
 export async function GET(request) {
   try {
@@ -17,7 +17,7 @@ export async function GET(request) {
     }
 
     // Check if token exists
-    const [user] = await query(
+    const [user] = await connectToDB(
       'SELECT * FROM users WHERE verification_token = ?',
       [token]
     );
@@ -33,7 +33,7 @@ export async function GET(request) {
     }
 
     // Update user status
-    await query(
+    await connectToDB(
       `UPDATE users 
        SET is_verified = TRUE, status = 'active', verification_token = NULL 
        WHERE id = ?`,
