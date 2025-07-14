@@ -1,87 +1,120 @@
 "use client";
-import { useEffect, useState, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import VerificationModal from '../../../components/verificationModal';
-import { useRouter } from 'next/navigation';
-import LoadingSpinner from '../../../components/loadingSpinner';
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { toast } from "react-toastify";
+import Link from "next/link";
+import LoadingSpinner from "../../../components/loadingSpinner";
+import "react-toastify/dist/ReactToastify.css";
 
+function VerifyEmailContent() {
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email");
+  const [isResending, setIsResending] = useState(false);
+  const [countdown, setCountdown] = useState(60);
 
-function VerifyEmailPageContent() {
-    const searchParams = useSearchParams();
-    const token = searchParams.get('token');
-    const [verificationStatus, setVerificationStatus] = useState({
-        loading: true,
-        success: false,
-        message: ''
-    });
+  useEffect(() => {
+    if (email) {
+      toast.info(`Verification email sent to ${email}`);
+    }
+  }, [email]);
 
-    useEffect(() => {
-        const verifyToken = async () => {
-            try {
-                const response = await fetch(`/api/auth/verify-email?token=${token}`);
-                const data = await response.json();
+  useEffect(() => {
+    if (countdown > 0 && isResending) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (countdown === 0 && isResending) {
+      setIsResending(false);
+      setCountdown(60);
+    }
+  }, [countdown, isResending]);
 
-                if (response.ok) {
-                    setVerificationStatus({
-                        loading: false,
-                        success: true,
-                        message: 'Email verified successfully! You can now log in.'
-                    });
-                } else {
-                    throw new Error(data.message || 'Verification failed');
-                }
-            } catch (error) {
-                setVerificationStatus({
-                    loading: false,
-                    success: false,
-                    message: error.message || 'Invalid or expired verification link'
-                });
-            }
-        };
+  const handleResendEmail = async () => {
+    if (!email || isResending) return;
 
-        if (token) {
-            verifyToken();
-        } else {
-            setVerificationStatus({
-                loading: false,
-                success: false,
-                message: 'Missing verification token'
-            });
-        }
-    }, [token]);
-    const router = useRouter();
-    const handleClose = () => {
-        router.push('/'); // Redirect to home when modal closes
-    };
+    setIsResending(true);
+    setCountdown(60);
 
-    return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-            {/* Background page content (can be simple) */}
-            <div className="text-center p-8">
-                <h1 className="text-2xl font-bold mb-4">Email Verification</h1>
-                <p className="text-gray-600">
-                    {verificationStatus.loading
-                        ? 'Verifying your email...'
-                        : 'You can close this window now.'}
-                </p>
-            </div>
+    try {
+      const response = await fetch("/api/auth/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
-            {/* The modal that will pop up */}
-            {!verificationStatus.loading && (
-                <VerificationModal
-                    success={verificationStatus.success}
-                    message={verificationStatus.message}
-                    onClose={handleClose} // Close the tab/window when modal is closed
-                />
-            )}
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Verification email resent successfully!");
+      } else {
+        throw new Error(data.message || "Failed to resend email");
+      }
+    } catch (error) {
+      toast.error(error.message);
+      setIsResending(false);
+    }
+  };
+
+  return (
+    <div className="verify-email-container">
+      <div className="verify-email-card">
+        <div className="verify-email-icon">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+            />
+          </svg>
         </div>
-    );
+
+        <h1 className="verify-email-title">Verify Your Email</h1>
+
+        <p className="verify-email-description">
+          We've sent a verification link to{" "}
+          <span className="verify-email-highlight">{email}</span>. Please check
+          your inbox and click the link to complete your registration.
+        </p>
+
+        <div className="verify-email-notice">
+          <p className="verify-email-notice-text">
+            Didn't receive the email? Check your spam folder or{" "}
+            <button
+              onClick={handleResendEmail}
+              disabled={isResending}
+              className={`verify-email-resend-btn ${
+                isResending ? "verify-email-resend-btn-disabled" : ""
+              }`}
+            >
+              {isResending
+                ? `Resend in ${countdown}s`
+                : "resend verification email"}
+            </button>
+          </p>
+        </div>
+
+        <div className="verify-email-btn-group">
+          <Link href="/login" className="verify-email-primary-btn">
+            Back to Login
+          </Link>
+          <Link href="/" className="verify-email-secondary-btn">
+            Go to Homepage
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-export default function VerifyEmailPage() {
+export default function VerifyEmailSentPage() {
   return (
     <Suspense fallback={<LoadingSpinner />}>
-      <VerifyEmailPageContent />
+      <VerifyEmailContent />
     </Suspense>
   );
 }
