@@ -1,10 +1,12 @@
 "use client";
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
+import { loadStripe } from "@stripe/stripe-js";
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 const Cart = ({ isOpen, onClose, cart, setCart }) => {
     const router = useRouter();
-
+   
     const removeFromCart = (index) => {
         const newCart = [...cart];
         newCart.splice(index, 1);
@@ -24,9 +26,39 @@ const Cart = ({ isOpen, onClose, cart, setCart }) => {
         return cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0).toFixed(2);
     };
 
-    const handleCheckout = () => {
-        router.push('/checkout');
-        onClose();
+    const handleCheckout = async () => {
+      try {
+        // 1. Create a checkout session on your server
+        const response = await fetch("/api/checkout_sessions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(cart),
+        });
+
+        if (!response.ok) {
+          toast.error("Failed to create checkout session.");
+          return;
+        }
+
+        const session = await response.json();
+
+        // 2. Get Stripe.js instance
+        const stripe = await stripePromise;
+
+        // 3. Redirect to Stripe Checkout
+        const { error } = await stripe.redirectToCheckout({
+          sessionId: session.id,
+        });
+
+        if (error) {
+          toast.error(error.message);
+        }
+      } catch (err) {
+        toast.error("An unexpected error occurred.");
+        console.error(err);
+      }
     };
 
     if (!isOpen) return null;
