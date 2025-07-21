@@ -12,7 +12,7 @@ const PentagonPage = () => {
         reserve: [
             {
                 id: 1,
-                name: "Pentagon Reserve",
+                name: "Pentagon Classic Red",
                 price: 199.99,
                 image: "/images/pentagon-reserve.jpg",
                 description: "Our flagship blend with five distinct grape varieties",
