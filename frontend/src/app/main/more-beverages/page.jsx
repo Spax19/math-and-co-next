@@ -212,7 +212,7 @@ const contentConfig = {
         "We believe water should be consumed as nature intended - with its original mineral composition intact. Our proprietary bottling process ensures every bottle maintains the water's natural properties.",
         "Hydrology is committed to sustainable sourcing and carbon-neutral operations. For every bottle sold, we protect 10 square feet of watershed land.",
       ],
-      image: "/images/hydrology-about.jpg",
+      image: "/images/hydrology-glass.jpg",
     },
     products: {
       title: "Our Water Collection",
@@ -252,8 +252,8 @@ const contentConfig = {
     textColor: "#000",
     filters: [
       { id: "all", name: "All Flavors" },
-      { id: "citrus", name: "Citrus" },
-      { id: "berry", name: "Berry" },
+      { id: "brut", name: "Brut" },
+      { id: "brut", name: "Brut" },
     ],
 
     welcome: {
@@ -268,7 +268,7 @@ const contentConfig = {
         "Each Sphere product is crafted by our team of flavor scientists and nutritionists to deliver perfect balance - never too sweet, always refreshing.",
         "We partner with organic farms worldwide to source the freshest ingredients at peak seasonality.",
       ],
-      image: "/images/hydrology-about.jpg",
+      image: "/images/sphere-glasses.jpg",
     },
     products: {
       title: "Our Infused Collection",
