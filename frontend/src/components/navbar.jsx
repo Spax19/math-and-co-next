@@ -3,7 +3,7 @@ import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext"; // Assuming this context integrates with Firebase Auth
 import { useIsMobile } from "../hooks/useIsMobile";
 import { useTheme } from "../hooks/useTheme";
 import AuthModal from "./auth/authModal";
@@ -33,6 +33,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
+  // Assuming useAuth now provides user, isAuthenticated, isAdmin, isWebAdmin, and logout directly from Firebase
   const { user, isAuthenticated, isAdmin, isWebAdmin, logout } = useAuth();
   const pathname = usePathname();
   const isMobile = useIsMobile();
@@ -41,7 +42,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
   const [uiState, setUiState] = useState({
     isMenuOpen: false,
     isProfileOpen: false,
-    activeModal: null,
+    activeModal: null, // Used for showing auth modal
   });
 
   const commonNavLinks = [
@@ -82,17 +83,22 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
     });
   };
 
-  const handleLogout = () => {
-    logout();
-    closeAll();
-    router.push("/");
+  const handleLogout = async () => {
+    try {
+      await logout(); // Call the Firebase logout function from AuthContext
+      closeAll();
+      router.push("/");
+    } catch (error) {
+      console.error("Failed to log out:", error);
+      // Optionally show an error message to the user
+    }
   };
 
-  const toggleAuthModal = () => {
+  const toggleAuthModal = (modalType = "auth") => {
     setUiState((prev) => ({
       ...prev,
-      activeModal: "auth",
-      isProfileOpen: false,
+      activeModal: prev.activeModal === modalType ? null : modalType, // Toggle behavior
+      isProfileOpen: false, // Close profile dropdown when opening modal
     }));
   };
 
@@ -134,7 +140,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
 
         {/* Right-aligned Icons */}
         <div className="navbar__controls">
-          {/* Theme Toggle */}
+          {/* Theme Toggle (commented out as in original) */}
           {/* <button
             onClick={toggleTheme}
             aria-label={`Switch to ${
@@ -179,7 +185,7 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
                 {isAuthenticated ? (
                   <>
                     <Link
-                      href="/profile"
+                      href="/main/profile"
                       className="navbar__dropdown-item"
                       onClick={closeAll}
                     >
@@ -196,6 +202,16 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
                         Admin
                       </Link>
                     )}
+                    {isWebAdmin && ( // Added Web Admin link here too for desktop dropdown
+                      <Link
+                        href="/webAdmin/settings"
+                        className="navbar__dropdown-item"
+                        onClick={closeAll}
+                      >
+                        <i className="fas fa-cogs navbar__dropdown-icon"></i>{" "}
+                        Web Admin
+                      </Link>
+                    )}
                     <button
                       onClick={handleLogout}
                       className="navbar__dropdown-item"
@@ -205,8 +221,10 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
                     </button>
                   </>
                 ) : (
+                  // Firebase login typically uses a modal or a dedicated page.
+                  // This button will trigger the AuthModal.
                   <button
-                    onClick={toggleAuthModal}
+                    onClick={() => toggleAuthModal()}
                     className="navbar__dropdown-item"
                   >
                     <i className="fas fa-sign-in-alt navbar__dropdown-icon"></i>{" "}
@@ -255,13 +273,33 @@ const Navbar = ({ cart = [], setIsCartOpen }) => {
                 {isAuthenticated ? (
                   <>
                     <Link
-                      href="/profile"
+                      href="../app/main/profile"
                       className="navbar__mobile-menu-item"
                       onClick={closeAll}
                     >
                       <i className="fas fa-user-circle navbar__mobile-menu-icon"></i>{" "}
                       Profile
                     </Link>
+                    {isAdmin && ( // Added Admin link to mobile menu
+                      <Link
+                        href="/admin/dashboard"
+                        className="navbar__mobile-menu-item"
+                        onClick={closeAll}
+                      >
+                        <i className="fas fa-tachometer-alt navbar__mobile-menu-icon"></i>{" "}
+                        Admin
+                      </Link>
+                    )}
+                    {isWebAdmin && ( // Added Web Admin link to mobile menu
+                      <Link
+                        href="/webAdmin/settings"
+                        className="navbar__mobile-menu-item"
+                        onClick={closeAll}
+                      >
+                        <i className="fas fa-cogs navbar__mobile-menu-icon"></i>{" "}
+                        Web Admin
+                      </Link>
+                    )}
                     <button
                       onClick={handleLogout}
                       className="navbar__mobile-menu-item"

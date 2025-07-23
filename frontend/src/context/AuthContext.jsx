@@ -1,68 +1,62 @@
-// context/AuthContext.js
-'use client';
-import { createContext, useContext, useState, useEffect } from 'react';
-import { verifyToken } from '../lib/jwt';
-import { setToken, removeToken } from "../lib/auth/token.js";
+"use client"
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { auth } from "../firebase/config"; // Your Firebase app initialization
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
 const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
+
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isWebAdmin, setIsWebAdmin] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false); 
 
   useEffect(() => {
-    async function loadUser() {
-      try {
-        const token = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('auth-token='))
-          ?.split('=')[1];
-        
-        if (token) {
-          const userData = await verifyToken(token);
-          setUser(userData);
-        }
-      } catch (error) {
-        console.error('Failed to load user:', error);
-      } finally {
-        setLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      setIsAuthenticated(!!currentUser);
+      if (currentUser) {
+        // Refresh user token to get latest claims and emailVerified status
+        await currentUser.reload(); 
+        setEmailVerified(currentUser.emailVerified); 
+
+        const idTokenResult = await currentUser.getIdTokenResult();
+        setIsAdmin(idTokenResult.claims.admin || false);
+        setIsWebAdmin(idTokenResult.claims.webAdmin || false);
+      } else {
+        setIsAdmin(false);
+        setIsWebAdmin(false);
+        setEmailVerified(false); // Reset on logout
       }
-    }
-    
-    loadUser();
+      setLoading(false);
+    });
+
+    return unsubscribe;
   }, []);
 
-  const login = (userData) => {
-    setUser(userData);
-  };
-
   const logout = () => {
-    setUser(null);
-    removeToken();
+    return signOut(auth);
   };
 
   const value = {
     user,
+    isAuthenticated,
+    isAdmin,
+    isWebAdmin,
+    logout,
     loading,
-    isAuthenticated: !!user,
-    isAdmin: user?.userType === 'admin',
-    isWebAdmin: user?.userType === 'webadmin',
-    login,
-    logout
+    emailVerified, 
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
+    <AuthContext.Provider value={value}>
+      {!loading && children}
     </AuthContext.Provider>
   );
-}
-
-// Custom hook
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+};
