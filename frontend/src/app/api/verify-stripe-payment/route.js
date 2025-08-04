@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { admin } from "../../../firebase/firebaseAdmin"; // Firebase Admin SDK
+import nodemailer from "nodemailer"; // Import Nodemailer
 
 // Initialize Stripe with your secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -7,7 +8,34 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 // Get Firestore instance from Firebase Admin SDK
-const adminDb = admin.firestore(); // Use this for all Firestore operations in this file
+const adminDb = admin.firestore();
+
+// --- NEW: Nodemailer transporter setup ---
+// You will need to set up an email service account.
+// Here is an example using SendGrid's free tier.
+// You must store your API key in an environment variable.
+const transporter = nodemailer.createTransport({
+  host: "smtp.sendgrid.net",
+  port: 587,
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: "apikey", // This is the literal string "apikey" for SendGrid
+    pass: process.env.SENDGRID_API_KEY, // Your SendGrid API Key
+  },
+});
+
+// Alternatively, for a basic Gmail setup (less secure but works for testing):
+/*
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD, // Use an App Password, not your regular password
+    }
+});
+*/
+
+// --- END NEW ---
 
 export async function POST(request) {
   console.log(
@@ -19,47 +47,26 @@ export async function POST(request) {
 
   // 1. Verify Firebase ID Token (Security Critical)
   const authHeader = request.headers.get("authorization");
-  console.log("Auth Header:", authHeader ? "Present" : "Missing");
-
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    console.log("Unauthorized: No token provided or malformed header");
     return new Response(
       JSON.stringify({ message: "Unauthorized: No token provided." }),
       { status: 401 }
     );
   }
   const idToken = authHeader.split("Bearer ")[1];
-  console.log(
-    "ID Token extracted (first 20 chars):",
-    idToken ? idToken.substring(0, 20) + "..." : "Missing"
-  );
-
-  let userEmail; // Declare userEmail here to be accessible later
+  let userEmail;
 
   try {
-    console.log("Attempting to verify ID token with Firebase Admin SDK...");
     const decodedToken = await admin.auth().verifyIdToken(idToken);
-    console.log(
-      "ID Token verified. Decoded UID:",
-      decodedToken.uid,
-      "Expected UID:",
-      userId
-    );
-
     if (decodedToken.uid !== userId) {
-      console.log("Forbidden: Token UID does not match provided userId.");
       return new Response(
         JSON.stringify({ message: "Forbidden: Token does not match user." }),
         { status: 403 }
       );
     }
-    userEmail = decodedToken.email; // Get email from decoded token
-    console.log("User identity confirmed. User Email:", userEmail);
+    userEmail = decodedToken.email;
   } catch (error) {
-    console.error(
-      "Error verifying Firebase ID token in verify-stripe-payment:",
-      error
-    );
+    console.error("Error verifying Firebase ID token:", error);
     return new Response(
       JSON.stringify({ message: "Forbidden: Invalid or expired token." }),
       { status: 403 }
@@ -68,95 +75,57 @@ export async function POST(request) {
 
   try {
     // 2. Retrieve Stripe Checkout Session
-    console.log("Retrieving Stripe Checkout Session for ID:", sessionId);
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["line_items.data", "customer_details"], // Expand line items and customer details
+      expand: ["customer_details"],
     });
-    console.log(
-      "Stripe Session retrieved. Payment status:",
-      session.payment_status
-    );
-    console.log("Stripe Session Customer Details:", session.customer_details);
-    console.log("Stripe Session Metadata:", session.metadata); // Log metadata to inspect
 
     if (session.payment_status !== "paid") {
-      console.log("Payment status is not paid:", session.payment_status);
       return new Response(
         JSON.stringify({ message: "Payment not successful." }),
         { status: 400 }
       );
     }
 
-    // --- NEW: Get cart items and shipping details from session metadata ---
-    let cartItems = [];
-    let sessionShippingDetails = {};
-
-    if (session.metadata?.cartItems) {
-      try {
-        cartItems = JSON.parse(session.metadata.cartItems);
-        console.log("Cart items parsed from metadata:", cartItems);
-      } catch (e) {
-        console.error("Error parsing cartItems from metadata:", e);
-        return new Response(
-          JSON.stringify({
-            message: "Failed to parse cart items from payment session.",
-          }),
-          { status: 500 }
-        );
-      }
-    } else {
-      console.log("No cartItems found in session metadata.");
-      // Fallback: If metadata not available, you might still try to fetch from Firestore
-      // However, the goal here is to avoid that race condition.
-      // For now, we return an error if cartItems are not in metadata.
+    // 3. Fetch cart items and shipping details from Firestore
+    const checkoutSessionId = session.metadata?.checkoutSessionId;
+    if (!checkoutSessionId) {
       return new Response(
-        JSON.stringify({
-          message:
-            "Cart items missing from payment session metadata. Cannot save order.",
-        }),
+        JSON.stringify({ message: "Order data link missing." }),
         { status: 400 }
       );
     }
 
-    if (session.metadata?.shippingDetails) {
-      try {
-        sessionShippingDetails = JSON.parse(session.metadata.shippingDetails);
-        console.log(
-          "Shipping details parsed from metadata:",
-          sessionShippingDetails
-        );
-      } catch (e) {
-        console.error("Error parsing shippingDetails from metadata:", e);
-        return new Response(
-          JSON.stringify({
-            message: "Failed to parse shipping details from payment session.",
-          }),
-          { status: 500 }
-        );
-      }
+    const tempOrderDocRef = adminDb
+      .collection("stripe-checkout-sessions")
+      .doc(checkoutSessionId);
+    const tempOrderSnap = await tempOrderDocRef.get();
+    if (!tempOrderSnap.exists) {
+      return new Response(
+        JSON.stringify({ message: "Order data not found." }),
+        { status: 404 }
+      );
     }
-    // --- END NEW ---
 
-    const totalAmount = session.amount_total / 100; // Convert cents back to Rands
+    const orderDataFromFirestore = tempOrderSnap.data();
+    const cartItems = orderDataFromFirestore.cartItems;
+    const sessionShippingDetails = orderDataFromFirestore.shippingDetails;
 
-    // 4. Get user's profile for additional details (e.g., phone if not in Stripe session)
-    console.log("Fetching user profile from Firestore for UID:", userId);
+    const totalAmount = session.amount_total / 100;
+
+    // 4. Get user's profile for additional details
     const userDocRef = adminDb.collection("users").doc(userId);
     const userSnap = await userDocRef.get();
     const userData = userSnap.exists ? userSnap.data() : {};
-    console.log("User data fetched from Firestore:", userData);
 
-    // 5. Save Order to Firestore (using Admin SDK)
-    console.log("Attempting to save order to Firestore...");
+    // 5. Save Final Order to Firestore's 'orders' collection
     const ordersCollectionRef = adminDb.collection("orders");
-    const newOrderRef = ordersCollectionRef.doc(); // Let Firestore generate a new ID
+    const newOrderRef = ordersCollectionRef.doc();
 
-    const orderData = {
+    const finalOrderData = {
       orderId: newOrderRef.id,
       userId: userId,
       userEmail: userEmail,
       items: cartItems.map((item) => ({
-        // Use cartItems from metadata
         productId: item.id,
         name: item.name,
         quantity: item.quantity,
@@ -166,7 +135,6 @@ export async function POST(request) {
       totalAmount: totalAmount,
       currency: "ZAR",
       shippingAddress: {
-        // Prioritize Stripe's collected address, then metadata, then user profile
         fullName:
           session.customer_details?.name ||
           sessionShippingDetails.fullName ||
@@ -209,72 +177,77 @@ export async function POST(request) {
           userData.address?.country ||
           "ZA",
       },
-      orderDate: admin.firestore.FieldValue.serverTimestamp(), // Admin SDK server timestamp
-      deliveryDate: null, // To be set later, or estimated
-      status: "Processing", // Initial status
+      orderDate: admin.firestore.FieldValue.serverTimestamp(),
+      deliveryDate: null,
+      status: "Processing",
       paymentStatus: "Paid",
       stripeSessionId: sessionId,
-      stripePaymentIntentId: session.payment_intent, // Important for refunds/tracking
+      stripePaymentIntentId: session.payment_intent,
     };
 
-    await newOrderRef.set(orderData); // Admin SDK uses .set()
+    await newOrderRef.set(finalOrderData);
     console.log("Order saved to Firestore with ID:", newOrderRef.id);
 
-    // 6. Clear User's Cart in Firestore (using Admin SDK)
-    console.log("Attempting to clear user cart in Firestore...");
+    // 6. Clear User's Cart in Firestore
     const userCartDocRef = adminDb
       .collection("users")
       .doc(userId)
       .collection("cart")
       .doc("currentCart");
-    await userCartDocRef.delete(); // Admin SDK uses .delete()
+    await userCartDocRef.delete();
     console.log("User cart cleared.");
 
-    // 7. Trigger Confirmation Email (via Firebase Extension) (using Admin SDK)
-    console.log("Attempting to trigger confirmation email...");
-    const mailCollectionRef = adminDb.collection("mail");
-    await mailCollectionRef.add({
-      // Admin SDK uses .add() for new document with auto-ID
-      to: [userEmail],
-      message: {
-        subject: `Order Confirmation - Your Order #${newOrderRef.id}`,
-        html: `
-          <p>Dear ${orderData.shippingAddress.fullName || userEmail},</p>
-          <p>Thank you for your purchase! Your order <strong>#${
-            newOrderRef.id
-          }</strong> has been successfully placed.</p>
-          <h3>Order Details:</h3>
-          <ul>
-            ${cartItems
-              .map(
-                (item) =>
-                  `<li>${item.name} (Qty: ${item.quantity}) - R${(
-                    item.price * item.quantity
-                  ).toFixed(2)}</li>`
-              )
-              .join("")}
-          </ul>
-          <p><strong>Total Amount:</strong> R${totalAmount.toFixed(2)}</p>
-          <p><strong>Shipping Address:</strong><br/>
-          ${orderData.shippingAddress.fullName}<br/>
-          ${orderData.shippingAddress.addressLine1}<br/>
-          ${
-            orderData.shippingAddress.addressLine2
-              ? orderData.shippingAddress.addressLine2 + "<br/>"
-              : ""
-          }
-          ${orderData.shippingAddress.city}, ${
-          orderData.shippingAddress.state
-        } ${orderData.shippingAddress.zipCode}<br/>
-          ${orderData.shippingAddress.country}
-          </p>
-          <p>We will notify you once your order has been shipped. You can track your order status on your profile page.</p>
-          <p>Thank you for shopping with us!</p>
-          <p>The Math&Co. Team</p>
-        `,
-      },
-    });
-    console.log("Confirmation email trigger document created.");
+    // --- UPDATED: Send confirmation email directly with Nodemailer ---
+    const recipientEmail = finalOrderData.shippingAddress.email || userEmail;
+    console.log("Sending confirmation email to:", recipientEmail);
+
+    const mailOptions = {
+      from: `Math&Co. <${process.env.SENDER_EMAIL}>`, // Use a verified sender email
+      to: recipientEmail,
+      subject: `Order Confirmation - Your Order #${newOrderRef.id}`,
+      html: `
+        <p>Dear ${finalOrderData.shippingAddress.fullName || userEmail},</p>
+        <p>Thank you for your purchase! Your order <strong>#${
+          newOrderRef.id
+        }</strong> has been successfully placed.</p>
+        <h3>Order Details:</h3>
+        <ul>
+          ${cartItems
+            .map(
+              (item) =>
+                `<li>${item.name} (Qty: ${item.quantity}) - R${(
+                  item.price * item.quantity
+                ).toFixed(2)}</li>`
+            )
+            .join("")}
+        </ul>
+        <p><strong>Total Amount:</strong> R${totalAmount.toFixed(2)}</p>
+        <p><strong>Shipping Address:</strong><br/>
+        ${finalOrderData.shippingAddress.fullName}<br/>
+        ${finalOrderData.shippingAddress.addressLine1}<br/>
+        ${
+          finalOrderData.shippingAddress.addressLine2
+            ? finalOrderData.shippingAddress.addressLine2 + "<br/>"
+            : ""
+        }
+        ${finalOrderData.shippingAddress.city}, ${
+        finalOrderData.shippingAddress.state
+      } ${finalOrderData.shippingAddress.zipCode}<br/>
+        ${finalOrderData.shippingAddress.country}
+        </p>
+        <p>We will notify you once your order has been shipped. You can track your order status on your profile page.</p>
+        <p>Thank you for shopping with us!</p>
+        <p>The Math&Co. Team</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log("Confirmation email sent successfully via Nodemailer.");
+    // --- END UPDATED ---
+
+    // 7. Clean up the temporary document
+    await tempOrderDocRef.delete();
+    console.log("Temporary Firestore document deleted successfully.");
 
     return new Response(
       JSON.stringify({

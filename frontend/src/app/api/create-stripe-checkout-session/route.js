@@ -1,9 +1,9 @@
 import Stripe from "stripe";
-import { admin } from "../../../firebase/firebaseAdmin"; // Adjust path to firebaseAdmin.js
+import { admin } from "../../../firebase/firebaseAdmin"; // Import Admin SDK
 
 // Initialize Stripe with your secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2022-11-15", // Use a stable API version
+  apiVersion: "2022-11-15",
 });
 
 // Export a POST function to handle POST requests to this route
@@ -96,6 +96,23 @@ export async function POST(request) {
   }
 
   try {
+    // --- UPDATED: Use the Admin SDK's Firestore instance ---
+    console.log(
+      "Saving cart and shipping details to Firestore using Admin SDK..."
+    );
+    const firestore = admin.firestore(); // Get Firestore instance from Admin SDK
+    const sessionRef = await firestore
+      .collection("stripe-checkout-sessions")
+      .add({
+        userId,
+        userEmail,
+        cartItems,
+        shippingDetails,
+        createdAt: admin.firestore.FieldValue.serverTimestamp(), // Use server timestamp
+      });
+    console.log("Firestore document created with ID:", sessionRef.id);
+    // --- END UPDATED ---
+
     console.log("Attempting to create Stripe Checkout session...");
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -108,14 +125,7 @@ export async function POST(request) {
       customer_email: userEmail,
       metadata: {
         userId: userId,
-        // --- NEW: Store cart items and shipping details in metadata ---
-        cartItems: JSON.stringify(cartItems), // Stringify the array
-        shippingDetails: JSON.stringify(shippingDetails), // Stringify the object
-        // NOTE: Stripe metadata has a 500 character limit per key.
-        // For very large carts/details, consider storing a temporary Firestore document ID here
-        // and fetching the full data from that document in verify-stripe-payment.
-        // For typical e-commerce, this should be fine.
-        // --- END NEW ---
+        checkoutSessionId: sessionRef.id,
       },
       shipping_address_collection: {
         allowed_countries: ["ZA"],
@@ -124,9 +134,9 @@ export async function POST(request) {
     console.log("Stripe session created. Session ID:", session.id);
 
     return new Response(JSON.stringify({ id: session.id }), { status: 200 });
-    console.log("Response sent: 200 OK with session ID.");
   } catch (error) {
     console.error("Error creating Stripe Checkout session:", error);
+    // Return a proper error response to the client
     return new Response(
       JSON.stringify({
         message: error.message || "Error creating checkout session.",

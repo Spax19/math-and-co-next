@@ -1,15 +1,36 @@
-// src/app/layout.js
-
-// ... other imports
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ToastContainer, toast } from "react-toastify";
-import { AuthProvider } from "../context/AuthContext"; // <--- Make sure it's a NAMED import with curly braces
+import { AuthProvider } from "../context/AuthContext";
+import ThemeWrapper from "../context/themeContext";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata = {
+  title: "Math&Co",
+  description: "The Taste of Nature.",
+};
 
 export default function RootLayout({ children }) {
+  // const [showAuthModal, setShowAuthModal] = useState(false);
+  // const [authMode, setAuthMode] = useState('login'); // 'login' or 'register
+
   return (
     <html lang="en">
-      <head />
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+      </head>
       <body>
         <AuthProvider>
           <ToastContainer
