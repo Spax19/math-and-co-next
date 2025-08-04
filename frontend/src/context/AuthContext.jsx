@@ -1,21 +1,18 @@
-"use client"; // This must be at the very top of the file
+"use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { auth } from "../firebase/config"; // Your Firebase app initialization
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { initializeApp, getApps } from "firebase/app";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 
+
+// Create the Auth Context
 const AuthContext = createContext();
 
-// Create the custom hook for consuming the context
+// Create a custom hook to use the Auth Context
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+  return useContext(AuthContext);
 };
 
-// Create the Provider component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,26 +22,29 @@ export const AuthProvider = ({ children }) => {
   const [emailVerified, setEmailVerified] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      setIsAuthenticated(!!currentUser);
-      if (currentUser) {
-        // Refresh user token to get latest claims and emailVerified status
-        await currentUser.reload();
-        setEmailVerified(currentUser.emailVerified);
+    // onAuthStateChanged is client-side code. This check ensures it only runs in the browser.
+    if (typeof window !== "undefined") {
+      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        setUser(currentUser);
+        setIsAuthenticated(!!currentUser);
+        if (currentUser) {
+          // Refresh user token to get latest claims and emailVerified status
+          await currentUser.reload();
+          setEmailVerified(currentUser.emailVerified);
 
-        const idTokenResult = await currentUser.getIdTokenResult();
-        setIsAdmin(idTokenResult.claims.admin || false);
-        setIsWebAdmin(idTokenResult.claims.webAdmin || false);
-      } else {
-        setIsAdmin(false);
-        setIsWebAdmin(false);
-        setEmailVerified(false); // Reset on logout
-      }
-      setLoading(false);
-    });
+          const idTokenResult = await currentUser.getIdTokenResult();
+          setIsAdmin(idTokenResult.claims.admin || false);
+          setIsWebAdmin(idTokenResult.claims.webAdmin || false);
+        } else {
+          setIsAdmin(false);
+          setIsWebAdmin(false);
+          setEmailVerified(false); // Reset on logout
+        }
+        setLoading(false);
+      });
 
-    return unsubscribe;
+      return () => unsubscribe();
+    }
   }, []);
 
   const logout = () => {
@@ -67,3 +67,5 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+export default AuthProvider;
