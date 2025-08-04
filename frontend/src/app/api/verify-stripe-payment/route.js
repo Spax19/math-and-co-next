@@ -19,7 +19,7 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false, // true for 465, false for other ports
   auth: {
-    user: "apikey", // This is the literal string "apikey" for SendGrid
+    user: "NEXT_PUBLIC_FIREBASE_API_KEY", // This is the literal string "apikey" for SendGrid
     pass: process.env.SENDGRID_API_KEY, // Your SendGrid API Key
   },
 });
