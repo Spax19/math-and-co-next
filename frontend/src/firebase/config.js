@@ -25,7 +25,7 @@ if (typeof window !== "undefined" && !getApps().length) {
   }
 }
 
-export default firebase_app;
+export default app;
 export const auth = app ? getAuth(app) : null;
-export const db = getFirestore(firebase_app);
-export const storage = getStorage(firebase_app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
