@@ -12,7 +12,7 @@ const AuthContext = createContext(null);
 export const useAuth = () => useContext(AuthContext);
 
 // The Auth Provider component
-export default function AuthProvider({ children }) {
+export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
