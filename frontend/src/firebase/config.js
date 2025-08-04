@@ -17,12 +17,20 @@ const firebaseConfig = {
 
 // Initialize Firebase only if there are no existing apps
 let app;
-if (typeof window !== "undefined" && !getApps().length) {
-  try {
-    app = initializeApp(firebaseConfig);
-  } catch (error) {
-    console.error("Firebase initialization error", error);
-  }
+if (typeof window !== "undefined") {
+  app = new Promise(async (resolve, reject) => {
+    try {
+      const { initializeApp, getApps } = await import("firebase/app");
+      const app = !getApps().length
+        ? initializeApp(firebaseConfig)
+        : getApps()[0];
+      const auth = getAuth(app);
+      resolve(auth);
+    } catch (error) {
+      console.error("Firebase initialization failed:", error);
+      reject(error);
+    }
+  });
 }
 
 export default app;

@@ -26,11 +26,8 @@ const nextConfig = {
     ],
     minimumCacheTTL: 60,
   },
-  serverExternalPackages: ["firebase-admin"],
-  experimental: {
-    serverComponentsExternalPackages: ["mysql2", "bcryptjs"],
-  },
-  //
+
+ 
 
   eslint: {
     dirs: ["pages", "utils"], // Only run ESLint on the 'pages' and 'utils' directories during production builds (next build)
