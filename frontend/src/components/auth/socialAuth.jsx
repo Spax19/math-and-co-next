@@ -1,67 +1,34 @@
 "use client";
 import { toast } from "react-toastify";
-import { auth } from "../../firebase/config"; // Adjust path as needed
 import {
   GoogleAuthProvider,
   OAuthProvider,
-  signInWithPopup,
+  signInWithRedirect, // <-- Changed from signInWithPopup
 } from "firebase/auth";
+import { auth } from "../../firebase/config"; // Adjust path as needed
 
-const SocialAuth = ({ onSuccess }) => {
+const SocialAuth = () => {
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
-      toast.success("Signed in with Google successfully!");
-      if (onSuccess) {
-        onSuccess(); // Close modal on success
-      }
+      // Initiates the redirect flow. The user is taken away from your app.
+      await signInWithRedirect(auth, provider);
     } catch (error) {
       console.error("Google Sign-In Error:", error);
-      let errorMessage = "Failed to sign in with Google.";
-      if (error.code === "auth/popup-closed-by-user") {
-        errorMessage = "Sign-in window closed. Please try again.";
-      } else if (error.code === "auth/cancelled-popup-request") {
-        errorMessage = "Sign-in request already in progress. Please wait.";
-      } else if (
-        error.code === "auth/account-exists-with-different-credential"
-      ) {
-        errorMessage =
-          "An account with this email already exists using a different sign-in method.";
-      }
-      toast.error(errorMessage);
+      // This catch block will only handle errors that happen BEFORE the redirect.
+      // E.g., if the provider is not configured.
+      toast.error("Failed to initiate Google sign-in.");
     }
   };
 
   const handleAppleSignIn = async () => {
-    // Note: Apple Sign-In requires specific configuration in Firebase and Apple Developer Console.
-    // It's recommended to test this thoroughly.
-    // For web, it often requires a custom OAuth flow or specific domain setup.
-    // Ensure your Firebase project is configured for Apple Sign-In.
     const provider = new OAuthProvider("apple.com");
     try {
-      await signInWithPopup(auth, provider);
-      toast.success("Signed in with Apple successfully!");
-      if (onSuccess) {
-        onSuccess(); // Close modal on success
-      }
+      // Initiates the redirect flow for Apple.
+      await signInWithRedirect(auth, provider);
     } catch (error) {
       console.error("Apple Sign-In Error:", error);
-      let errorMessage = "Failed to sign in with Apple.";
-      if (error.code === "auth/popup-closed-by-user") {
-        errorMessage = "Sign-in window closed. Please try again.";
-      } else if (error.code === "auth/cancelled-popup-request") {
-        errorMessage = "Sign-in request already in progress. Please wait.";
-      } else if (
-        error.code === "auth/account-exists-with-different-credential"
-      ) {
-        errorMessage =
-          "An account with this email already exists using a different sign-in method.";
-      } else if (error.code === "auth/unauthorized-domain") {
-        errorMessage =
-          "Apple Sign-In is not authorized for this domain. Check Firebase configuration.";
-      }
-      toast.error(errorMessage);
+      toast.error("Failed to initiate Apple sign-in.");
     }
   };
 

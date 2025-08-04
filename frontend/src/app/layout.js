@@ -1,8 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import { AuthProvider } from "../context/AuthContext";
 import ThemeWrapper from "../context/themeContext";
+import RedirectResultHandler from "./RedirectResultHandler"; // <-- Import the new component
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,9 +21,6 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-  // const [showAuthModal, setShowAuthModal] = useState(false);
-  // const [authMode, setAuthMode] = useState('login'); // 'login' or 'register
-
   return (
     <html lang="en">
       <head>
@@ -30,10 +28,10 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         />
-        
       </head>
       <body>
         <AuthProvider>
+          <RedirectResultHandler /> {/* <-- Render the new handler here */}
           <ToastContainer
             position="top-right"
             autoClose={2500}
