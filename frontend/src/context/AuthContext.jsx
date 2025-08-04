@@ -5,67 +5,63 @@ import { initializeApp, getApps } from "firebase/app";
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 
 
-// Create the Auth Context
-const AuthContext = createContext();
+// Create a Context for the auth state
+const AuthContext = createContext(null);
 
-// Create a custom hook to use the Auth Context
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+// Custom hook to use the auth state
+export const useAuth = () => useContext(AuthContext);
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isWebAdmin, setIsWebAdmin] = useState(false);
-  const [emailVerified, setEmailVerified] = useState(false);
+// The Auth Provider component
+export default function AuthProvider({ children }) {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // onAuthStateChanged is client-side code. This check ensures it only runs in the browser.
-    if (typeof window !== "undefined") {
-      const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-        setUser(currentUser);
-        setIsAuthenticated(!!currentUser);
-        if (currentUser) {
-          // Refresh user token to get latest claims and emailVerified status
-          await currentUser.reload();
-          setEmailVerified(currentUser.emailVerified);
+    // This effect runs only once on the client to handle authentication
+    useEffect(() => {
+        // Sign in with the provided custom token or anonymously
+        const authenticate = async () => {
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Firebase auth error:", error);
+            }
+        };
 
-          const idTokenResult = await currentUser.getIdTokenResult();
-          setIsAdmin(idTokenResult.claims.admin || false);
-          setIsWebAdmin(idTokenResult.claims.webAdmin || false);
-        } else {
-          setIsAdmin(false);
-          setIsWebAdmin(false);
-          setEmailVerified(false); // Reset on logout
-        }
-        setLoading(false);
-      });
+        const unsubscribe = onAuthStateChanged(auth, (authUser) => {
+            setUser(authUser);
+            setLoading(false);
+        });
 
-      return () => unsubscribe();
+        authenticate();
+
+        // Cleanup the subscription on unmount
+        return () => unsubscribe();
+    }, []);
+
+    // Provide the user, auth, and db objects via context
+    const value = {
+        user,
+        loading,
+        auth,
+        db
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <p>Loading...</p>
+            </div>
+        );
     }
-  }, []);
 
-  const logout = () => {
-    return signOut(auth);
-  };
+    return (
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    );
+}
 
-  const value = {
-    user,
-    isAuthenticated,
-    isAdmin,
-    isWebAdmin,
-    logout,
-    loading,
-    emailVerified,
-  };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
-};
-
-export default AuthProvider;
