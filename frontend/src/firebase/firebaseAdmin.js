@@ -1,41 +1,44 @@
-import * as admin from "firebase-admin";
+// src/lib/firebaseAdmin.js
 
-console.log("Firebase Admin SDK: Attempting initialization...");
+import admin from "firebase-admin";
 
+// Check if the Firebase Admin SDK is already initialized to prevent errors
+// in development or with serverless function restarts.
 if (!admin.apps.length) {
   try {
-    const privateKey = process.env.FIREBASE_PRIVATE_KEY;
-    console.log("FIREBASE_PROJECT_ID:", process.env.FIREBASE_PROJECT_ID);
-    console.log("FIREBASE_CLIENT_EMAIL:", process.env.FIREBASE_CLIENT_EMAIL);
-    console.log(
-      "FIREBASE_PRIVATE_KEY loaded:",
-      privateKey ? "YES (length: " + privateKey.length + ")" : "NO"
-    );
-    // console.log('FIREBASE_PRIVATE_KEY content (first 50 chars):', privateKey ? privateKey.substring(0, 50) : 'N/A'); // Be careful not to log the whole key in production
+    // Reconstruct the service account credentials object from environment variables.
+    const serviceAccount = {
+      type: process.env.FIREBASE_TYPE,
+      project_id: process.env.FIREBASE_PROJECT_ID,
+      private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+      private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"), // Handle newlines
+      client_email: process.env.FIREBASE_CLIENT_EMAIL,
+      client_id: process.env.FIREBASE_CLIENT_ID,
+      auth_uri: process.env.FIREBASE_AUTH_URI,
+      token_uri: process.env.FIREBASE_TOKEN_URI,
+      auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_CERT_URL,
+      client_x509_cert_url: process.env.FIREBASE_CLIENT_CERT_URL,
+      universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
+    };
 
-    if (
-      !process.env.FIREBASE_PROJECT_ID ||
-      !process.env.FIREBASE_CLIENT_EMAIL ||
-      !privateKey
-    ) {
-      throw new Error("Missing Firebase Admin SDK environment variables!");
-    }
-
+    // Initialize the Admin SDK with the reconstructed credentials.
     admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: privateKey.replace(/\\n/g, "\n"), // Handle newline characters
-      }),
-      databaseURL: process.env.FIREBASE_DATABASE_URL,
+      credential: admin.credential.cert(serviceAccount),
     });
-    console.log("Firebase Admin SDK: Successfully initialized.");
+
+    console.log("Firebase Admin SDK successfully initialized.");
   } catch (error) {
-    console.error("Firebase Admin SDK: Initialization FAILED!", error);
-    // You might want to throw the error or handle it gracefully
+    console.error(
+      "Firebase Admin SDK Initialization FAILED! Error:",
+      error.message
+    );
+    // Vercel deployment will fail if these variables are missing.
+    // The `if` check above prevents re-initialization on subsequent requests.
+    if (!process.env.FIREBASE_PROJECT_ID) {
+      console.error("Missing Firebase Admin SDK environment variables!");
+    }
   }
-} else {
-  console.log("Firebase Admin SDK: Already initialized.");
 }
 
+// Export the initialized admin object for use in other files.
 export { admin };
