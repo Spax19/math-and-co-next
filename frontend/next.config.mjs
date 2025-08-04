@@ -26,7 +26,7 @@ const nextConfig = {
     ],
     minimumCacheTTL: 60,
   },
-
+  serverExternalPackages: ["firebase-admin"],
   experimental: {
     serverComponentsExternalPackages: ["mysql2", "bcryptjs"],
   },
