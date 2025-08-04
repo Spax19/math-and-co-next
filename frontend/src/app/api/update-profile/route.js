@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query } from "../../../lib/db";
+import { connectToDB } from "../../../lib/db";
 import { verifyToken } from "../../../lib/auth";
 
 export async function PUT(request) {
@@ -21,7 +21,7 @@ export async function PUT(request) {
     }
 
     // Update user data
-    await query(
+    await connectToDB(
       `UPDATE users 
        SET username = ?, email = ?, phone = ?, address = ?
        WHERE id = ?`,

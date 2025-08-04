@@ -1,5 +1,5 @@
 // app/api/auth/resend-verification/route.js
-import { query } from "../../../../lib/db";
+import { connectToDB } from "../../../../lib/db";
 import { sendVerificationEmail } from "../../../../lib/email";
 
 export async function POST(request) {
@@ -9,7 +9,7 @@ export async function POST(request) {
   const newToken = crypto.randomBytes(32).toString("hex");
   const newExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-  await query(
+  await connectToDB(
     `UPDATE users 
          SET verification_token = ?, verification_expires = ?
          WHERE email = ?`,

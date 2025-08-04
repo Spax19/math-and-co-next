@@ -1,6 +1,6 @@
 // src/app/api/profile/route.js
 import { NextResponse } from "next/server";
-import { query } from "../../../lib/db";
+import { connectToDB } from "../../../lib/db";
 import { getCurrentUser, verifyToken } from "../../../lib/auth";
 
 export async function GET(request) {
@@ -16,7 +16,7 @@ export async function GET(request) {
 
     // 2. Fetch user profile data
     // In your route handler
-    const [profile] = await query(
+    const [profile] = await connectToDB(
       `SELECT 
     id, 
     username, 
@@ -42,7 +42,7 @@ export async function GET(request) {
     }
 
     // 3. Fetch recent orders (optional)
-    const orders = await query(
+    const orders = await connectToDB(
       `SELECT 
         id, 
         order_number as orderNumber, 
@@ -88,7 +88,7 @@ export async function PUT(request) {
     }
 
     // 3. Update profile
-    await query(
+    await connectToDB(
       `UPDATE users 
        SET username = ?, email = ?, phone = ?, address = ?
        WHERE id = ?`,
@@ -96,7 +96,7 @@ export async function PUT(request) {
     );
 
     // 4. Return updated profile
-    const [updatedProfile] = await query(
+    const [updatedProfile] = await connectToDB(
       `SELECT username, email, phone, address 
        FROM users WHERE id = ?`,
       [user.id]

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query } from "../../../lib/db";
+import { connectToDB } from "../../../lib/db";
 import { verifyToken } from "../../../lib/auth";
 import fs from "fs";
 import path from "path";
@@ -56,7 +56,7 @@ export async function POST(request) {
     fs.writeFileSync(filePath, Buffer.from(buffer));
 
     // Update user avatar in database
-    await query("UPDATE users SET avatar = ? WHERE id = ?", [
+    await connectToDB("UPDATE users SET avatar = ? WHERE id = ?", [
       `/uploads/${filename}`,
       decoded.userId,
     ]);

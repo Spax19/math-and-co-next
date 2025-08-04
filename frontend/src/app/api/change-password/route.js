@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query } from "../../../lib/db";
+import { connectToDB } from "../../../lib/db";
 import { verifyToken } from "../../../lib/auth";
 import bcrypt from "bcryptjs";
 
@@ -22,9 +22,10 @@ export async function PUT(request) {
     }
 
     // Get current password hash
-    const [user] = await query("SELECT password FROM users WHERE id = ?", [
-      decoded.userId,
-    ]);
+    const [user] = await connectToDB(
+      "SELECT password FROM users WHERE id = ?",
+      [decoded.userId]
+    );
 
     // Verify current password
     const isMatch = await bcrypt.compare(currentPassword, user.password);
@@ -39,7 +40,7 @@ export async function PUT(request) {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Update password
-    await query("UPDATE users SET password = ? WHERE id = ?", [
+    await connectToDB("UPDATE users SET password = ? WHERE id = ?", [
       hashedPassword,
       decoded.userId,
     ]);

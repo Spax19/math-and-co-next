@@ -1,7 +1,7 @@
 // lib/auth.js
 import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
-import { query } from "./db";
+import { connectToDB } from "./db";
 import { SignJWT, jwtVerify } from "jose";
 
 const SALT_ROUNDS = 12;
@@ -17,7 +17,7 @@ export async function verifyPassword(password, hash) {
 export async function createSession(userId) {
   const token = uuidv4();
   const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7); // 1 week
-  await query(
+  await connectToDB(
     "INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)",
     [userId, token, expiresAt]
   );
@@ -112,7 +112,7 @@ export async function getCurrentUser(request) {
       return null;
     }
 
-    const [user] = await query(
+    const [user] = await connectToDB(
       'SELECT id, username, email, userType FROM users WHERE id = ? AND status = "active"',
       [payload.userId]
     );
