@@ -15,9 +15,15 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-// Initialize Firebase
-let firebase_app =
-  getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+// Initialize Firebase only if there are no existing apps
+let app;
+if (typeof window !== "undefined" && !getApps().length) {
+  try {
+    app = initializeApp(firebaseConfig);
+  } catch (error) {
+    console.error("Firebase initialization error", error);
+  }
+}
 
 export default firebase_app;
 export const auth = getAuth(firebase_app); // <--- Export the auth instance
